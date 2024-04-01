@@ -1,0 +1,85 @@
+{% extends 'ipams/base.html' %}
+{% load crispy_forms_tags %}
+{% block head %}
+<style>
+</style>
+{% endblock %}
+{% block footer %}
+	<script>
+//------------------------importing spreadsheet----------------------------------------------
+		$("#btn-import").on("click", function(){
+			if($("#file-import").get(0).files.length>0){
+				Swal.fire({
+				  title: 'Import Spreadsheet',
+				  html: 'importing... ',
+				  allowOutsideClick: false,
+				  onBeforeOpen: () => {
+				   	Swal.showLoading()
+				   	$("#form-import").submit();
+				  },
+				});
+			}
+			else{
+				Swal.fire({
+				  type: 'warning',
+				  title: 'No File Chosen',
+				  showConfirmButton: true,
+				})
+			}
+		});
+
+//--------------------------adjust datatables header--------------------------------
+	$('a[data-toggle="tab"]').on('shown.bs.tab', function(e){
+	   $($.fn.dataTable.tables(true)).DataTable()
+	      .columns.adjust();
+	});
+
+	</script>
+{% endblock %}
+
+{% block content %}
+	<div class="container">
+		<div class="main-header base-bg-secondary bordered-radius-top">
+		</div>
+		
+		<section id="home-upload" class="main-content">
+			<h2 class="ml-3">Import Records</h2>
+			<hr>
+			<h4 class="ml-3">Instructions - Migrate records with spread sheet</h1>
+			<div class="row">
+				<div class="col-lg-8 mt-1">
+					
+					<ol>
+						<li>Follow the data entry format which can be viewed <a href="{% url 'records-download-format' %}">HERE</a>.</li>
+						<li>When adding a new entry to a section, simply duplicate the record row and replace the existing section with the new entry.</li>
+						<li>The migration stops when they read a merged cell that contains END OF RECORDS.</li>
+						<li>After the format is thoroughly followed, Press GENERATE to add the records.</li>
+					</ol>
+				</div>
+				
+				<div class="col-lg-7 ml-3">	
+					<form id="form-import" action="{% url 'records-upload' %}" method="POST" enctype="multipart/form-data">
+						{% csrf_token %}
+						<div class="custom-file">
+							<input type="file" class="custom-file-input" id="customFile">
+							<label class="custom-file-label" for="customFile">Choose file</label>
+						</div>
+						<div class="row">
+							<div class="col-12 d-flex " style="margin-top:20px">
+								<button id="btn-import" type="button" class="btn base-btn base-bg-secondary">Generate</button>
+							</div>
+						</div>
+					</form>
+				</div>	
+				<hr>
+				<div class="col-lg-11 ml-3">
+					<label>Logs: </label>
+					<textarea rows="5" class="form-control" value="Logs" style="width: 1000px">{{ logs }}</textarea>	
+				</div>
+				
+			</div>
+		</section>
+	</div>
+
+
+{% endblock %}
