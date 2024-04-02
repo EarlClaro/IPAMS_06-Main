@@ -61,6 +61,11 @@
         #div_id_username{
             margin-right: 10px;
         }
+
+        .modal-header gold{
+            background-color: white;
+            color: #ffbf00;
+        }
     </style>
 </head>
 <body>
@@ -476,8 +481,8 @@
                 <div class="modal-content">
                     <form method="post" action="{% url 'accounts-change-password' %}" id="change-password-form">
                         {% csrf_token %}
-                        <div class="modal-header base-bg-primary">
-                            <h5 class="modal-title">Change Password</h5>
+                        <div class="modal-header gold">
+                            <h5 class="modal-title" style="color: #ffbf00;">Change Password</h5>
                             <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                                 <span aria-hidden="true">&times;</span>
                             </button>
