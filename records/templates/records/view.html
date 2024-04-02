@@ -2,10 +2,55 @@
 {% load crispy_forms_tags %}
 {% load custom_tags %}
 {% block footer %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+
 <style>
     hr{
 	border-top: 1px solid black !important;
     }
+
+    .blur-effect {
+    filter: blur(4px);
+}
+
+.abstract-preview {
+    position: relative;
+    overflow: hidden;
+    max-height: 200px; /* Adjust based on your needs */
+    padding-bottom: 30px; /* Add padding to make space for the message */
+}
+
+.blur-effect {
+    filter: blur(4px);
+}
+.abstract-preview {
+    position: relative;
+    overflow: hidden;
+    max-height: 250px; /* Adjust based on your needs and the length of the abstract */
+    padding-bottom: 50px; /* Add more padding to accommodate the message */
+}
+
+.blur-effect {
+    filter: blur(4px);
+    margin-bottom: 20px; /* Add margin to push content up above the absolute element */
+}
+
+.access-limited-msg {
+    position: relative;
+    bottom: 0;
+    width: 100%; /* Span the full width of the container */
+    background-color:#fbbb0c; /* Message background color */
+    color: black;
+    padding: 10px; /* Adjust padding as needed */
+    box-sizing: border-box; /* Include padding in the height calculation */
+    text-align: center; /* Center the text */
+}
+
+/* Optional: Style for the non-blurred introductory part of the abstract */
+.abstract-intro {
+    max-height: 100px; /* Adjust based on your needs */
+    overflow: hidden;
+}
 </style>
 <script>
 $(document).ready(function(){
@@ -254,7 +299,7 @@ Swal.fire({
                 {% if download_request_sent %}
                 <div class="tooltip-wrapper" data-toggle="tooltip" title="Users can only edit if status is set to removable"><a href="#" class="view request-download-btn" data-record-id="{{ record.id }}" data-user-id="{{ user.id }}" data-role-id="{{ role.id }}"><button class="btn base-btn float-right base-bg-secondary" disabled>Send download request</button></a></div>
                 {% else %}
-                <a href="#"><button class="btn base-btn float-right base-bg-secondary">Send download request</button></a>
+                <a href="#"><button class="btn base-btn float-right base-bg-secondary">Send download request TESTING</button></a>
                 {% endif %}
             {% endif %}
         </div>
@@ -292,9 +337,24 @@ Swal.fire({
             </div>
         </div>
         <hr>
-        <div class="abstract-info">
-                <div class="text-bold mb-1">Abstract:</div>
-                {{ record.abstract|safe }}
-        </div>
-    </div>
+        <div class="container">
+          <div class="row">
+              <div class="col">
+                  <div class="abstract-preview">
+                    <div class="text-bold mb-1">Abstract:</div>
+                      <!-- Optional: Display a non-blurred introduction to the abstract -->
+                      <div class="abstract-intro">
+                          {{ record.abstract|truncatewords:40|safe }}
+                      </div>
+                      <!-- Apply blur effect to the entire abstract section -->
+                      <div class="blur-effect">
+                          {{ record.abstract|safe }}
+                      </div>
+                  </div>
+                  <div class="access-limited-msg">
+                      <i class="fas fa-lock"></i><br> Access Limited. Requires permissions.
+                  </div>
+              </div>
+          </div>
+      </div>
 {% endblock %}
