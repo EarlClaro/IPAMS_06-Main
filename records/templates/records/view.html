@@ -2,10 +2,56 @@
 {% load crispy_forms_tags %}
 {% load custom_tags %}
 {% block footer %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+
 <style>
-    hr{
-	border-top: 1px solid black !important;
+.action-buttons {
+        display: flex;
+        justify-content: flex-end;
+        align-items: center;
     }
+
+      .action-buttons > a,
+  .action-buttons > button {
+      margin-left: 10px; /* Spacing between buttons */
+      width: 100%; /* Set a fixed width for the buttons */
+      /* OR you can use padding */
+      /* padding: 10px 20px; */ /* Top and bottom padding 10px, left and right padding 20px */
+      /* If you use padding, remove the width property to allow the buttons to size with their content */
+  }
+
+  /* Additional style to make sure text doesn't wrap if buttons are smaller than the text content */
+  .action-buttons > a > button,
+  .action-buttons > button {
+      white-space: nowrap; /* Prevent text wrapping */
+      overflow: hidden; /* Prevent content from spilling out */
+      text-overflow: ellipsis; /* Add an ellipsis if the text is too long to fit */
+  }
+
+  @keyframes nalcModalAnimation {
+    from {
+        transform: scale(0);
+        opacity: 0;
+        transform-origin: bottom right;
+    }
+    to {
+        transform: scale(1);
+        opacity: 1;
+        transform-origin: bottom right;
+    }
+}
+
+/* Apply the animation to the modal dialog */
+#nalcSummaryModal .modal-dialog {
+    animation-name: nalcModalAnimation;
+    animation-duration: 0.5s; /* Control the speed of the animation */
+}
+
+/* Ensure the modal is above other elements */
+#nalcSummaryModal {
+    z-index: 1055;
+}
+
 </style>
 <script>
 $(document).ready(function(){
@@ -238,6 +284,17 @@ Swal.fire({
     }
 })
 });
+
+$(document).ready(function(){
+
+    // Attach click event listener to the Summarize button
+    $('#summarizeButton').click(function() {
+        // Show the modal
+        $('#nalcSummaryModal').modal('show');
+    });
+
+});
+
 	</script>
 {% endblock %}
 
@@ -247,16 +304,17 @@ Swal.fire({
         <div class="col-9">
             <div class="text-primary text-bold h2">Published Record</div>
         </div>
-        <div class="col-3">
+        <div class="col-3 action-buttons">
             {% if download_approval %}
             <a href="#" data-record-id="{{ record.id }}" data-user-id="{{ user.id }}" data-role-id="{{ role.id }}"><button class="btn base-btn base-bg-primary">Download Paper - {{ record.abstract_filesize|filesizeformat }}</button></a>
             {% else %}
                 {% if download_request_sent %}
                 <div class="tooltip-wrapper" data-toggle="tooltip" title="Users can only edit if status is set to removable"><a href="#" class="view request-download-btn" data-record-id="{{ record.id }}" data-user-id="{{ user.id }}" data-role-id="{{ role.id }}"><button class="btn base-btn float-right base-bg-secondary" disabled>Send download request</button></a></div>
                 {% else %}
-                <a href="#"><button class="btn base-btn float-right base-bg-secondary">Send download request</button></a>
+                <a href="#"><button class="btn base-btn float-right base-bg-secondary">Send download request </button></a>
                 {% endif %}
             {% endif %}
+            <a href="javascript:void(0);" id="summarizeButton"><button class="btn base-btn float-left base-bg-secondary">Summarize</button></a>
         </div>
     </div>
     <div class="row ml-0 mt-2">
@@ -292,9 +350,49 @@ Swal.fire({
             </div>
         </div>
         <hr>
-        <div class="abstract-info">
-                <div class="text-bold mb-1">Abstract:</div>
-                {{ record.abstract|safe }}
+        <div class="container">
+          <div class="row">
+              <div class="col">
+                  <div class="abstract-preview">
+                    <div class="text-bold mb-1">Abstract:</div>
+            
+                          {{ record.abstract|safe }}
+                  </div>
+  
+              </div>
+              <div class="chatbot-button" style="position: fixed; bottom: 20px; right: 20px; background-color: #ffbf00; color: #fff; width: 100px; height: 100px; border-radius: 50%; display: flex; justify-content: center; align-items: center; cursor: pointer; box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1); z-index: 999;">
+                <span style="margin-right: 5px; font-size: 16px; color: maroon;">NALC   </span>
+                
+                <i class="fa fa-comment fa-lg" style="font-size: 36px;"></i>
+                
+
+                
+                </div>
+          </div>
+      </div>
+      <!-- NALC Summary Modal -->
+      <div class="modal fade" id="nalcSummaryModal" tabindex="-1" aria-labelledby="nalcSummaryModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="nalcSummaryModalLabel">Abstract Summary</h5>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+            <div class="modal-body">
+              <p id="abstractSummary">
+                <!-- Dummy text -->
+                Lorem ipsum dolor sit amet, consectetur adipiscing elit...
+              </p>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            </div>
+          </div>
         </div>
+      </div>
     </div>
+  </div>
+</div>
 {% endblock %}
