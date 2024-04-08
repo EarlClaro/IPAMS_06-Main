@@ -28,6 +28,30 @@
       text-overflow: ellipsis; /* Add an ellipsis if the text is too long to fit */
   }
 
+  @keyframes nalcModalAnimation {
+    from {
+        transform: scale(0);
+        opacity: 0;
+        transform-origin: bottom right;
+    }
+    to {
+        transform: scale(1);
+        opacity: 1;
+        transform-origin: bottom right;
+    }
+}
+
+/* Apply the animation to the modal dialog */
+#nalcSummaryModal .modal-dialog {
+    animation-name: nalcModalAnimation;
+    animation-duration: 0.5s; /* Control the speed of the animation */
+}
+
+/* Ensure the modal is above other elements */
+#nalcSummaryModal {
+    z-index: 1055;
+}
+
 </style>
 <script>
 $(document).ready(function(){
@@ -260,6 +284,17 @@ Swal.fire({
     }
 })
 });
+
+$(document).ready(function(){
+
+    // Attach click event listener to the Summarize button
+    $('#summarizeButton').click(function() {
+        // Show the modal
+        $('#nalcSummaryModal').modal('show');
+    });
+
+});
+
 	</script>
 {% endblock %}
 
@@ -279,7 +314,7 @@ Swal.fire({
                 <a href="#"><button class="btn base-btn float-right base-bg-secondary">Send download request </button></a>
                 {% endif %}
             {% endif %}
-            <a href="javascript:summarizeAbstract();"><button class="btn base-btn float-left base-bg-secondary">Summarize </button></a>
+            <a href="javascript:void(0);" id="summarizeButton"><button class="btn base-btn float-left base-bg-secondary">Summarize</button></a>
         </div>
     </div>
     <div class="row ml-0 mt-2">
@@ -330,7 +365,34 @@ Swal.fire({
                 
                 <i class="fa fa-comment fa-lg" style="font-size: 36px;"></i>
                 
+
+                
                 </div>
           </div>
       </div>
+      <!-- NALC Summary Modal -->
+      <div class="modal fade" id="nalcSummaryModal" tabindex="-1" aria-labelledby="nalcSummaryModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="nalcSummaryModalLabel">Abstract Summary</h5>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+            <div class="modal-body">
+              <p id="abstractSummary">
+                <!-- Dummy text -->
+                Lorem ipsum dolor sit amet, consectetur adipiscing elit...
+              </p>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
 {% endblock %}
