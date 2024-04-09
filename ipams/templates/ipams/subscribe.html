@@ -1,0 +1,29 @@
+{% extends 'ipams/base.html' %}
+{% load crispy_forms_tags %}
+{% load static %}
+
+{% block head %}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Subscription Page</title>
+    <!-- Add any additional meta tags here -->
+
+    <!-- Link to your CSS file -->
+    <link rel="stylesheet" type="text/css" href="{% static 'css/subscription.css' %}">
+</head>
+{% endblock %}
+
+{% block content %}
+    <h1>Welcome to Our Subscription Page!</h1>
+    <p>Subscribe to our service to get access to exclusive content and updates.</p>
+
+    <!-- Add subscription form or any other content here -->
+    
+    <!-- Example subscription form -->
+    <form action="{% url 'subscribe' %}" method="post">
+        {% csrf_token %}
+        <label for="email">Email:</label>
+        <input type="email" id="email" name="email" required>
+        <button type="submit">Subscribe</button>
+    </form>
+{% endblock %}

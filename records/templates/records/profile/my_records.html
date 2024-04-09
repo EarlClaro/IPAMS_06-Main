@@ -3,75 +3,170 @@
 {% block footer %}
 <style>
     .dataTables_wrapper .dataTables_paginate .paginate_button {
-        margin-top: 60px !important
-	}
-
-    .dataTables_wrapper .dataTables_info{
-
-        margin-top: 60px !important
+        margin-top: 60px !important;
     }
-</style>
-<script>
-$(document).ready(function(){
-    function getAllMyRecords(){
-        var userRecordsTbl;
-        userRecordsTbl = $("#tbl-user-records").DataTable({
-            "ajax":	{
-                "headers": { "X-CSRFToken": '{{ csrf_token }}' },
-                "url": "/records/user/getMyRecordsList/",
-                "type": "post",
-            },
-            // When deferred rendering is enabled, rather than having DataTables create all TR and TD nodes required for the table when the data is loaded, DataTables will only create the nodes required for each individual row at the time of that row being drawn on the page (these nodes are then retained in case they are needed again so they aren't created multiple times). This can give a significant performance increase, since a lot less work is done at initialisation time.
-            "deferRender": true,
-            "scrollX": true,
-            "responsive": true,
-            "columnDefs": [
-                {
-                    "targets": [ 0 ],
-                    "visible": false,
-                    "searchable": false
-                },
-            ],
-            "order": [[ 0, "desc" ]]
-        });
-    }
-    getAllMyRecords();
-});
 
-function checkStatusClick(role, recordId){
-    $.ajax({
-    headers: { "X-CSRFToken": '{{ csrf_token }}' },
-    type: "post",
-    data: { role: role, recordId: recordId },
-    url: "/records/user/getComment/",   
-    success: function(data) {
-        if (data && data.status) {
-            comments = "";
-            for(var i=0; i<data["date_created"].length; i++){
-                comments+='<div class="card" style="background-color:#dbdbdb; margin-bottom:10px;"><div class="card-body"><p class="card-text">'+data["comment"][i]+'</p><h6 class="card-subtitle mb-2 text-muted">'+data["date_created"][i]+'</h6></div></div>';
-            }
-            $("#checked-status-comment").html(comments);
-            $("#checked-status-title").html(data.status);
-            $("#checked-status-checkedby").val(data.username);
-        }
-        else {
-            $("#checked-status-title").html('');
-            $("#checked-status-checkedby").val('');
-            $("#checked-status-comment").html('<div class="text-danger">Record has not been evaluated by user</div>');
-        }
-        $("#checked-status-modal").modal("show");
-    },
-    error: function(xhr, status, error) {
-        console.log("Error:", error);
+    .dataTables_wrapper .dataTables_info {
+        margin-top: 60px !important;
     }
-});
+
+    /* Chatbot Button */
+    .chatbot-button {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        background-color: #8B0000;
+        color: #FFD700;
+        width: 120px;
+        height: 120px;
+        border-radius: 50%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        cursor: pointer;
+        box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+        z-index: 999;
+        font-family: Arial, sans-serif;
+        font-weight: bold;
+    }
+
+    /* Chatbot Popup */
+.chatbot-popup {
+    position: fixed;
+    bottom: calc(100px + 20px); /* Adjust the bottom value as needed */
+    right: 20px;
+    width: 320px;
+    max-height: calc(100vh - 200px); /* Limit height to prevent clipping */
+    overflow-y: auto; /* Enable vertical scrolling if content exceeds height */
+    background-color: #FFD700;
+    border: 1px solid #8B0000;
+    border-radius: 10px;
+    padding: 20px;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+    display: none;
+    font-family: Arial, sans-serif;
+    font-size: 16px;
+    z-index: 1000; /* Ensure the chatbot popup is above other content */
 }
 
 
-    </script>
+    /* Chatbot Header */
+    .chatbot-header {
+        font-size: 20px;
+        font-weight: bold;
+        color: #8B0000;
+        margin-bottom: 20px;
+    }
+
+    /* Chatbot Messages */
+    .chatbot-messages {
+        height: 200px;
+        overflow-y: auto;
+        border: 1px solid #8B0000;
+        padding: 10px;
+        margin-bottom: 20px;
+        background-color: #FFDAB9;
+        border-radius: 5px;
+    }
+
+    /* Chatbot Input */
+    .chatbot-input {
+        width: calc(100% - 24px);
+        padding: 10px;
+        border: 1px solid #8B0000;
+        border-radius: 5px;
+        margin-right: 10px;
+        font-size: 16px;
+        color: #8B0000;
+    }
+
+    /* Chatbot Input Focus */
+    .chatbot-input:focus {
+        outline: none;
+    }
+</style>
+
+<script>
+    $(document).ready(function () {
+        function getAllMyRecords() {
+            var userRecordsTbl;
+            userRecordsTbl = $("#tbl-user-records").DataTable({
+                "ajax": {
+                    "headers": { "X-CSRFToken": '{{ csrf_token }}' },
+                    "url": "/records/user/getMyRecordsList/",
+                    "type": "post",
+                },
+                "deferRender": true,
+                "scrollX": true,
+                "responsive": true,
+                "columnDefs": [
+                    {
+                        "targets": [0],
+                        "visible": false,
+                        "searchable": false
+                    },
+                ],
+                "order": [[0, "desc"]]
+            });
+        }
+        getAllMyRecords();
+    });
+
+    function checkStatusClick(role, recordId) {
+        $.ajax({
+            headers: { "X-CSRFToken": '{{ csrf_token }}' },
+            type: "post",
+            data: { role: role, recordId: recordId },
+            url: "/records/user/getComment/",
+            success: function (data) {
+                if (data && data.status) {
+                    comments = "";
+                    for (var i = 0; i < data["date_created"].length; i++) {
+                        comments += '<div class="card" style="background-color:#dbdbdb; margin-bottom:10px;"><div class="card-body"><p class="card-text">' + data["comment"][i] + '</p><h6 class="card-subtitle mb-2 text-muted">' + data["date_created"][i] + '</h6></div></div>';
+                    }
+                    $("#checked-status-comment").html(comments);
+                    $("#checked-status-title").html(data.status);
+                    $("#checked-status-checkedby").val(data.username);
+                }
+                else {
+                    $("#checked-status-title").html('');
+                    $("#checked-status-checkedby").val('');
+                    $("#checked-status-comment").html('<div class="text-danger">Record has not been evaluated by user</div>');
+                }
+                $("#checked-status-modal").modal("show");
+            },
+            error: function (xhr, status, error) {
+                console.log("Error:", error);
+            }
+        });
+    }
+
+    function toggleChatbotPopup() {
+        var popup = document.getElementById("chatbot-popup");
+        if (popup.style.display === "none" || popup.style.display === "") {
+            popup.style.display = "block";
+        } else {
+            popup.style.display = "none";
+        }
+    }
+</script>
 {% endblock %}
 
 {% block content %}
+<!-- Chatbot button -->
+<div class="chatbot-button" onclick="toggleChatbotPopup()">
+    <span style="font-size: 24px; color: white;">NALC</span>
+    <i class="fa fa-comment fa-lg" style="font-size: 36px; color: #FFD700;"></i>
+</div>
+
+<!-- Chatbot popup -->
+<div id="chatbot-popup" class="chatbot-popup">
+    <div class="chatbot-header">IPAMS Chatbot</div>
+    <div class="chatbot-messages"></div>
+    <input type="text" class="chatbot-input" placeholder="Type your message here...">
+</div>
+
+<!-- Existing content -->
 <div class="container">
     <div class="main-header base-bg-secondary bordered-radius-top">
     </div>
@@ -96,22 +191,21 @@ function checkStatusClick(role, recordId){
             </div>
         </div>
     </div>
-    </div>
 </div>
-<!------------                                 MODAL                                              -------------------->
+
+<!-- Modal -->
 <div class="modal fade" id="checked-status-modal" tabindex="-1" role="dialog" aria-hidden="true">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header base-bg-secondary">
-                
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close" >
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
             <div class="modal-body">
                 <div class="row ml-3">
                     <h5 class="text-primary">Evaluation - <span class="modal-title" id="checked-status-title"></span></h5>
-                    <hr style="border-top: 2px solid black;"/>
+                    <hr style="border-top: 2px solid black;">
                 </div>
                 <div class="container">
                     <div class="row">
@@ -128,7 +222,7 @@ function checkStatusClick(role, recordId){
                 </div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal" >Close</button>
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
             </div>
         </div>
     </div>
