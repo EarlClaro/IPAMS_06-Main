@@ -110,7 +110,7 @@ DATABASES = {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'ipamsdjango',
         'USER': 'root',
-        'PASSWORD': 'July82001Cl@ro',
+        'PASSWORD': 'Moplex-storm123',
         'PORT': '3306',
         'HOST': 'localhost',
         'OPTIONS': {
