@@ -358,6 +358,31 @@ $("#btn-uploads-back").on("click", function(){
     $("#uploads").show();
     $("#uploads-title").hide();
 });
+function getRandomPercentage() {
+        // Generate a random number between 1 and 100
+        var randomNumber = Math.floor(Math.random() * 100) + 1;
+        return randomNumber + "%";
+    }
+
+    function changeText() {
+        var button = document.getElementById("myButton");
+        var popup = document.getElementById("popup");
+        var changedText = document.getElementById("changedText");
+        
+        // Show processing popup
+        popup.classList.add("visible");
+
+        // Simulate processing time (You can replace this with actual asynchronous operations)
+        setTimeout(function() {
+            // Hide processing popup and show result
+            popup.classList.remove("visible");
+            changedText.innerText = getRandomPercentage();
+            changedText.classList.remove("hidden");
+
+            // Hide button after showing the result
+            button.style.display = "none";
+        }, 2000); // Change this time to match your processing time (in milliseconds)
+    }
 </script>
 {% endblock %}
 
@@ -366,6 +391,45 @@ $("#btn-uploads-back").on("click", function(){
     <div class="row ml-2">
         <div class="col-4">
             <div class="text-primary text-bold h2">Evaluation</div>
+            <div class="buttonn">
+                <button id="myButton" class="myButton" onclick="changeText()">AI Detection</button>
+            <div id="popup" class="popup hidden">
+             <p><b class="aaa">AI Content Detection </b><br><p class="proc">Processing...</p></p>
+             <style>
+                .popup {
+       position: fixed;
+       top: 50%;
+       left: 50%;
+       transform: translate(-50%, -50%);
+       background-color: #e0ce2b;
+       border: 1px solid #ccc;
+       padding: 100px;
+       width: 30%;
+       border-radius: 5px;
+       box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+       z-index: 999;
+       display: none;
+   }
+   .aaa{
+    padding-left: 30%;
+   }
+   .proc{
+    padding-left: 32%;
+   }
+   .myButton{
+     background-color: #e0ce2b;
+    }
+   .popup.visible {
+       display: block;
+   }
+
+   .hidden {
+       display: none;
+   }
+           </style>
+            </div>
+<p id="changedText" class="hidden"></p>
+            </div>
         </div>
         <div class="col-8">
             <div class="mr-2 mt-2 float-right">
