@@ -3,6 +3,8 @@ from django.urls import path
 
 from ipams import settings
 from . import views
+from .views import SubscriptionPageView
+
 
 urlpatterns = [
     path('', views.Home.as_view(), name='records-index'),
@@ -81,6 +83,11 @@ urlpatterns = [
     #Security - Record Pin
     path('records/pinrecords/<int:record_id>', views.AuthenticationPinView.as_view(), name='records-authentication'),
     path('generate-pin-and-save/', views.generate_pin_and_save_data_view, name='generate-pin-and-save'),
+
+    #Subscribe
+    
+     path('subscribe/', SubscriptionPageView.as_view(), name='subscribe'),
+
 ]
 
 # urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

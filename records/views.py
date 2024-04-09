@@ -41,6 +41,13 @@ import magic
 
 FILE_LENGTH = 5242880
 
+from django.shortcuts import render
+
+class SubscriptionPageView(View):
+    def get(self, request):
+        # Logic to render subscribe.html
+        return render(request, 'ipams/subscribe.html')
+
 
 def update_record_tags(request, record_id):
     record = Record.objects.get(pk=record_id)
