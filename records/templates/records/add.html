@@ -16,8 +16,76 @@
 hr{
 	border-top: 1px solid black !important;
 }
+	/* Chatbot Button */
+.chatbot-button {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background-color: #8B0000;
+    color: #FFD700;
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+    z-index: 999;
+    font-family: Arial, sans-serif;
+    font-weight: bold;
+}
 
+/* Chatbot Popup */
+.chatbot-popup {
+    position: fixed;
+    bottom: 150px;
+    right: 20px;
+    width: 320px;
+    background-color: #FFD700;
+    border: 1px solid #8B0000;
+    border-radius: 10px;
+    padding: 20px;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+    display: none;
+    font-family: Arial, sans-serif;
+    font-size: 16px;
+}
 
+/* Chatbot Header */
+.chatbot-header {
+    font-size: 20px;
+    font-weight: bold;
+    color: #8B0000;
+    margin-bottom: 20px;
+}
+
+/* Chatbot Messages */
+.chatbot-messages {
+    height: 200px;
+    overflow-y: auto;
+    border: 1px solid #8B0000;
+    padding: 10px;
+    margin-bottom: 20px;
+    background-color: #FFDAB9;
+    border-radius: 5px;
+}
+
+/* Chatbot Input */
+.chatbot-input {
+    width: calc(100% - 24px);
+    padding: 10px;
+    border: 1px solid #8B0000;
+    border-radius: 5px;
+    margin-right: 10px;
+    font-size: 16px;
+    color: #8B0000;
+}
+
+/* Chatbot Input Focus */
+.chatbot-input:focus {
+    outline: none;
+}
 </style>
 
 {% endblock %}
@@ -401,5 +469,34 @@ function submitButtonListener(event) {
 		</form>
 	</div>
 
+
+	<div class="chatbot-button" onclick="toggleChatbotPopup()" 
+    style="position: fixed; bottom: 20px; right: 20px; 
+    background-color: #8B0000; color: #fff; width: 100px; 
+    height: 100px; border-radius: 50%; display: flex; 
+    justify-content: center; align-items: center; cursor: pointer; 
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1); z-index: 999;">
+    <span style="margin-right: 5px; font-size: 16px;">NALC</span>
+    <i class="fa fa-comment fa-lg" style="font-size: 36px; color: #FFD700;"></i>
+</div>
+	
+	<div id="chatbot-popup" class="chatbot-popup" style="display: none;">
+	  <div class="chatbot-header">IPAMS Chatbot</div>
+	  <div class="chatbot-messages"></div>
+	  <input type="text" class="chatbot-input" placeholder="Type your message here...">
+	</div>
+	
+	<script>
+	  function toggleChatbotPopup() {
+		var popup = document.getElementById("chatbot-popup");
+		if (popup.style.display === "none") {
+		  popup.style.display = "block";
+		} else {
+		  popup.style.display = "none";
+		}
+	  }
+	</script>
+
+</div>
 
 {% endblock %}
