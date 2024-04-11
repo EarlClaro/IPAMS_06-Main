@@ -486,4 +486,15 @@ function submitButtonListener(event) {
     <div class="chatbot-messages"></div>
     <input type="text" class="chatbot-input" placeholder="Type your message here...">
 </div>
+
+<script>
+	function toggleChatbotPopup() {
+	  var popup = document.getElementById("chatbot-popup");
+	  if (popup.style.display === "none") {
+		popup.style.display = "block";
+	  } else {
+		popup.style.display = "none";
+	  }
+	}
+  </script>
 {% endblock %}
