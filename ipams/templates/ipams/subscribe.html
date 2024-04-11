@@ -3,27 +3,91 @@
 {% load static %}
 
 {% block head %}
+<style>
+    /* Styles for Rectangle 128 */
+    .rectangle-long1 {
+        position: absolute;
+        width: 230px;
+        height: 500px;
+        left: 280px; /* Adjust this value for the initial horizontal position */
+        top: 235px;
+        background: #CD7F32;
+        box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
+        border-radius: 45px;
+    }
+    .rectangle-long2 {
+        position: absolute;
+        width: 230px;
+        height: 500px;
+        left: calc(280px + 230px + 20px); /* Width of previous rectangle + horizontal spacing */
+        top: 235px;
+        background: rgb(221, 221, 221);
+        box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
+        border-radius: 45px;
+    }
+    .rectangle-long3 {
+        position: absolute;
+        width: 230px;
+        height: 500px;
+        left: calc(280px + (230px + 20px) * 2); /* Width of previous rectangles + horizontal spacing */
+        top: 235px;
+        background: gold;
+        box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
+        border-radius: 45px;
+    }
+    .rectangle-long4 {
+        position: absolute;
+        width: 230px;
+        height: 500px;
+        left: calc(280px + (230px + 20px) * 3); /* Width of previous rectangles + horizontal spacing */
+        top: 235px;
+        background: #45ACA5;
+        box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
+        border-radius: 45px;
+    }
+    .rectangle-long5 {
+        position: absolute;
+        width: 230px;
+        height: 500px;
+        left: calc(280px + (230px + 20px) * 4); /* Width of previous rectangles + horizontal spacing */
+        top: 235px;
+        background: rgb(72, 72, 72);
+        box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
+        border-radius: 45px;
+    }
+
+    
+</style>
+
+
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Subscription Page</title>
-    <!-- Add any additional meta tags here -->
 
-    <!-- Link to your CSS file -->
-    <link rel="stylesheet" type="text/css" href="{% static 'css/subscription.css' %}">
-</head>
 {% endblock %}
 
 {% block content %}
     <h1>Welcome to Our Subscription Page!</h1>
     <p>Subscribe to our service to get access to exclusive content and updates.</p>
+    <container>
 
-    <!-- Add subscription form or any other content here -->
-    
-    <!-- Example subscription form -->
-    <form action="{% url 'subscribe' %}" method="post">
-        {% csrf_token %}
-        <label for="email">Email:</label>
-        <input type="email" id="email" name="email" required>
-        <button type="submit">Subscribe</button>
-    </form>
+    <div class="rectangle-long1">
+        <p>Bronze</p>
+    </div>
+    <div class="rectangle-long2">
+        <p>Iron</p>
+    </div>
+    <div class="rectangle-long3">
+        <p>Gold</p>
+    </div>
+    <div class="rectangle-long4">
+        <p>Diamond</p>
+    </div>
+    <div class="rectangle-long5">
+        <p>Netherite</p>
+    </div>
+
+    </container>
+    <!-- Link to your CSS file -->
+    <link rel="stylesheet" type="text/css" href="{% static 'css/subscription.css' %}">
 {% endblock %}
