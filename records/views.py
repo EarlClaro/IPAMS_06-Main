@@ -48,7 +48,11 @@ class SubscriptionPageView(View):
         # Logic to render subscribe.html
         return render(request, 'ipams/subscribe.html')
 
-
+class PaymentPortalView(View):
+    def get(self, request):
+        # Logic to render paymentportal.html
+        return render(request, 'ipams/paymentportal.html')
+    
 def update_record_tags(request, record_id):
     record = Record.objects.get(pk=record_id)
     ip_is_changed = False

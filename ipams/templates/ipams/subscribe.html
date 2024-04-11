@@ -130,6 +130,14 @@
     
 
    }
+   .rectangle-long1 a,
+    .rectangle-long2 a,
+    .rectangle-long3 a,
+    .rectangle-long4 a,
+    .rectangle-long5 a {
+        color: inherit;
+        text-decoration: none;
+    }
    .ss{
     h1 {text-align: center;}
     p {text-align: center;}
@@ -154,47 +162,60 @@
     <container>
  <div class="tunga">
     <div class="rectangle-long1">
-        <div class="bronze">Bronze <img src="https://wiki.techreborn.ovh/lib/exe/fetch.php?w=200&tok=4e9c7c&media=mods:techreborn:bronze_dust.png"></div>
-        <div class="hh"> Lifetime </div>
-        <div class="free"> Free </div>
-        <div class="whats"> What's <br> included:</div>
-        <div class="offer"> <i class="fa-solid fa-check"></i> Offers complimentary <br> access to users </div>
-        <div class="offer"> <i class="fa-solid fa-check"></i> Provide view access to all <br> finished records within the <br> system  </div>
+        <a href="{% url 'payment_portal' %}">
+            <div class="bronze">Bronze <img src="https://wiki.techreborn.ovh/lib/exe/fetch.php?w=200&tok=4e9c7c&media=mods:techreborn:bronze_dust.png"></div>
+            <div class="hh"> Lifetime </div>
+            <div class="free"> Free </div>
+            <div class="whats"> What's <br> included:</div>
+            <div class="offer"> <i class="fa-solid fa-check"></i> Offers complimentary <br> access to users </div>
+            <div class="offer"> <i class="fa-solid fa-check"></i> Provide view access to all <br> finished records within the <br> system  </div>
+        </a>
     </div>
+
     <div class="rectangle-long2">
-        <div class="bronze"> Iron <img src="https://static.wikia.nocookie.net/minecraft_gamepedia/images/1/19/Iron_Ore_JE6_BE4.png/revision/latest?cb=20210326000111"></div>
-        <div class="hh"> Per Semester/ 6 Months </div>
-        <div class="free"> ₱49 </div>
-        <div class="whats"> What's <br> included:</div>
-        <div class="offer"> <i class="fa-solid fa-check"></i> Users at this tier enjoy <br>enhanced features for a <br> reasonable fee </div>
-        <div class="offer"> <i class="fa-solid fa-check"></i> Provide view access to all <br> finished records within the <br> system  </div>
+        <a href="{% url 'payment_portal' %}">
+            <div class="bronze"> Iron <img src="https://static.wikia.nocookie.net/minecraft_gamepedia/images/1/19/Iron_Ore_JE6_BE4.png/revision/latest?cb=20210326000111"></div>
+            <div class="hh"> Per Semester/ 6 Months </div>
+            <div class="free"> ₱49 </div>
+            <div class="whats"> What's <br> included:</div>
+            <div class="offer"> <i class="fa-solid fa-check"></i> Users at this tier enjoy <br>enhanced features for a <br> reasonable fee </div>
+            <div class="offer"> <i class="fa-solid fa-check"></i> Provide view access to all <br> finished records within the <br> system  </div>
+        </a>
     </div>
+
     <div class="rectangle-long3">
-        <div class="bronze"> Gold <img src="https://minecraft.wiki/images/Block_of_Gold_JE6_BE3.png?09478"></div>
-        <div class="hh"> Per Semester/ 6 Months </div>
-        <div class="free"> ₱99 </div>
-        <div class="whats"> What's <br> included:</div>
-        <div class="offer"> <i class="fa-solid fa-check"></i> Builds upon the Iron Tier <br> with additional privileges </div>
-        <div class="offer"> <i class="fa-solid fa-check"></i> User all-access to finished <br>and in-progress records, <br>ability to request downloads <br>for both types of records,<br> access to AI chatbot  </div>
-        <div class="offer"> <i class="fa-solid fa-check"></i> Record summarization tool,<br> AI citing generator, and <br>more advanced tools </div>
+        <a href="{% url 'payment_portal' %}">
+            <div class="bronze"> Gold <img src="https://minecraft.wiki/images/Block_of_Gold_JE6_BE3.png?09478"></div>
+            <div class="hh"> Per Semester/ 6 Months </div>
+            <div class="free"> ₱99 </div>
+            <div class="whats"> What's <br> included:</div>
+            <div class="offer"> <i class="fa-solid fa-check"></i> Builds upon the Iron Tier <br> with additional privileges </div>
+            <div class="offer"> <i class="fa-solid fa-check"></i> User all-access to finished <br>and in-progress records, <br>ability to request downloads <br>for both types of records,<br> access to AI chatbot  </div>
+            <div class="offer"> <i class="fa-solid fa-check"></i> Record summarization tool,<br> AI citing generator, and <br>more advanced tools </div>
+        </a>
     </div>
+
     <div class="rectangle-long4">
-        <div class="dia"> Diamond <img src="https://static.wikia.nocookie.net/minecraft_gamepedia/images/a/ab/Diamond_JE3_BE3.png/revision/latest/thumbnail/width/360/height/360?cb=20230924193138"></div>
-        <div class="hh"> Per Semester/ 6 Months </div>
-        <div class="free"> ₱199 </div>
-        <div class="whats"> What's <br> included:</div>
-        <div class="offer"> <i class="fa-solid fa-check"></i> Comprehensive subscription with <br>extensive access and functionality </div>
-        <div class="offer"> <i class="fa-solid fa-check"></i>User all-access to finished, in-progress, pending and denied records, instant downloads for these records, and access the AI chatbot  </div>
-        <div class="offer"> <i class="fa-solid fa-check"></i> Includes advanced features like the AI plagiarism checker </div>
+        <a href="{% url 'payment_portal' %}">
+            <div class="dia"> Diamond <img src="https://static.wikia.nocookie.net/minecraft_gamepedia/images/a/ab/Diamond_JE3_BE3.png/revision/latest/thumbnail/width/360/height/360?cb=20230924193138"></div>
+            <div class="hh"> Per Semester/ 6 Months </div>
+            <div class="free"> ₱199 </div>
+            <div class="whats"> What's <br> included:</div>
+            <div class="offer"> <i class="fa-solid fa-check"></i> Comprehensive subscription with <br>extensive access and functionality </div>
+            <div class="offer"> <i class="fa-solid fa-check"></i>User all-access to finished, in-progress, pending and denied records, instant downloads for these records, and access the AI chatbot  </div>
+            <div class="offer"> <i class="fa-solid fa-check"></i> Includes advanced features like the AI plagiarism checker </div>
+        </a>
     </div>
     <div class="rectangle-long5">
-        <div class="neth"> Netherite <img src="https://static.wikia.nocookie.net/minecraft_gamepedia/images/3/31/Block_of_Netherite_JE1_BE1.png/revision/latest?cb=20200320021504"></div>
-        <div class="hh"> Admin & Adviser only Per Semester / 6 Months </div>
-        <div class="free"> ₱249 </div>
-        <div class="whats"> What's <br> included:</div>
-        <div class="offer"> <i class="fa-solid fa-check"></i> Exclusive tier designed for <br>administrators and advisers </div>
-        <div class="offer"> <i class="fa-solid fa-check"></i> Provides view access to all records, <br>the ability to request downloads for <br>all records, and full access to all AI features.  </div>
-        <div class="offer"> <i class="fa-solid fa-check"></i> Advanced administrative tools file management, admin dashboard, record evaluation, upload requests, import records, audit logs, user action logs, and record download requests </div>
+        <a href="{% url 'payment_portal' %}">
+            <div class="neth"> Netherite <img src="https://static.wikia.nocookie.net/minecraft_gamepedia/images/3/31/Block_of_Netherite_JE1_BE1.png/revision/latest?cb=20200320021504"></div>
+            <div class="hh"> Admin & Adviser only Per Semester / 6 Months </div>
+            <div class="free"> ₱249 </div>
+            <div class="whats"> What's <br> included:</div>
+            <div class="offer"> <i class="fa-solid fa-check"></i> Exclusive tier designed for <br>administrators and advisers </div>
+            <div class="offer"> <i class="fa-solid fa-check"></i> Provides view access to all records, <br>the ability to request downloads for <br>all records, and full access to all AI features.  </div>
+            <div class="offer"> <i class="fa-solid fa-check"></i> Advanced administrative tools file management, admin dashboard, record evaluation, upload requests, import records, audit logs, user action logs, and record download requests </div>
+        </a>
     </div>
 </div>
     </container>
