@@ -110,7 +110,7 @@ DATABASES = {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'ipamsdjango',
         'USER': 'root',
-        'PASSWORD': 'Moplex-storm123',
+        'PASSWORD': 'July82001Cl@ro',
         'PORT': '3306',
         'HOST': 'localhost',
         'OPTIONS': {
@@ -118,7 +118,6 @@ DATABASES = {
         },
     }
 }
-
 # DATABASES = {
 #     'default': {
 #         'ENGINE': 'django.db.backends.sqlite3',
