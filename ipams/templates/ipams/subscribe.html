@@ -15,6 +15,7 @@
         background: #CD7F32;
         box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
         border-radius: 45px;
+        margin-left: 30px;
     }
     .rectangle-long1:hover{
         background-color: #04AA6D;
@@ -29,6 +30,7 @@
         background: rgb(221, 221, 221);
         box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
         border-radius: 45px;
+        margin-left: 30px;
     }
     .rectangle-long2:hover{
         background-color: #04AA6D;
@@ -43,6 +45,7 @@
         background: gold;
         box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
         border-radius: 45px;
+        margin-left: 30px;
     }
     .rectangle-long3:hover{
         background-color: #04AA6D;
@@ -57,6 +60,7 @@
         background: #45ACA5;
         box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
         border-radius: 45px;
+        margin-left: 30px;
     }
     .rectangle-long4:hover{
         background-color: #04AA6D;
@@ -71,6 +75,7 @@
         background: rgb(72, 72, 72);
         box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
         border-radius: 45px;
+        margin-left: 30px;
     }
     .rectangle-long5:hover{
         background-color: #04AA6D;
@@ -81,30 +86,53 @@
         font-weight: bold;
         padding-top: 20px;
         padding-left: 10px;
+        img {height: 13%; padding-left: 40px;}
+    }
+    .dia{
+        font-size: 25px;
+        font-weight: bold;
+        padding-top: 20px;
+        padding-left: 10px;
+        img {height: 13%; padding-left: 17px;}
+    }
+    .neth{
+        font-size: 25px;
+        font-weight: bold;
+        padding-top: 20px;
+        padding-left: 10px;
+        img {height: 13%; padding-left: 17px;}
     }
   .hh{
  font-size: small;
  padding-left: 10px;
   }
    .free{
+    text-align: justify;
     padding-top: 15px;
     font-size: 50px;
     font-weight: bold;
     padding-left: 6px;
    }
    .whats{
+    text-align: justify;
     padding-top: 50px;
     font-weight: bold;
     padding-left: 8px;
    }
    .offer{
+    text-align: justify;
     padding-top: 15px;
     font-size: x-small;
     padding-left: 8px;
+    padding-right: 10px;
    }
    .fa-gem{
+    
 
-
+   }
+   .ss{
+    h1 {text-align: center;}
+    p {text-align: center;}
    }
 </style>
  
@@ -116,13 +144,17 @@
 {% endblock %}
  
 {% block content %}
+    <div class="ss">
+        <h1>Welcome to Our Subscription Page!</h1>
+        <p>Subscribe to our service to get access to exclusive content and updates.</p>
+    </div>
+   <div class="gap">
 
-    <h1>Welcome to Our Subscription Page!</h1>
-    <p>Subscribe to our service to get access to exclusive content and updates.</p>
+   </div>
     <container>
- 
+ <div class="tunga">
     <div class="rectangle-long1">
-        <div class="bronze"> Bronze <i class="fa-solid fa-gem"></i></div>
+        <div class="bronze">Bronze <img src="https://wiki.techreborn.ovh/lib/exe/fetch.php?w=200&tok=4e9c7c&media=mods:techreborn:bronze_dust.png"></div>
         <div class="hh"> Lifetime </div>
         <div class="free"> Free </div>
         <div class="whats"> What's <br> included:</div>
@@ -130,7 +162,7 @@
         <div class="offer"> <i class="fa-solid fa-check"></i> Provide view access to all <br> finished records within the <br> system  </div>
     </div>
     <div class="rectangle-long2">
-        <div class="bronze"> Iron <i class="fa-solid fa-gem"></i></div>
+        <div class="bronze"> Iron <img src="https://static.wikia.nocookie.net/minecraft_gamepedia/images/1/19/Iron_Ore_JE6_BE4.png/revision/latest?cb=20210326000111"></div>
         <div class="hh"> Per Semester/ 6 Months </div>
         <div class="free"> ₱49 </div>
         <div class="whats"> What's <br> included:</div>
@@ -138,7 +170,7 @@
         <div class="offer"> <i class="fa-solid fa-check"></i> Provide view access to all <br> finished records within the <br> system  </div>
     </div>
     <div class="rectangle-long3">
-        <div class="bronze"> Gold <i class="fa-solid fa-gem"></i></div>
+        <div class="bronze"> Gold <img src="https://minecraft.wiki/images/Block_of_Gold_JE6_BE3.png?09478"></div>
         <div class="hh"> Per Semester/ 6 Months </div>
         <div class="free"> ₱99 </div>
         <div class="whats"> What's <br> included:</div>
@@ -147,24 +179,24 @@
         <div class="offer"> <i class="fa-solid fa-check"></i> Record summarization tool,<br> AI citing generator, and <br>more advanced tools </div>
     </div>
     <div class="rectangle-long4">
-        <div class="bronze"> Diamond <i class="fa-solid fa-gem"></i></div>
+        <div class="dia"> Diamond <img src="https://static.wikia.nocookie.net/minecraft_gamepedia/images/a/ab/Diamond_JE3_BE3.png/revision/latest/thumbnail/width/360/height/360?cb=20230924193138"></div>
         <div class="hh"> Per Semester/ 6 Months </div>
         <div class="free"> ₱199 </div>
         <div class="whats"> What's <br> included:</div>
-        <div class="offer"> <i class="fa-solid fa-check"></i> Comprehensive <br>subscription with <br>extensive access and functionality </div>
-        <div class="offer"> <i class="fa-solid fa-check"></i>User all-access to finished, in-progress, pending, and denied records, instant downloads for these records, and access <br>the AI chatbot  </div>
+        <div class="offer"> <i class="fa-solid fa-check"></i> Comprehensive subscription with <br>extensive access and functionality </div>
+        <div class="offer"> <i class="fa-solid fa-check"></i>User all-access to finished, in-progress, pending and denied records, instant downloads for these records, and access the AI chatbot  </div>
         <div class="offer"> <i class="fa-solid fa-check"></i> Includes advanced features like the AI plagiarism checker </div>
     </div>
     <div class="rectangle-long5">
-        <div class="bronze"> Netherite <i class="fa-solid fa-gem"></i></div>
+        <div class="neth"> Netherite <img src="https://static.wikia.nocookie.net/minecraft_gamepedia/images/3/31/Block_of_Netherite_JE1_BE1.png/revision/latest?cb=20200320021504"></div>
         <div class="hh"> Admin & Adviser only Per Semester / 6 Months </div>
         <div class="free"> ₱249 </div>
         <div class="whats"> What's <br> included:</div>
         <div class="offer"> <i class="fa-solid fa-check"></i> Exclusive tier designed for <br>administrators and advisers </div>
         <div class="offer"> <i class="fa-solid fa-check"></i> Provides view access to all records, <br>the ability to request downloads for <br>all records, and full access to all AI features.  </div>
-        <div class="offer"> <i class="fa-solid fa-check"></i> Advanced administrative tools, file management, admin dashboard, record evaluation, upload requests, import records, audit logs, user action logs, and record download requests </div>
+        <div class="offer"> <i class="fa-solid fa-check"></i> Advanced administrative tools file management, admin dashboard, record evaluation, upload requests, import records, audit logs, user action logs, and record download requests </div>
     </div>
- 
+</div>
     </container>
     <!-- Link to your CSS file -->
     <link rel="stylesheet" type="text/css" href="{% static 'css/subscription.css' %}">
