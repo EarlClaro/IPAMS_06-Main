@@ -4,7 +4,7 @@ from django.urls import path
 from ipams import settings
 from . import views
 from .views import SubscriptionPageView
-
+from .views import PaymentPortalView
 
 urlpatterns = [
     path('', views.Home.as_view(), name='records-index'),
@@ -87,7 +87,7 @@ urlpatterns = [
     #Subscribe
     
      path('subscribe/', SubscriptionPageView.as_view(), name='subscribe'),
-
+     path('payment/', PaymentPortalView.as_view(), name='payment_portal'),
 ]
 
 # urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

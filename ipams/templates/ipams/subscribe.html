@@ -106,17 +106,21 @@
 
 
    }
+   .rectangle-long1 a,
+    .rectangle-long2 a,
+    .rectangle-long3 a,
+    .rectangle-long4 a,
+    .rectangle-long5 a {
+        color: inherit;
+        text-decoration: none;
+    }
 </style>
  
  
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Subscription Page</title>
-    <!-- Add any additional meta tags here -->
-
-    <!-- Link to your CSS file -->
-    <link rel="stylesheet" type="text/css" href="{% static 'css/subscription.css' %}">
-</head>
+ 
 {% endblock %}
  
 {% block content %}
@@ -126,47 +130,60 @@
     <container>
  
     <div class="rectangle-long1">
-        <div class="bronze"> Bronze <i class="fa-solid fa-gem"></i></div>
-        <div class="hh"> Lifetime </div>
-        <div class="free"> Free </div>
-        <div class="whats"> What's <br> included:</div>
-        <div class="offer"> <i class="fa-solid fa-check"></i> Offers complimentary <br> access to users </div>
-        <div class="offer"> <i class="fa-solid fa-check"></i> Provide view access to all <br> finished records within the <br> system  </div>
+        <a href="{% url 'payment_portal' %}">
+            <div class="bronze"> Bronze <i class="fa-solid fa-gem"></i></div>
+            <div class="hh"> Lifetime </div>
+            <div class="free"> Free </div>
+            <div class="whats"> What's <br> included:</div>
+            <div class="offer"> <i class="fa-solid fa-check"></i> Offers complimentary <br> access to users </div>
+            <div class="offer"> <i class="fa-solid fa-check"></i> Provide view access to all <br> finished records within the <br> system  </div>
+        </a>
     </div>
+
     <div class="rectangle-long2">
-        <div class="bronze"> Iron <i class="fa-solid fa-gem"></i></div>
-        <div class="hh"> Per Semester/ 6 Months </div>
-        <div class="free"> ₱49 </div>
-        <div class="whats"> What's <br> included:</div>
-        <div class="offer"> <i class="fa-solid fa-check"></i> Users at this tier enjoy <br>enhanced features for a <br> reasonable fee </div>
-        <div class="offer"> <i class="fa-solid fa-check"></i> Provide view access to all <br> finished records within the <br> system  </div>
+        <a href="{% url 'payment_portal' %}">
+            <div class="bronze"> Iron <i class="fa-solid fa-gem"></i></div>
+            <div class="hh"> Per Semester/ 6 Months </div>
+            <div class="free"> ₱49 </div>
+            <div class="whats"> What's <br> included:</div>
+            <div class="offer"> <i class="fa-solid fa-check"></i> Users at this tier enjoy <br>enhanced features for a <br> reasonable fee </div>
+            <div class="offer"> <i class="fa-solid fa-check"></i> Provide view access to all <br> finished records within the <br> system  </div>
+        </a>
     </div>
+
     <div class="rectangle-long3">
-        <div class="bronze"> Gold <i class="fa-solid fa-gem"></i></div>
-        <div class="hh"> Per Semester/ 6 Months </div>
-        <div class="free"> ₱99 </div>
-        <div class="whats"> What's <br> included:</div>
-        <div class="offer"> <i class="fa-solid fa-check"></i> Builds upon the Iron Tier <br> with additional privileges </div>
-        <div class="offer"> <i class="fa-solid fa-check"></i> User all-access to finished <br>and in-progress records, <br>ability to request downloads <br>for both types of records,<br> access to AI chatbot  </div>
-        <div class="offer"> <i class="fa-solid fa-check"></i> Record summarization tool,<br> AI citing generator, and <br>more advanced tools </div>
+        <a href="{% url 'payment_portal' %}">
+            <div class="bronze"> Gold <i class="fa-solid fa-gem"></i></div>
+            <div class="hh"> Per Semester/ 6 Months </div>
+            <div class="free"> ₱99 </div>
+            <div class="whats"> What's <br> included:</div>
+            <div class="offer"> <i class="fa-solid fa-check"></i> Builds upon the Iron Tier <br> with additional privileges </div>
+            <div class="offer"> <i class="fa-solid fa-check"></i> User all-access to finished <br>and in-progress records, <br>ability to request downloads <br>for both types of records,<br> access to AI chatbot  </div>
+            <div class="offer"> <i class="fa-solid fa-check"></i> Record summarization tool,<br> AI citing generator, and <br>more advanced tools </div>
+        </a>
     </div>
+
     <div class="rectangle-long4">
-        <div class="bronze"> Diamond <i class="fa-solid fa-gem"></i></div>
-        <div class="hh"> Per Semester/ 6 Months </div>
-        <div class="free"> ₱199 </div>
-        <div class="whats"> What's <br> included:</div>
-        <div class="offer"> <i class="fa-solid fa-check"></i> Comprehensive <br>subscription with <br>extensive access and functionality </div>
-        <div class="offer"> <i class="fa-solid fa-check"></i>User all-access to finished, in-progress, pending, and denied records, instant downloads for these records, and access <br>the AI chatbot  </div>
-        <div class="offer"> <i class="fa-solid fa-check"></i> Includes advanced features like the AI plagiarism checker </div>
+        <a href="{% url 'payment_portal' %}">
+            <div class="bronze"> Diamond <i class="fa-solid fa-gem"></i></div>
+            <div class="hh"> Per Semester/ 6 Months </div>
+            <div class="free"> ₱199 </div>
+            <div class="whats"> What's <br> included:</div>
+            <div class="offer"> <i class="fa-solid fa-check"></i> Comprehensive <br>subscription with <br>extensive access and functionality </div>
+            <div class="offer"> <i class="fa-solid fa-check"></i>User all-access to finished, in-progress, pending, and denied records, instant downloads for these records, and access <br>the AI chatbot  </div>
+            <div class="offer"> <i class="fa-solid fa-check"></i> Includes advanced features like the AI plagiarism checker </div>
+        </a>
     </div>
     <div class="rectangle-long5">
-        <div class="bronze"> Netherite <i class="fa-solid fa-gem"></i></div>
-        <div class="hh"> Admin & Adviser only Per Semester / 6 Months </div>
-        <div class="free"> ₱249 </div>
-        <div class="whats"> What's <br> included:</div>
-        <div class="offer"> <i class="fa-solid fa-check"></i> Exclusive tier designed for <br>administrators and advisers </div>
-        <div class="offer"> <i class="fa-solid fa-check"></i> Provides view access to all records, <br>the ability to request downloads for <br>all records, and full access to all AI features.  </div>
-        <div class="offer"> <i class="fa-solid fa-check"></i> Advanced administrative tools, file management, admin dashboard, record evaluation, upload requests, import records, audit logs, user action logs, and record download requests </div>
+        <a href="{% url 'payment_portal' %}">
+            <div class="bronze"> Netherite <i class="fa-solid fa-gem"></i></div>
+            <div class="hh"> Admin & Adviser only Per Semester / 6 Months </div>
+            <div class="free"> ₱249 </div>
+            <div class="whats"> What's <br> included:</div>
+            <div class="offer"> <i class="fa-solid fa-check"></i> Exclusive tier designed for <br>administrators and advisers </div>
+            <div class="offer"> <i class="fa-solid fa-check"></i> Provides view access to all records, <br>the ability to request downloads for <br>all records, and full access to all AI features.  </div>
+            <div class="offer"> <i class="fa-solid fa-check"></i> Advanced administrative tools, file management, admin dashboard, record evaluation, upload requests, import records, audit logs, user action logs, and record download requests </div>
+        </a>
     </div>
  
     </container>
