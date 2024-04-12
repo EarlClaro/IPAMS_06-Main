@@ -110,7 +110,7 @@ DATABASES = {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'ipamsdjango',
         'USER': 'root',
-        'PASSWORD': '',
+        'PASSWORD': '123456',
         'PORT': '3307',
         'HOST': 'localhost',
         'OPTIONS': {
