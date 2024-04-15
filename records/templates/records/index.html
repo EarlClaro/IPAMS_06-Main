@@ -711,17 +711,13 @@ header h2 {
 				</div>
 			</section>
 			
-	
+				<!-- Chatbot Frontend -->
 				<meta name="viewport" content="width=device-width, initial-scale=1.0">
 				<!-- Google Fonts Link For Icons -->
 				<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@48,400,0,0" />
 				<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@48,400,1,0" />
 				<link rel="stylesheet" href="/static/css/chatbot.css"> <!-- Include your existing CSS file -->
 				<script src="/records/templates/records/script.js" defer></script> <!-- Include your existing JavaScript file -->
-			
-			
-	
-
 				<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@48,400,0,0" />
 				<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@48,400,1,0" />
 				<script src="/records/templates/records/script.js" defer></script>
@@ -755,8 +751,7 @@ header h2 {
 					const sendChatBtn = document.querySelector(".chat-input span");
 
 					let userMessage = null; // Variable to store user's message
-					//paste here const API_KEY
-					os.environ["OPENAI_API_KEY"] = os.environ.get("OPENAI_API_KEY")
+					const API_KEY = "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";
 					
 					const inputInitHeight = chatInput.scrollHeight;
 
