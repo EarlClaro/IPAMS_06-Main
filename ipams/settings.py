@@ -110,8 +110,13 @@ DATABASES = {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'ipamsdjango',
         'USER': 'root',
+<<<<<<< HEAD
         'PASSWORD': 'new_password',
         'PORT': '3306',
+=======
+        'PASSWORD': '123456',
+        'PORT': '3307',
+>>>>>>> cec8c485fa726820d332aaf58198c2bc06d9f169
         'HOST': 'localhost',
         'OPTIONS': {
             'init_command': "SET sql_mode='STRICT_TRANS_TABLES'",

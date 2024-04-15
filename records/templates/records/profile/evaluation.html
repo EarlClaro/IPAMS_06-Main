@@ -3,6 +3,11 @@
 {% load custom_tags %}
 {% block footer %}
 <style>
+body {
+    overflow-x: hidden; /* Hide horizontal scrollbar */
+}
+
+
 .header-title{
     .tooltip-wrapper{
     display: inline-block;
@@ -11,6 +16,7 @@
 .accordion-btn {
    position: relative;
 }
+
 .accordion-btn:before {
    border-radius: 3px;
    font-weight: bold;
@@ -22,6 +28,7 @@
    content: "+";
    right: 35px;
    top: 5px;
+   overflow: auto;
 }
 
 .accordion-btn[aria-expanded="true"]:before {
@@ -358,82 +365,67 @@ $("#btn-uploads-back").on("click", function(){
     $("#uploads").show();
     $("#uploads-title").hide();
 });
+
 function getRandomPercentage() {
-        // Generate a random number between 1 and 100
-        var randomNumber = Math.floor(Math.random() * 100) + 1;
-        return randomNumber + "%";
-    }
+    // Generate a random number between 1 and 100
+    var randomNumber = Math.floor(Math.random() * 100) + 1;
+    return randomNumber + "%";
+}
 
-    function changeText() {
-        var button = document.getElementById("myButton");
-        var popup = document.getElementById("popup");
-        var changedText = document.getElementById("changedText");
-        
-        // Show processing popup
-        popup.classList.add("visible");
+function showAIDetectionPopup() {
+        var aiDetectionPopup = document.getElementById('ai-detection-popup');
+        aiDetectionPopup.style.display = 'block';
+        aiDetectionPopup.querySelector('#ai-detection-message').innerText = 'Detecting AI...';
 
-        // Simulate processing time (You can replace this with actual asynchronous operations)
+        // Simulating AI detection process
         setTimeout(function() {
-            // Hide processing popup and show result
-            popup.classList.remove("visible");
-            changedText.innerText = getRandomPercentage();
-            changedText.classList.remove("hidden");
-
-            // Hide button after showing the result
-            button.style.display = "none";
-        }, 2000); // Change this time to match your processing time (in milliseconds)
+            // AI detection complete
+            aiDetectionPopup.querySelector('#ai-detection-message').innerText = 'AI Detection Complete: ' + getRandomPercentage();
+            // Enable the close button
+            aiDetectionPopup.querySelector('.close-button').style.display = 'inline';
+        }, 2000);
     }
+
+    function hideAIDetectionPopup() {
+        var aiDetectionPopup = document.getElementById('ai-detection-popup');
+        aiDetectionPopup.style.display = 'none';
+    }
+
+    function toggleChatbotPopup() {
+        var popup = document.getElementById("chatbot-popup");
+        if (popup.style.display === "none" || popup.style.display === "") {
+            popup.style.display = "block";
+        } else {
+            popup.style.display = "none";
+        }
+    }
+
+    $(document).ready(function() {
+        // Bind the AI Detection button click event to the showAIDetectionPopup function
+        $('#myButton').click(function() {
+            showAIDetectionPopup();
+        });
+    });
+
 </script>
 {% endblock %}
 
 {% block content %}
-<div class="container">
-    <div class="row ml-2">
-        <div class="col-4">
-            <div class="text-primary text-bold h2">Evaluation</div>
-            <div class="buttonn">
-                <button id="myButton" class="myButton" onclick="changeText()">AI Detection</button>
-            <div id="popup" class="popup hidden">
-             <p><b class="aaa">AI Content Detection </b><br><p class="proc">Processing...</p></p>
-             <style>
-                .popup {
-       position: fixed;
-       top: 50%;
-       left: 50%;
-       transform: translate(-50%, -50%);
-       background-color: #e0ce2b;
-       border: 1px solid #ccc;
-       padding: 100px;
-       width: 30%;
-       border-radius: 5px;
-       box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
-       z-index: 999;
-       display: none;
-   }
-   .aaa{
-    padding-left: 30%;
-   }
-   .proc{
-    padding-left: 32%;
-   }
-   .myButton{
-     background-color: #e0ce2b;
-    }
-   .popup.visible {
-       display: block;
-   }
-
-   .hidden {
-       display: none;
-   }
-           </style>
+        <div class="row ml-2">
+            <div class="col-4">
+                <div class="text-primary text-bold h2">Evaluation</div>
             </div>
-<p id="changedText" class="hidden"></p>
-            </div>
-        </div>
-        <div class="col-8">
-            <div class="mr-2 mt-2 float-right">
-                    <a href="{% url 'file_management:attachments' record_id=record.pk %}" target="blank"><button type="button" class="btn base-btn base-bg-secondary"><i class="fas fa-paperclip"></i>Attachments</button></a>
+            <div class="col-8">
+                <div class="mr-2 mt-2 float-right">
+                    <button id="myButton" class="myButton btn base-btn base-bg-secondary" onclick="showAIDetectionPopup()">AI Detection</button>
+                    <!-- The AI Detection popup -->
+                    <div id="ai-detection-popup" class="ai-detection-popup-style" style="display: none;">
+                        <span id="ai-detection-message">Detecting AI...</span>
+                        <div id="ai-detection-result" class="ai-det ection-result-style"></div>
+                        <span class="close-button" onclick="hideAIDetectionPopup()" style="display: none;">&times;</span>
+                    </div>
+                    <a href="{% url 'file_management:attachments' record_id=record.pk %}" target="_blank"><button type="button" class="btn base-btn base-bg-secondary"><i class="fas fa-paperclip"></i> Attachments</button></a>
+                </div>
             </div>
         </div>
     </div>
@@ -526,7 +518,7 @@ function getRandomPercentage() {
   
  <!------------------------------------------------ RECORD EVALUATIONS ----------------------------------------------------->
     <button type="button" class="btn btn-block mb-2 text-left accordion-btn" data-toggle="collapse" data-target="#record-evaluation-accordion" style="background-color: transparent"><h5 class="text-primary">Recorded Evaluations</h5></button>
-    <div id="record-evaluation-accordion" class="collapse">
+    <div id="record-evaluation-accordion" class="collapse" >
     <div class="row mb-1">
         <div class="col-md-12">
             <table class="table table-striped mx-auto" style="text-align: center; padding: 2px 0;">
@@ -657,7 +649,7 @@ function getRandomPercentage() {
 </div>
 
 <!-- -------------------------------- Checked Record Comment Modal--------------------------------------------- -->
-<div class="modal fade" id="checked-status-modal" tabindex="-1" role="dialog" aria-hidden="true">
+<div class="modal fade" id="checked-status-modal" tabindex="-1" role="dialog" aria-hidden="true" overflow-x: hidden;>
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header base-bg-secondary">
@@ -690,5 +682,119 @@ function getRandomPercentage() {
         </div>
     </div>
 </div>
+<div class="chatbot-button" onclick="toggleChatbotPopup()">
+    <span style="font-size: 24px; color: white;">NALC</span>
+    <i class="fa fa-comment fa-lg" style="font-size: 36px; color: #FFD700;"></i>
+</div>
+
+<div id="chatbot-popup" class="chatbot-popup"> 
+    <div class="chatbot-header">IPAMS Chatbot</div>
+	<div class="chatbot-messages"></div>
+	<input type="text" class="chatbot-input" placeholder="Type your message here...">
+</div>
+<style>
+
+.ai-detection-popup-style {
+    display: none;
+    background-color: #FFD700; /* Match the background color of the chatbot popup */
+    border: 2px solid #8B0000; /* Match the border color of the chatbot popup */
+    border-radius: 10px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    padding: 20px;
+    position: fixed;
+    bottom: 160px;
+    right: 20px;
+    z-index: 1000;
+}
+
+.ai-popup-content {
+    text-align: center;
+}
+
+.close-button {
+    position: absolute;
+    top: 3px;
+    right: 10px;
+    cursor: pointer;
+}
+
+.close-button:hover {
+    color: red;
+}
+
+.ai-detection-header {
+    font-size: 20px;
+    font-weight: bold;
+    color: #8B0000;
+    margin-bottom: 10px;
+}
+
+.ai-detection-result-style {
+    margin-top: 10px;
+    font-weight: bold;
+    color: black;
+}
+
+.chatbot-button {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background-color: #8B0000; /* Dark red background */
+    color: #FFD700;
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+    z-index: 1051; 
+    font-family: Arial, sans-serif;
+    font-weight: bold;
+}
+
+.chatbot-header {
+    font-size: 20px;
+    font-weight: bold;
+    color: #8B0000;
+    margin-bottom: 20px;
+}
+
+.chatbot-popup {
+    position: fixed;
+    right: 20px;
+    /* The bottom property should be the height of the button plus any desired margin. */
+    bottom: 160px; /* For example, 120px for the button and 40px of space between button and popup. */
+    width: 320px;
+    background-color: #FFD700;
+	border: 2px solid #8B0000;
+    border-radius: 10px;
+    padding: 20px;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+    z-index: 1050;
+    display: none;
+}
+.chatbot-messages {
+    height: 200px;
+    overflow-y: auto;
+    border: 1px solid #8B0000;
+    padding: 10px;
+    margin-bottom: 20px;
+    background-color: #FFDAB9;
+    border-radius: 5px;
+}
+ 
+.chatbot-input {
+    width: calc(100% - 24px);
+    padding: 10px;
+    border: 1px solid #8B0000;
+    border-radius: 5px;
+    margin-right: 10px;
+    font-size: 16px;
+    color: #8B0000;
+}
+</style>
+
 {% endblock %}
 

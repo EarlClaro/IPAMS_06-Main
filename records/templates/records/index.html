@@ -12,76 +12,39 @@
 		margin-left: -10px;
 	}
 
-		/* Chatbot Button */
-.chatbot-button {
-    position: fixed;
-    bottom: 20px;
-    right: 20px;
-    background-color: #8B0000;
-    color: #FFD700;
-    width: 120px;
-    height: 120px;
-    border-radius: 50%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    cursor: pointer;
-    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
-    z-index: 999;
-    font-family: Arial, sans-serif;
-    font-weight: bold;
-}
+	.chatbot-popup {
+	position: fixed;
+	bottom: 120px;
+	right: 20px;
+	width: 300px;
+	background-color: #fff;
+	border: 1px solid #ccc;
+	border-radius: 5px;
+	padding: 10px;
+	box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+	}
 
-/* Chatbot Popup */
-.chatbot-popup {
-    position: fixed;
-    bottom: 150px;
-    right: 20px;
-    width: 320px;
-    background-color: #FFD700;
-    border: 1px solid #8B0000;
-    border-radius: 10px;
-    padding: 20px;
-    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
-    display: none;
-    font-family: Arial, sans-serif;
-    font-size: 16px;
-}
+	.chatbot-header {
+	font-size: 18px;
+	font-weight: bold;
+	margin-bottom: 10px;
+	}
 
-/* Chatbot Header */
-.chatbot-header {
-    font-size: 20px;
-    font-weight: bold;
-    color: #8B0000;
-    margin-bottom: 20px;
-}
+	.chatbot-messages {
+	height: 200px;
+	overflow-y: auto;
+	border: 1px solid #ccc;
+	padding: 5px;
+	margin-bottom: 10px;
+	}
 
-/* Chatbot Messages */
-.chatbot-messages {
-    height: 200px;
-    overflow-y: auto;
-    border: 1px solid #8B0000;
-    padding: 10px;
-    margin-bottom: 20px;
-    background-color: #FFDAB9;
-    border-radius: 5px;
-}
-
-/* Chatbot Input */
-.chatbot-input {
-    width: calc(100% - 24px);
-    padding: 10px;
-    border: 1px solid #8B0000;
-    border-radius: 5px;
-    margin-right: 10px;
-    font-size: 16px;
-    color: #8B0000;
-}
-
-/* Chatbot Input Focus */
-.chatbot-input:focus {
-    outline: none;
-}
+	.chatbot-input {
+	width: calc(100% - 22px);
+	padding: 8px;
+	border: 1px solid #ccc;
+	border-radius: 5px;
+	margin-right: 10px;
+	}
 
 </style>
 {% endblock %}
