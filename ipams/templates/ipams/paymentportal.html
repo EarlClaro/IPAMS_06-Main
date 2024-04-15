@@ -9,6 +9,36 @@
 {% block content %}
     <h1>Welcome to Our Payment Portal!</h1>
     <p>Please proceed with your payment below:</p>
-
-
+    <br/>
+    <br/>
+    <br/>
+    <br/>
+    <br/>
+    <br/>
+    <br/>
+    <br/>
+    <br/>
+    <br/>
+    <br/>
+    <br/>
+    <br/>
+    <br/>
+    
+    <h1>Dragonpay Payment</h1>
+    <form action="https://test.dragonpay.ph/Pay.aspx" method="post">
+        <input type="hidden" name="merchantid" value="YOUR_MERCHANT_ID">
+        <input type="hidden" name="txnid" value="YOUR_TRANSACTION_ID">
+        <input type="hidden" name="amount" value="500.00">
+        <input type="hidden" name="ccy" value="PHP">
+        <input type="hidden" name="description" value="Lifetime ID">
+        <input type="hidden" name="email" value="customer@example.com">
+        <input type="hidden" name="digest" value="YOUR_DIGEST">
+        <input type="hidden" name="returnurl" value="YOUR_RETURN_URL">
+        <input type="hidden" name="cancelurl" value="YOUR_CANCEL_URL">
+        <input type="hidden" name="basket" value="YOUR_BASKET">
+        <input type="hidden" name="custom" value="YOUR_CUSTOM_FIELD">
+        <input type="hidden" name="txnref" value="YOUR_TRANSACTION_REFERENCE">
+        <input type="hidden" name="remarks" value="Remarks">
+        <button type="submit">Pay Now</button>
+    </form>
 {% endblock %}
