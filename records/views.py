@@ -39,10 +39,22 @@ from axes.utils import reset
 from django.conf import settings
 import magic
 
+import json
+import openai
+
 FILE_LENGTH = 5242880
 
 from django.shortcuts import render
+from django.http import JsonResponse
+from .models import Record
 
+from django.http import JsonResponse
+
+from django.db import connections
+from django.http import JsonResponse
+
+
+    
 class SubscriptionPageView(View):
     def get(self, request):
         # Logic to render subscribe.html

@@ -89,6 +89,7 @@ urlpatterns = [
      path('subscribe/', SubscriptionPageView.as_view(), name='subscribe'),
      path('payment/', PaymentPortalView.as_view(), name='payment_portal'),
      
+     #Chatbot
 ]
 
 # urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
