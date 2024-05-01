@@ -8,14 +8,20 @@
 /* CSS for the exit button */
 .exit-button {
     position: absolute;
-    top: 10px;
-    right: 10px;
-    padding: 5px 10px;
+    top: 20px;
+    right: 20px;
+    width: 30px;
+    height: 30px;
+    font-size: 24px;
+    font-weight: bold;
     background-color: #fff;
-    border: 1px solid #ccc;
-    border-radius: 5px;
+    border: none;
+    border-radius: 50%;
     cursor: pointer;
     z-index: 10001; /* Ensure the exit button appears above the chatbot content */
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
 /* CSS for the modal overlay */
@@ -30,6 +36,7 @@
     justify-content: center;
     align-items: center;
     z-index: 9999; /* Ensure the overlay appears above other content */
+    overflow: hidden; /* Hide overflow */
 }
 
 /* CSS for the chatbot content inside the modal */
@@ -41,6 +48,7 @@
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.3); /* Drop shadow effect */
     z-index: 10000; /* Ensure the chatbot content appears above the overlay */
 }
+
 
 
 .chatbot-toggler {
