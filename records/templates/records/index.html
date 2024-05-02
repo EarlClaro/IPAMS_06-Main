@@ -793,46 +793,34 @@ header h2 {
     const chatbotTogglers = document.querySelectorAll('.chatbot-toggler');
 
     // Attach click event listener to each chatbot toggler button
-    chatbotTogglers.forEach(chatbotToggler => {
-    chatbotToggler.addEventListener('click', async (event) => {
+	chatbotTogglers.forEach(chatbotToggler => {
+    chatbotToggler.addEventListener('click', (event) => {
+        // Prevent the default behavior of the button click
         event.preventDefault();
-        
-        // Fetch authentication details from your website (IPAMS)
-        const authToken = localStorage.getItem('authToken'); // Assuming you store the auth token in localStorage
-        
-        // Construct the URL for the chatbot iframe with authentication details as query parameters
-        const iframeUrl = new URL('http://localhost:3000/');
-        iframeUrl.searchParams.append('authToken', authToken);
-        
         // Create a modal overlay
         const modalOverlay = document.createElement('div');
         modalOverlay.classList.add('modal-overlay');
-        
+        // Apply CSS to hide overflow
+        modalOverlay.style.overflow = 'hidden';
         // Create an iframe for the chatbot content
         const iframe = document.createElement('iframe');
-        iframe.src = iframeUrl.toString();
+        iframe.src = 'http://localhost:3000/';
         iframe.setAttribute('frameborder', '0');
-        
         // Append the iframe to the modal overlay
         modalOverlay.appendChild(iframe);
-        
-        // Create an exit button
-        const exitButton = document.createElement('button');
-        exitButton.textContent = 'Exit';
-        exitButton.classList.add('exit-button');
-        
-        // Add event listener to exit button
-        exitButton.addEventListener('click', () => {
-            modalOverlay.remove(); // Remove the modal overlay when the exit button is clicked
+        // Add event listener to close the modal when clicking outside the iframe
+        modalOverlay.addEventListener('click', (event) => {
+            if (event.target === modalOverlay) {
+                modalOverlay.remove(); // Remove the modal overlay when clicking outside the iframe
+            }
         });
-        
-        // Append the exit button to the modal overlay
-        modalOverlay.appendChild(exitButton);
-        
         // Append the modal overlay to the body
         document.body.appendChild(modalOverlay);
     });
 });
+
+
+
 </script>
 
 

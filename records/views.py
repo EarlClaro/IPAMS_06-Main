@@ -40,7 +40,7 @@ from django.conf import settings
 import magic
 
 import json
-import openai
+
 
 FILE_LENGTH = 5242880
 
