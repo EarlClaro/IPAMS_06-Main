@@ -78,74 +78,62 @@ class SignupView(View):
             form = forms.SignupForm(request.POST)
             if form.is_valid():
                 user = form.save(commit=False)
-                password = form.cleaned_password()
-                if password:
-                    user.set_password(password)
-                    user.role = UserRole.objects.get(pk=1)
-                    user.is_active = False
-                    user.is_verified = False
-                    user.save()
+                password = form.cleaned_data.get('password')  # Retrieve the password
+                user.set_password(password)  # This hashes the password
+                user.role = UserRole.objects.get(pk=1)
+                user.is_active = False
+                user.is_verified = False
+                user.save()
 
-                    # Save activated user data to the 'nalc_schema' database
-                    try:
-                        with connections['nalc'].cursor() as cursor:
-                            hashed_password = make_password('password')  # Hash the password
-                            cursor.execute(
-                                "INSERT INTO backend_user (name, email, password, is_active, is_superuser, is_staff) VALUES (%s, %s, %s, %s, %s, %s)",
-                                [user.username, user.email, hashed_password, 1, 0, 0]
-                            )
-                    except Exception as e:
-                        # Handle database insertion error here
-                        messages.error(request, _('Error occurred while saving user data to the other database: {}').format(str(e)))
-                        
-                    # Handling different roles
-                    role_id = int(request.POST.get('role', 0))
-                    if role_id == 2:
-                        course = json.loads(request.POST.get('course'))
-                        Student(user=user, course=Course.objects.get(pk=course[0]['id'])).save()
-                        roleRequestStudent(request, user.id)
-                    elif role_id == 3:
-                        college = json.loads(request.POST.get('college'))
-                        department = json.loads(request.POST.get('department'))
-                        Adviser(user=user, department=Department.objects.get(pk=department[0]['id']),
-                                college=College.objects.get(pk=college[0]['id'])).save()
-                        roleRequestAdviser(request, user.id)
+                # Save activated user data to the 'nalc' database
+                try:
+                    with connections['nalc'].cursor() as cursor:
+                        hashed_password = make_password(password)  # Hash the password
+                        cursor.execute(
+                            "INSERT INTO backend_user (name, email, password, is_active, is_superuser, is_staff) VALUES (%s, %s, %s, %s, %s, %s)",
+                            [user.username, user.email, hashed_password, 1, 0, 0]
+                        )
+                except Exception as e:
+                    messages.error(request, _('Error occurred while saving user data to the other database: {}').format(str(e)))
 
-                    # Saving role request
-                    RoleRequest(user=user, role=UserRole.objects.get(pk=role_id)).save()
+                # Handling different roles
+                role_id = int(request.POST.get('role', 0))
+                if role_id == 2:
+                    course = json.loads(request.POST.get('course'))
+                    Student(user=user, course=Course.objects.get(pk=course[0]['id'])).save()
+                    roleRequestStudent(request, user.id)
+                elif role_id == 3:
+                    college = json.loads(request.POST.get('college'))
+                    department = json.loads(request.POST.get('department'))
+                    Adviser(user=user, department=Department.objects.get(pk=department[0]['id']),
+                            college=College.objects.get(pk=college[0]['id'])).save()
+                    roleRequestAdviser(request, user.id)
 
-                    # Sending activation email
-                    current_site = get_current_site(request)
-                    mail_subject = 'Activate your account.'
-                    message = render_to_string(
-                        'accounts/account_active_email.html', {
-                           'user': user,
-                           'domain': current_site.domain,
-                           'uid': urlsafe_base64_encode(force_bytes(user.pk)),
-                           'token': default_token_generator.make_token(user),
-                        }
-                    )
-                    to_email = form.cleaned_data.get('email')
-                    email_message = send_mail(
-                        mail_subject,
-                        message,
-                        settings.EMAIL_HOST_USER,
-                        [to_email],
-                        fail_silently=False
-                    )
-                    EmailThreading(email_message).start()
-                    messages.success(request, 'Activate account by confirming your email address to complete the registration.')
+                # Saving role request
+                RoleRequest(user=user, role=UserRole.objects.get(pk=role_id)).save()
 
-                    return redirect('/')
-                else:
-                    error_message = 'Password did not match!'
+                # Sending activation email
+                current_site = get_current_site(request)
+                mail_subject = 'Activate your account.'
+                message = render_to_string(
+                    'accounts/account_active_email.html', {
+                       'user': user,
+                       'domain': current_site.domain,
+                       'uid': urlsafe_base64_encode(force_bytes(user.pk)),
+                       'token': default_token_generator.make_token(user),
+                    }
+                )
+                to_email = form.cleaned_data.get('email')
+                send_mail(mail_subject, message, settings.EMAIL_HOST_USER, [to_email], fail_silently=False)
+                messages.success(request, 'Activate account by confirming your email address to complete the registration.')
+
+                return redirect('/')
             else:
+                error_message = 'Invalid form'
                 if not form.cleaned_data.get('username'):
                     error_message = 'Username not available'
                 elif not form.cleaned_data.get('email'):
                     error_message = 'That E-mail is already used by another user'
-                else:
-                    error_message = 'Invalid form'
                 messages.error(request, error_message)
             return render(request, self.name, {'form': form, 'hide_profile': True})
 
