@@ -285,12 +285,18 @@ header h2 {
     left: 0;
     width: 100%;
     height: 100%;
-    background-color: rgba(0, 0, 0, 0.5); /* semi-transparent background */
+    background-color: rgba(0, 0, 0, 0.5);
     display: flex;
     justify-content: center;
     align-items: center;
-    z-index: 9999; /* Ensure the overlay appears above other content */
+    transition: opacity 0.3s ease; /* Smooth opacity transition */
 }
+
+.modal-hidden {
+    opacity: 0;
+    pointer-events: none; /* Disable pointer events when hidden */
+}
+
 
 /* CSS for the chatbot content inside the modal */
 .modal-overlay iframe {
@@ -709,25 +715,32 @@ function submitButtonListener(event) {
         event.preventDefault();
         // Create a modal overlay
         const modalOverlay = document.createElement('div');
-        modalOverlay.classList.add('modal-overlay');
-        // Apply CSS to hide overflow
-        modalOverlay.style.overflow = 'hidden';
+        modalOverlay.classList.add('modal-overlay', 'modal-hidden'); // Initially hide the modal with CSS class
         // Create an iframe for the chatbot content
         const iframe = document.createElement('iframe');
         iframe.src = 'http://localhost:3000/';
         iframe.setAttribute('frameborder', '0');
         // Append the iframe to the modal overlay
         modalOverlay.appendChild(iframe);
+        // Append the modal overlay to the body
+        document.body.appendChild(modalOverlay);
+        // Trigger reflow to apply initial styles before adding transition class
+        modalOverlay.offsetHeight;
+        // Remove the modal-hidden class to trigger smooth transition
+        modalOverlay.classList.remove('modal-hidden');
         // Add event listener to close the modal when clicking outside the iframe
         modalOverlay.addEventListener('click', (event) => {
             if (event.target === modalOverlay) {
-                modalOverlay.remove(); // Remove the modal overlay when clicking outside the iframe
+                modalOverlay.classList.add('modal-hidden'); // Hide the modal with CSS class
+                // Remove the modal overlay after transition completes
+                modalOverlay.addEventListener('transitionend', () => {
+                    modalOverlay.remove();
+                }, { once: true });
             }
         });
-        // Append the modal overlay to the body
-        document.body.appendChild(modalOverlay);
     });
 });
+
 
 </script>
 {% endblock %}
