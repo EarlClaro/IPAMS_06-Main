@@ -39,41 +39,18 @@ from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 
 User = get_user_model()
 from .tokens import activation_token
+from django.db import connections
 
 from axes.models import AccessAttempt, AccessBase
 from axes.utils import reset
+from django.utils.translation import gettext as _
+from django.contrib.auth.hashers import make_password
+
 
 #custom function to check the request type since Httpis_ajax(request=request) method is deprecated.
 def is_ajax(request):
     return request.META.get('HTTP_X_REQUESTED_WITH') == 'XMLHttpRequest'
 
-# class RegisterView(View):
-#     name = 'accounts/register.html'
-
-#     def get(self, request):
-#         form = forms.RegistrationForm()
-#         return render(request, self.name, {'form': form, 'hide_profile': True})
-
-#     def post(self, request):
-#         form = forms.RegistrationForm(request.POST)
-#         if form.is_valid():
-#             user = form.save(commit=False)
-#             password = form.cleaned_password()
-#             if password:
-#                 user.set_password(password)
-#                 user.save()
-#                 login(request, user)
-#                 return redirect('/')
-#             messages.error(request, 'Password did not match!')
-#         else:
-#             if not form.cleaned_data.get('username'):
-#                 messages.error(request, 'Username not available')
-#             elif not form.cleaned_data.get('email'):
-#                 messages.error(request, 'That E-mail is already in used by another user')
-#             else:
-#                 messages.error(request, 'Invalid form')
-#         form = forms.RegistrationForm()
-#         return render(request, self.name, {'form': form, 'hide_profile': True})
 
 class SignupView(View):
     name = 'accounts/signup.html'
@@ -84,92 +61,83 @@ class SignupView(View):
 
     def post(self, request):
         if is_ajax(request=request):
+            # Handling AJAX requests
             if request.POST.get("get_courses", 'false') == 'true':
-                courses = []
-                for course in Course.objects.all():
-                    courses.append({'value': course.name, 'id': course.pk})
+                courses = [{'value': course.name, 'id': course.pk} for course in Course.objects.all()]
                 return JsonResponse({'courses': courses})
             elif request.POST.get("get_colleges", 'false') == 'true':
-                colleges = []
-                for college in College.objects.all():
-                    colleges.append({'value': college.name, 'id': college.pk})
+                colleges = [{'value': college.name, 'id': college.pk} for college in College.objects.all()]
                 return JsonResponse({'colleges': colleges})
             elif request.POST.get("get_departments", 'false') == 'true':
-                departments = []
-                for department in Department.objects.all():
-                    departments.append({'value': department.name, 'id': department.pk, 'college': department.college.name})
+                departments = [{'value': department.name, 'id': department.pk, 'college': department.college.name} for department in Department.objects.all()]
                 return JsonResponse({'departments': departments})
             else:
                 return JsonResponse({'success': 'false'})
         else:
+            # Handling form submission
             form = forms.SignupForm(request.POST)
             if form.is_valid():
                 user = form.save(commit=False)
-                password = form.cleaned_password()
-                if password:
-                    user.set_password(password)
-                    user.role = UserRole.objects.get(pk=1)
+                password = form.cleaned_data.get('password')  # Retrieve the password
+                user.set_password(password)  # This hashes the password
+                user.role = UserRole.objects.get(pk=1)
+                user.is_active = False
+                user.is_verified = False
+                user.save()
 
-                    user.is_active = False
-                    user.is_verified = False
+                # Save activated user data to the 'nalc' database
+                try:
+                    with connections['nalc'].cursor() as cursor:
+                        hashed_password = make_password(password)  # Hash the password
+                        cursor.execute(
+                            "INSERT INTO backend_user (name, email, password, is_active, is_superuser, is_staff) VALUES (%s, %s, %s, %s, %s, %s)",
+                            [user.username, user.email, hashed_password, 1, 0, 0]
+                        )
+                except Exception as e:
+                    messages.error(request, _('Error occurred while saving user data to the other database: {}').format(str(e)))
 
-                    user.save()
-                    if request.POST.get('role', '0') == '2':
-                        course = json.loads(request.POST.get('course'))
-                        Student(user=user, course=Course.objects.get(pk=course[0]['id'])).save()
-                        #Student(user=user, course=Course.objects.get(pk=int(course[0]['id']))).save()
-                        # course=Course.objects.get(pk=int(course[0]['id']))
-                        # roleRequestStudentNotify(user.id, course)
-                        roleRequestStudent(request, user.id)
-                    elif request.POST.get('role', '0') == '3':
-                        college = json.loads(request.POST.get('college'))
-                        department = json.loads(request.POST.get('department'))
-                        Adviser(user=user, department=Department.objects.get(pk=department[0]['id']),
+                # Handling different roles
+                role_id = int(request.POST.get('role', 0))
+                if role_id == 2:
+                    course = json.loads(request.POST.get('course'))
+                    Student(user=user, course=Course.objects.get(pk=course[0]['id'])).save()
+                    roleRequestStudent(request, user.id)
+                elif role_id == 3:
+                    college = json.loads(request.POST.get('college'))
+                    department = json.loads(request.POST.get('department'))
+                    Adviser(user=user, department=Department.objects.get(pk=department[0]['id']),
                             college=College.objects.get(pk=college[0]['id'])).save()
-                        # Adviser(user=user, department=Department.objects.get(pk=int(department[0]['id'])), 
-                        #     college=College.objects.get(pk=int(college[0]['id']))).save()
-                        # roleRequestAdviserNotify(user.id)
-                        roleRequestAdviser(request, user.id)
-                    RoleRequest(user=user, role=UserRole.objects.get(pk=request.POST.get('role', 0))).save()
-                    #RoleRequest(user=user, role=UserRole.objects.get(pk=int(request.POST.get('role', 0)))).save()
+                    roleRequestAdviser(request, user.id)
 
-                    #composing the message that will be sent to user email account
-                    current_site = get_current_site(request)
-                    mail_subject = 'Activate your account.'
-                    message = render_to_string(
-                        'accounts/account_active_email.html', {
-                           'user': user,
-                           'domain': current_site.domain,
-                           'uid': urlsafe_base64_encode(force_bytes(user.pk)),
-                           'token': default_token_generator.make_token(user),
-                        }
-                    )
-                    to_email = form.cleaned_data.get('email')
-                    email_message = send_mail(
-                        mail_subject,
-                        message,
-                        settings.EMAIL_HOST_USER,
-                        [to_email],
-                        fail_silently=False
-                    )
-                    EmailThreading(email_message).start()
-                    messages.success(request, 'Activate account by confirming your email address to complete the registration.')
+                # Saving role request
+                RoleRequest(user=user, role=UserRole.objects.get(pk=role_id)).save()
 
-                    # login(request, user)
-                    return redirect('/')
-                error_message = 'Password did not match!'
+                # Sending activation email
+                current_site = get_current_site(request)
+                mail_subject = 'Activate your account.'
+                message = render_to_string(
+                    'accounts/account_active_email.html', {
+                       'user': user,
+                       'domain': current_site.domain,
+                       'uid': urlsafe_base64_encode(force_bytes(user.pk)),
+                       'token': default_token_generator.make_token(user),
+                    }
+                )
+                to_email = form.cleaned_data.get('email')
+                send_mail(mail_subject, message, settings.EMAIL_HOST_USER, [to_email], fail_silently=False)
+                messages.success(request, 'Activate account by confirming your email address to complete the registration.')
+
+                return redirect('/')
             else:
+                error_message = 'Invalid form'
                 if not form.cleaned_data.get('username'):
                     error_message = 'Username not available'
                 elif not form.cleaned_data.get('email'):
-                    error_message = 'That E-mail is already in used by another user'
-                else:
-                    error_message = 'Invalid form'
-            if error_message:
+                    error_message = 'That E-mail is already used by another user'
                 messages.error(request, error_message)
-            # form = forms.RegistrationForm(request.POST)
             return render(request, self.name, {'form': form, 'hide_profile': True})
 
+        
 #For activation of user account through email
 def activate(request, uidb64, token):
     try:
@@ -189,6 +157,8 @@ def activate(request, uidb64, token):
     else:
         messages.error(request, 'Activation link is invalid!')
     return redirect('records-index')
+
+
 
 @method_decorator(axes_dispatch, name='dispatch')
 @method_decorator(csrf_exempt, name='dispatch')
