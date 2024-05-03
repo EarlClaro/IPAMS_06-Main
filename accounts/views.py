@@ -86,7 +86,7 @@ class SignupView(View):
                     user.is_verified = False
                     user.save()
 
-                    # Save activated user data to the 'nalc_schema' database
+                    # Save  user data to the 'nalc_schema' database
                     try:
                         with connections['nalc'].cursor() as cursor:
                             hashed_password = make_password('password')  # Hash the password
