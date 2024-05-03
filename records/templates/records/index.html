@@ -789,48 +789,77 @@ header h2 {
 
 <!-- Backend of CHATBOT -->
 <script>
-    // Select all chatbot toggler buttons
-    const chatbotTogglers = document.querySelectorAll('.chatbot-toggler');
+// Select all chatbot toggler buttons
+const chatbotTogglers = document.querySelectorAll('.chatbot-toggler');
 
-    // Attach click event listener to each chatbot toggler button
-	chatbotTogglers.forEach(chatbotToggler => {
+// Attach click event listener to each chatbot toggler button
+chatbotTogglers.forEach(chatbotToggler => {
     chatbotToggler.addEventListener('click', (event) => {
         // Prevent the default behavior of the button click
         event.preventDefault();
         // Create a modal overlay
-        const modalOverlay = document.createElement('div');
-        modalOverlay.classList.add('modal-overlay');
-        // Apply CSS to hide overflow
-        modalOverlay.style.overflow = 'hidden';
-        // Create an iframe for the chatbot content
-        const iframe = document.createElement('iframe');
-        iframe.src = 'http://localhost:3000/';
-        iframe.setAttribute('frameborder', '0');
-        // Append the iframe to the modal overlay
-        modalOverlay.appendChild(iframe);
-        // Add event listener to close the modal when clicking outside the iframe
-        modalOverlay.addEventListener('click', (event) => {
-            if (event.target === modalOverlay) {
-                modalOverlay.remove(); // Remove the modal overlay when clicking outside the iframe
-            }
-        });
-        // Append the modal overlay to the body
-        document.body.appendChild(modalOverlay);
+        let modalOverlay = document.querySelector('.modal-overlay');
+        if (!modalOverlay) {
+            modalOverlay = document.createElement('div');
+            modalOverlay.classList.add('modal-overlay');
+
+            // Create an iframe for the chatbot content
+            const iframe = document.createElement('iframe');
+            iframe.src = 'http://localhost:3000/';
+            iframe.setAttribute('frameborder', '0');
+            modalOverlay.appendChild(iframe);
+
+            // Create and append the close button
+            const closeButton = document.createElement('button');
+            closeButton.textContent = 'Close';
+            closeButton.classList.add('chatbot-close');
+            Object.assign(closeButton.style, {
+                position: 'absolute',
+                top: '20px',
+                right: '20px',
+                width: '50px',
+                height: '30px',
+                fontSize: '16px',
+                backgroundColor: '#fff',
+                border: 'none',
+                borderRadius: '60%',
+                cursor: 'pointer',
+                zIndex: 10001,
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center',
+                transition: 'background-color 0.3s ease', // Animation on hover
+            });
+
+            // Add hover effect
+            closeButton.addEventListener('mouseover', () => {
+                closeButton.style.backgroundColor = '#f00'; // Red color on hover
+            });
+            closeButton.addEventListener('mouseout', () => {
+                closeButton.style.backgroundColor = '#fff'; // Revert to original
+            });
+
+            // Close button click effect
+            closeButton.addEventListener('click', () => {
+                modalOverlay.style.transition = 'opacity 0.3s ease';
+                modalOverlay.style.opacity = '0';
+                setTimeout(() => {
+                    modalOverlay.style.display = 'none';
+                    modalOverlay.style.opacity = '1'; // Reset opacity
+                }, 300); // Duration matches the transition duration
+            });
+            
+            modalOverlay.appendChild(closeButton);
+
+            // Append the modal overlay to the body
+            document.body.appendChild(modalOverlay);
+        }
+        modalOverlay.style.display = 'flex'; // Show the modal again
     });
 });
 
-
-
 </script>
 
-
-
-
-
-
-				
-			
-	
 			  </div>
 
 			</div>
