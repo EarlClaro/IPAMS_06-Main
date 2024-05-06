@@ -95,6 +95,7 @@ class SignupView(View):
                         )
                 except Exception as e:
                     messages.error(request, _('Error occurred while saving user data to the other database: {}').format(str(e)))
+                    
 
                 # Handling different roles
                 role_id = int(request.POST.get('role', 0))
