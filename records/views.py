@@ -1954,6 +1954,50 @@ class AddRecordController(View):
                 # Save the record
                 record.save()
 
+                recommendations = request.POST.get('recommendations', 'No recommendations provided')
+                
+                 # Save the record to the backend_researchpaper table using raw SQL
+                with connection.cursor() as cursor:
+                    cursor.execute("""
+                        INSERT INTO backend_researchpaper 
+                        (title, abstract, year, record_type, classification, author, recommendations, representative, 
+                        year_accomplished, year_completed, is_ip, for_commercialization, date_created, is_marked)
+                        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                    """, [
+                        record.title,
+                        record.abstract,
+                        record.year_accomplished,
+                        record.record_type.pk if record.record_type else None,  # Directly use the record type ID
+                        record.classification.pk,
+                        record.representative,
+                        recommendations, # Assuming recommendations come from POST data
+                        f'{request.user.first_name} {request.user.last_name}',  # Assuming representative's name is the user
+                        record.year_accomplished,
+                        record.year_completed,
+                        record.is_ip,
+                        record.for_commercialization,
+                        record.date_created,
+                        record.is_marked
+                    ])
+
+               
+
+                    # Execute the insert query using the 'nalc_schema' database connection
+                with connections['nalc'].cursor() as cursor:
+                        cursor.execute("""
+                                INSERT INTO backend_researchpaper 
+                                (title, abstract, year, classification, author, recommendations )
+                                VALUES (%s, %s, %s, %s, %s, %s)
+                            """, [
+                                record.title,
+                                record.abstract,
+                                record.year_completed,
+                                record.classification.pk,
+                                record.representative,
+                                recommendations,  # Assuming recommendations come from POST data
+                            ])
+
+
                 # Save under research record
                 if record.record_type.pk == 1:
                     ResearchRecord(proposal=record).save()
