@@ -779,7 +779,10 @@ header h2 {
 					</div>
 				</div>
 			</section>
-			
+
+
+
+{% if user.role.id > 2 %}		
 <!-- Chatbot Frontend -->
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <!-- Google Fonts Link For Icons -->
@@ -830,10 +833,8 @@ chatbotTogglers.forEach(chatbotToggler => {
     });
 });
 
-
-
 </script>
-
+{% endif %}
 			  </div>
 
 			</div>
