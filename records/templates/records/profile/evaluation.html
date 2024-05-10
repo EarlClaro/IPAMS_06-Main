@@ -464,7 +464,7 @@ $(document).ready(function() {
         </div>
         <div class="col-8">
             <div class="mr-2 mt-2 float-right">
-                <button id="myButton" class="btn base-btn base-bg-secondary">AI Detection</button>
+                
                 <a href="{% url 'file_management:attachments' record_id=record.pk %}" target="_blank">
                     <button type="button" class="btn base-btn base-bg-secondary">
                         <i class="fas fa-paperclip"></i> Attachments
@@ -778,23 +778,72 @@ $(document).ready(function() {
 <style>
 /* Import Google font - Poppins */
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap');
+/* CSS for the exit button */
+.exit-button {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    width: 30px;
+    height: 30px;
+    font-size: 24px;
+    font-weight: bold;
+    background-color: #fff;
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    z-index: 10001; /* Ensure the exit button appears above the chatbot content */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* CSS for the modal overlay */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: opacity 0.3s ease; /* Smooth opacity transition */
+}
+
+.modal-hidden {
+    opacity: 0;
+    pointer-events: none; /* Disable pointer events when hidden */
+}
+
+
+/* CSS for the chatbot content inside the modal */
+.modal-overlay iframe {
+    width: 80%; /* Adjust the width as needed */
+    height: 80%; /* Adjust the height as needed */
+    border-radius: 10px;
+    background-color: white; /* White background for the chatbot */
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.3); /* Drop shadow effect */
+    z-index: 10000; /* Ensure the chatbot content appears above the overlay */
+}
+
+
 
 .chatbot-toggler {
-    position: fixed;
-  bottom: 20px; /* Distance from the bottom of the viewport */
-  right: 20px; /* Distance from the right of the viewport */
-  z-index: 1050; /* Higher than .chatbot to stay on top */
+  position: fixed;
+  bottom: 30px;
+  right: 35px;
   outline: none;
   border: none;
-  height: 80px; /* Adjust size as needed */
-  width: 80px; /* Adjust size as needed */
+  height: 80px;
+  width: 80px;
   display: flex;
   cursor: pointer;
   align-items: center;
   justify-content: center;
   border-radius: 50%;
   background: gold;
-  transition: transform 0.2s ease, background-color 0.2s ease;
+  transition: all 0.2s ease;
 }
 body.show-chatbot .chatbot-toggler {
   transform: rotate(90deg);
@@ -811,38 +860,25 @@ body.show-chatbot .chatbot-toggler span:last-child {
   opacity: 1;
 }
 .chatbot {
-    display: none; /* Hidden by default */
-    position: fixed;
-    bottom: 100px; /* Adjust so it doesn't overlap with the button */
-    right: 20px;
-    width: 420px;
-    background: #fff;
-    border-radius: 15px;
-    overflow: hidden;
-    transform: scale(0.5);
-    transform-origin: bottom right;
-    box-shadow: 0 0 128px 0 rgba(0,0,0,0.1),
-                0 32px 64px -48px rgba(0,0,0,0.5);
-    transition: all 0.1s ease;
-}
-
-
-
-.show-chatbot {
-    display: block; /* Show chatbot when class is added */
-    opacity: 1;
-    pointer-events: auto;
-    transform: scale(1);
-    display: block;
+  position: fixed;
+  right: 35px;
+  bottom: 90px;
+  width: 420px;
+  background: #fff;
+  border-radius: 15px;
+  overflow: hidden;
+  opacity: 0;
+  pointer-events: none;
+  transform: scale(0.5);
+  transform-origin: bottom right;
+  box-shadow: 0 0 128px 0 rgba(0,0,0,0.1),
+              0 32px 64px -48px rgba(0,0,0,0.5);
+  transition: all 0.1s ease;
 }
 body.show-chatbot .chatbot {
   opacity: 1;
   pointer-events: auto;
   transform: scale(1);
-}
-
-.chatbot header .close-btn {
-  display: block;
 }
 .chatbot header {
   padding: 16px 0;
