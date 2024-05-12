@@ -93,12 +93,13 @@ class Course(models.Model): #Program
 		return self.name
 
 class Student(models.Model):
-	user = models.OneToOneField(User, on_delete=models.CASCADE, primary_key=True, default=None)
-	course = models.ForeignKey(Course, on_delete=models.DO_NOTHING, null=True, blank=True) #program
-	date_created = models.DateTimeField(auto_now_add=True)
+    user = models.OneToOneField(User, on_delete=models.CASCADE, primary_key=True)
+    course = models.ForeignKey(Course, on_delete=models.DO_NOTHING, null=True, blank=True)
+    student_id = models.CharField(max_length=20, unique=True, null=False, blank=True) 
+    date_created = models.DateTimeField(auto_now_add=True)
 
-	def __str__(self):
-		return self.user.username
+    def __str__(self):
+        return f"{self.user.username} - {self.student_id}"
 
 class RoleRequest(models.Model):
 	user = models.ForeignKey(User, on_delete=models.CASCADE)
