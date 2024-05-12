@@ -65,6 +65,7 @@ class PaymentPortalView(View):
         # Logic to render paymentportal.html
         return render(request, 'ipams/paymentportal.html')
     
+    
 def update_record_tags(request, record_id):
     record = Record.objects.get(pk=record_id)
     ip_is_changed = False
@@ -115,7 +116,9 @@ def update_record_tags(request, record_id):
             action=f'community_extension_tag status changed to \"{status}\", record ID: <a href="/dashboard/logs/record/{record_id}">#{record_id}</a>').save()
     return {'success': True, 'is-ip': record.is_ip, 'for-commercialization': record.for_commercialization,
             'community-ext': record.community_extension}
-
+def create_payment_link(request):
+    # Implement your view logic here
+    return HttpResponse("Create Payment Link view")
 
 @csrf_exempt
 def generate_pin_and_save_data_view(request):
@@ -3775,3 +3778,31 @@ def download_docx_file(request, record_upload_id):
     response.write(docx_content)
 
     return response
+import requests
+from django.shortcuts import redirect
+
+def create_payment_link_view(request):
+    url = "https://api.paymongo.com/v1/links"
+    payload = {
+        "data": {
+            "attributes": {
+                "amount": 10000,  # Adjust the amount as needed
+                "description": "premium",
+                "remarks": "pay"
+            }
+        }
+    }
+    headers = {
+        "accept": "application/json",
+        "content-type": "application/json",
+        "authorization": "Basic c2tfdGVzdF9KV0pFUDlLRGpOYUREUlV2MXVDMVpnU0I6"
+    }
+
+    response = requests.post(url, json=payload, headers=headers)
+    data = response.json()
+
+    # Retrieve the checkout_url from the response
+    checkout_url = data['data']['attributes']['checkout_url']
+
+    # Redirect the user to the checkout_url
+    return redirect(checkout_url)
