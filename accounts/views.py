@@ -3,7 +3,7 @@ from http.client import INTERNAL_SERVER_ERROR
 import json
 from threading import Thread
 import requests
-
+from django.db import IntegrityError
 from django.contrib import messages
 from django.contrib.auth import signals, authenticate, login, logout as auth_logout
 from django.contrib.auth.decorators import login_required
@@ -97,13 +97,29 @@ class SignupView(View):
                     messages.error(request, _('Error occurred while saving user data to the other database: {}').format(str(e)))
                     
 
-                # Handling different roles
                 role_id = int(request.POST.get('role', 0))
-                if role_id == 2:
-                    course = json.loads(request.POST.get('course'))
-                    Student(user=user, course=Course.objects.get(pk=course[0]['id'])).save()
-                    roleRequestStudent(request, user.id)
-                elif role_id == 3:
+                if role_id == 2:  # Student
+                    student_id = request.POST.get('student_id', None)
+                    if not student_id:
+                        messages.error(request, 'Student ID is required for student registrations.')
+                        return render(request, self.name, {'form': form, 'hide_profile': True})
+
+                    if Student.objects.filter(student_id=student_id).exists():
+                        messages.error(request, 'This Student ID is already in use. Please use a different ID.')
+                        return render(request, self.name, {'form': form, 'hide_profile': True})
+
+                    try:
+                        course_data = json.loads(request.POST.get('course'))
+                        course = Course.objects.get(pk=course_data[0]['id'])
+                        student = Student(user=user, course=course, student_id=student_id)
+                        student.save()
+                        roleRequestStudent(request, user.id)
+
+                    except IntegrityError as e:
+                        messages.error(request, f'A database error occurred: {str(e)}')
+                        return render(request, self.name, {'form': form, 'hide_profile': True})
+                  
+                elif role_id == 3:  # Adviser
                     college = json.loads(request.POST.get('college'))
                     department = json.loads(request.POST.get('department'))
                     Adviser(user=user, department=Department.objects.get(pk=department[0]['id']),
