@@ -3792,16 +3792,21 @@ def create_payment_link_view(request):
             }
         }
     }
+
+   
+    secret_key = "sk_test_PUL9xuAM8Sm9GLh3FGura1vr"
+    encoded_key = base64.b64encode(f"{secret_key}:".encode()).decode()
+
     headers = {
         "accept": "application/json",
         "content-type": "application/json",
-        "authorization": "Basic c2tfdGVzdF9KV0pFUDlLRGpOYUREUlV2MXVDMVpnU0I6"
+        "authorization": f"Basic {encoded_key}"
     }
 
     response = requests.post(url, json=payload, headers=headers)
     data = response.json()
 
-    # Retrieve the checkout_url from the response
+  
     checkout_url = data['data']['attributes']['checkout_url']
 
     # Redirect the user to the checkout_url
