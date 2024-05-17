@@ -803,28 +803,27 @@ const chatbotTogglers = document.querySelectorAll('.chatbot-toggler');
 // Attach click event listener to each chatbot toggler button
 chatbotTogglers.forEach(chatbotToggler => {
     chatbotToggler.addEventListener('click', (event) => {
-        // Prevent the default behavior of the button click
         event.preventDefault();
-        // Create a modal overlay
+
         const modalOverlay = document.createElement('div');
-        modalOverlay.classList.add('modal-overlay', 'modal-hidden'); // Initially hide the modal with CSS class
-        // Create an iframe for the chatbot content
+        modalOverlay.classList.add('modal-overlay', 'modal-hidden');
+        
         const iframe = document.createElement('iframe');
-        iframe.src = 'http://localhost:3000/';
+        
+        // Get JWT token from cookies
+        const jwtToken = getCookie('jwt_token');
+        iframe.src = `http://localhost:3000/?token=${jwtToken}`;  // Pass the token as URL parameter
         iframe.setAttribute('frameborder', '0');
-        // Append the iframe to the modal overlay
+        
         modalOverlay.appendChild(iframe);
-        // Append the modal overlay to the body
         document.body.appendChild(modalOverlay);
-        // Trigger reflow to apply initial styles before adding transition class
+        
         modalOverlay.offsetHeight;
-        // Remove the modal-hidden class to trigger smooth transition
         modalOverlay.classList.remove('modal-hidden');
-        // Add event listener to close the modal when clicking outside the iframe
+        
         modalOverlay.addEventListener('click', (event) => {
             if (event.target === modalOverlay) {
-                modalOverlay.classList.add('modal-hidden'); // Hide the modal with CSS class
-                // Remove the modal overlay after transition completes
+                modalOverlay.classList.add('modal-hidden');
                 modalOverlay.addEventListener('transitionend', () => {
                     modalOverlay.remove();
                 }, { once: true });
@@ -832,6 +831,12 @@ chatbotTogglers.forEach(chatbotToggler => {
         });
     });
 });
+
+function getCookie(name) {
+    const value = `; ${document.cookie}`;
+    const parts = value.split(`; ${name}=`);
+    if (parts.length === 2) return parts.pop().split(';').shift();
+}
 
 </script>
 {% endif %}
