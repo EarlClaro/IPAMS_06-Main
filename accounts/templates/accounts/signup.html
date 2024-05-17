@@ -115,6 +115,7 @@
         // Initial trigger to set form state correctly on load
         $("input[name='role']:checked").trigger("click");
     });
+    
     $("#termsRadio1").click(function(){     
         var termsAnswer = $("input[name=termsRadio]:checked").val();
         if(termsAnswer == "1"){

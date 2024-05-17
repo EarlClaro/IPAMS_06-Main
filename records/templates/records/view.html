@@ -595,9 +595,8 @@ function toggleChatbotPopup() {
                     <a href="#"><button class="btn base-btn float-right base-bg-secondary">Send download request </button></a>
                 {% endif %}
             {% endif %}
-            <!-- "Cite" button -->
-            <a href="#" id="citeButton"><button class="btn base-btn float-right base-bg-secondary">Cite</button></a>
-            <a href="javascript:void(0);" id="summarizeButton"><button class="btn base-btn float-left base-bg-secondary">Summarize</button></a>
+            
+            
         </div>
     </div>
     <div class="row ml-0 mt-2">
@@ -652,53 +651,10 @@ function toggleChatbotPopup() {
     </div>
 </div>
 
-<!-- Chatbot Frontend -->
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<!-- Google Fonts Link For Icons -->
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@48,400,0,0" />
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@48,400,1,0" />
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@48,400,0,0" />
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@48,400,1,0" />
-<button class="chatbot-toggler">
-    <span class="material-symbols-rounded">mode_comment</span>
-    <span class="material-symbols-outlined">close</span>
-</button>
-
-<!-- Backend of CHATBOT -->
-<script>
-    // Select all chatbot toggler buttons
-    const chatbotTogglers = document.querySelectorAll('.chatbot-toggler');
-
-    // Attach click event listener to each chatbot toggler button
-    chatbotTogglers.forEach(chatbotToggler => {
-        chatbotToggler.addEventListener('click', (event) => {
-            // Prevent the default behavior of the button click
-            event.preventDefault();
-            // Create a modal overlay
-            const modalOverlay = document.createElement('div');
-            modalOverlay.classList.add('modal-overlay');
-            // Create an iframe for the chatbot content
-            const iframe = document.createElement('iframe');
-            iframe.src = 'http://localhost:3000/';
-            iframe.setAttribute('frameborder', '0');
-            // Append the iframe to the modal overlay
-            modalOverlay.appendChild(iframe);
-            // Create an exit button
-            const exitButton = document.createElement('button');
-            exitButton.textContent = 'Exit';
-            exitButton.classList.add('exit-button');
-            // Add event listener to exit button
-            exitButton.addEventListener('click', () => {
-                modalOverlay.remove(); // Remove the modal overlay when the exit button is clicked
-            });
-            // Append the exit button to the modal overlay
-            modalOverlay.appendChild(exitButton);
-            // Append the modal overlay to the body
-            document.body.appendChild(modalOverlay);
-        });
-    });
-
-</script>
+				<!-- Chatbot -->
+				{% if user.role.id > 1 %}	
+				{% include 'records/chatbot.html' %}
+				{% endif %}
 
 
 
