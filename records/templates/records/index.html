@@ -782,65 +782,10 @@ header h2 {
 
 
 
-{% if user.role.id > 1 %}		
-<!-- Chatbot Frontend -->
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<!-- Google Fonts Link For Icons -->
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@48,400,0,0" />
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@48,400,1,0" />
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@48,400,0,0" />
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@48,400,1,0" />
-<button class="chatbot-toggler">
-    <span class="material-symbols-rounded">mode_comment</span>
-    <span class="material-symbols-outlined">close</span>
-</button>
-
-<!-- Backend of CHATBOT -->
-<script>
-// Select all chatbot toggler buttons
-const chatbotTogglers = document.querySelectorAll('.chatbot-toggler');
-
-// Attach click event listener to each chatbot toggler button
-chatbotTogglers.forEach(chatbotToggler => {
-    chatbotToggler.addEventListener('click', (event) => {
-        event.preventDefault();
-
-        const modalOverlay = document.createElement('div');
-        modalOverlay.classList.add('modal-overlay', 'modal-hidden');
-
-        const iframe = document.createElement('iframe');
-
-        // Get JWT token from cookies
-        const jwtToken = getCookie('jwt_token');
-        iframe.src = `http://localhost:3000/?token=${jwtToken}`;  // Pass the token as URL parameter
-        iframe.setAttribute('frameborder', '0');
-
-        modalOverlay.appendChild(iframe);
-        document.body.appendChild(modalOverlay);
-
-        modalOverlay.offsetHeight;
-        modalOverlay.classList.remove('modal-hidden');
-
-        modalOverlay.addEventListener('click', (event) => {
-            if (event.target === modalOverlay) {
-                modalOverlay.classList.add('modal-hidden');
-                modalOverlay.addEventListener('transitionend', () => {
-                    modalOverlay.remove();
-                }, { once: true });
-            }
-        });
-    });
-});
-
-function getCookie(name) {
-    const value = `; ${document.cookie}`;
-    const parts = value.split(`; ${name}=`);
-    if (parts.length === 2) return parts.pop().split(';').shift();
-}
-
-
-</script>
-{% endif %}
+				<!-- Chatbot -->
+				{% if user.role.id > 1 %}	
+				{% include 'records/chatbot.html' %}
+				{% endif %}
 			  </div>
 
 			</div>
