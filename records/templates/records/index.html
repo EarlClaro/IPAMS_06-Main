@@ -807,20 +807,20 @@ chatbotTogglers.forEach(chatbotToggler => {
 
         const modalOverlay = document.createElement('div');
         modalOverlay.classList.add('modal-overlay', 'modal-hidden');
-        
+
         const iframe = document.createElement('iframe');
-        
+
         // Get JWT token from cookies
         const jwtToken = getCookie('jwt_token');
         iframe.src = `http://localhost:3000/?token=${jwtToken}`;  // Pass the token as URL parameter
         iframe.setAttribute('frameborder', '0');
-        
+
         modalOverlay.appendChild(iframe);
         document.body.appendChild(modalOverlay);
-        
+
         modalOverlay.offsetHeight;
         modalOverlay.classList.remove('modal-hidden');
-        
+
         modalOverlay.addEventListener('click', (event) => {
             if (event.target === modalOverlay) {
                 modalOverlay.classList.add('modal-hidden');
@@ -837,6 +837,7 @@ function getCookie(name) {
     const parts = value.split(`; ${name}=`);
     if (parts.length === 2) return parts.pop().split(';').shift();
 }
+
 
 </script>
 {% endif %}
