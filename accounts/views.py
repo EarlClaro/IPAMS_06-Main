@@ -187,13 +187,13 @@ class LoginView(View):
     def post(self, request):
         if request.method == 'POST':
             ''' reCAPTCHA validation '''
-            #recaptcha_response = request.POST.get('g-recaptcha-response')
-            #data = {
-            #    'secret': settings.GOOGLE_RECAPTCHA_SECRET_KEY,
-            #    'response': recaptcha_response
-            #}
-            #r = requests.post('https://www.google.com/recaptcha/api/siteverify', data=data)
-            #result = r.json()
+            # recaptcha_response = request.POST.get('g-recaptcha-response')
+            # data = {
+            #     'secret': settings.GOOGLE_RECAPTCHA_SECRET_KEY,
+            #     'response': recaptcha_response
+            # }
+            # r = requests.post('https://www.google.com/recaptcha/api/siteverify', data=data)
+            # result = r.json()
             result = True
             ''' End reCAPTCHA validation '''
 
@@ -214,24 +214,26 @@ class LoginView(View):
                             # Generate JWT token
                             refresh = RefreshToken.for_user(user)
                             access_token = str(refresh.access_token)
-                            # Store JWT token in session or cookie
+
+                            # Store JWT token in session and as a cookie
                             request.session['jwt_token'] = access_token
                             response = redirect(request.POST.get('next', 'records-index'))
-                            response.set_cookie('jwt_token', access_token)
+                            response.set_cookie('jwt_token', access_token, httponly=True, samesite='Strict')
 
-                            if request.user.role.id == 5: #rdco
+                            # Add role-based notification logic here...
+                            if request.user.role.id == 5: # rdco
                                 notifications = Notification.objects.filter(Q(to_rdco=True) | Q(recipient=user.id))
                                 request.session['notif_count'] = notifications.count()
-                            elif request.user.role.id == 4: #ktto
+                            elif request.user.role.id == 4: # ktto
                                 notifications = Notification.objects.filter(Q(to_ktto=True) | Q(recipient=user.id))
                                 request.session['notif_count'] = notifications.count()
-                            elif request.user.role.id == 3: #adviser
+                            elif request.user.role.id == 3: # adviser
                                 notifications = Notification.objects.filter(Q(recipient=user.id) | Q(notif_type=NotificationType.objects.get(pk=6)) | Q(notif_type=NotificationType.objects.get(pk=1)) | Q(notif_type=NotificationType.objects.get(pk=2)))
                                 request.session['notif_count'] = notifications.count()
-                            elif request.user.role.id == 7: #tbi
+                            elif request.user.role.id == 7: # tbi
                                 notifications = Notification.objects.filter(Q(to_ktto=True) | Q(recipient=user.id))
                                 request.session['notif_count'] = notifications.count()
-                            elif request.user.role.id == 2: #student
+                            elif request.user.role.id == 2: # student
                                 notifications = Notification.objects.filter(recipient=user.id)
                                 request.session['notif_count'] = notifications.count()
 
@@ -246,8 +248,21 @@ class LoginView(View):
         return redirect('records-index')
 
 def logout(request):
+    # IPAMS logout
     auth_logout(request)
     messages.success(request, 'You are now logged out from the system...')
+
+    # Call NALC logout API
+    nalc_logout_url = 'http://localhost:8000/api/logout/'
+    try:
+        response = requests.get(nalc_logout_url, cookies=request.COOKIES)
+        if response.status_code == 200:
+            print('Successfully logged out from NALC')
+        else:
+            print('Failed to log out from NALC')
+    except Exception as e:
+        print('Error logging out from NALC:', e)
+
     return redirect('/')
 
 

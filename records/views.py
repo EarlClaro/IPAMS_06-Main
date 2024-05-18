@@ -38,7 +38,7 @@ from axes.models import AccessAttempt, AccessBase
 from axes.utils import reset
 from django.conf import settings
 import magic
-
+import re
 import json
 
 
@@ -1924,7 +1924,9 @@ class AddRecordController(View):
                 record.setTitle(request.POST.get('title'))
                 record.setYearCompleted(request.POST.get('year_completed'))
                 record.setYearAccomplished(request.POST.get('year_accomplished'))
-                record.setAbstract(request.POST.get('abstract_content'))
+                abstract_content = request.POST.get('abstract_content')
+                cleaned_abstract = re.sub(r'<\/?p>', '', abstract_content)  # Remove <p> and </p> tags
+                record.setAbstract(cleaned_abstract)
                 record.setClassification(Classification.objects.get(pk=request.POST.get('classification')))
                 record.setPscedClassification(
                     PSCEDClassification.objects.get(pk=request.POST.get('psced_classification')))
@@ -1959,20 +1961,20 @@ class AddRecordController(View):
 
                 recommendations = request.POST.get('recommendations', 'No recommendations provided')
 
-                    # Execute the insert query using the 'nalc_schema' database connection
+                # Execute the insert query using the 'nalc' database connection
                 with connections['nalc'].cursor() as cursor:
-                        cursor.execute("""
-                                INSERT INTO backend_researchpaper 
-                                (title, abstract, year, classification, author, recommendations )
-                                VALUES (%s, %s, %s, %s, %s, %s)
-                            """, [
-                                record.title,
-                                record.abstract,
-                                record.year_completed,
-                                record.classification.pk,
-                                record.representative,
-                                recommendations,  # Assuming recommendations come from POST data
-                            ])
+                    cursor.execute("""
+                        INSERT INTO backend_researchpaper 
+                        (title, abstract, year, classification, author, recommendations)
+                        VALUES (%s, %s, %s, %s, %s, %s)
+                    """, [
+                        record.title,
+                        cleaned_abstract,
+                        record.year_completed,
+                        record.classification.pk,
+                        record.representative,
+                        recommendations,
+                    ])
 
 
                 # Save under research record
