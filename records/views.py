@@ -4,7 +4,7 @@ import json
 import mimetypes
 import os
 import traceback
-
+from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib import messages
 from django.core.exceptions import ValidationError, ObjectDoesNotExist
 from django.db import DataError, connection, transaction
@@ -3756,18 +3756,21 @@ import requests
 from django.shortcuts import redirect
 
 def create_payment_link_view(request):
+    tier = request.GET.get('tier', '')  #aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+    price_mapping = {'premium': 17900, 'advanced': 14900, 'free':10000 }  # di mo dawat 100 pa obos gg
+
+ 
     url = "https://api.paymongo.com/v1/links"
     payload = {
         "data": {
             "attributes": {
-                "amount": 10000,  # Adjust the amount as needed
-                "description": "premium",
+                "amount": price_mapping[tier], 
+                "description": tier,
                 "remarks": "pay"
             }
         }
     }
 
-   
     secret_key = "sk_test_PUL9xuAM8Sm9GLh3FGura1vr"
     encoded_key = base64.b64encode(f"{secret_key}:".encode()).decode()
 
@@ -3780,7 +3783,6 @@ def create_payment_link_view(request):
     response = requests.post(url, json=payload, headers=headers)
     data = response.json()
 
-  
     checkout_url = data['data']['attributes']['checkout_url']
 
     # Redirect the user to the checkout_url

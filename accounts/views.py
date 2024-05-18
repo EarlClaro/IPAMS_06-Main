@@ -13,7 +13,6 @@ from django.shortcuts import render
 from django.utils.decorators import method_decorator
 from django.views import View
 from django.shortcuts import redirect
-
 from ipams import settings
 from . import forms
 from .decorators import authorized_roles
@@ -23,7 +22,7 @@ from notifications.models import Notification, NotificationType
 from accounts.auxfunctions import EmailThreading, roleRequestStudent, roleRequestAdviser
 from django.db.models import Q, Subquery
 from django.contrib.auth.hashers import check_password
-
+from rest_framework_simplejwt.tokens import RefreshToken
 from django.views.decorators.csrf import csrf_exempt
 from axes.decorators import axes_dispatch
 
@@ -199,7 +198,6 @@ class LoginView(View):
             ''' End reCAPTCHA validation '''
 
             if result or settings.TEST_FORM:
-            #if result['success'] or settings.TEST_FORM:
                 form = forms.LoginForm(request.POST)
                 if form.is_valid():
                     username = form.cleaned_data.get('username')
@@ -212,6 +210,15 @@ class LoginView(View):
                     if user:
                         if user.is_verified:
                             login(request, user)
+
+                            # Generate JWT token
+                            refresh = RefreshToken.for_user(user)
+                            access_token = str(refresh.access_token)
+                            # Store JWT token in session or cookie
+                            request.session['jwt_token'] = access_token
+                            response = redirect(request.POST.get('next', 'records-index'))
+                            response.set_cookie('jwt_token', access_token)
+
                             if request.user.role.id == 5: #rdco
                                 notifications = Notification.objects.filter(Q(to_rdco=True) | Q(recipient=user.id))
                                 request.session['notif_count'] = notifications.count()
@@ -229,8 +236,7 @@ class LoginView(View):
                                 request.session['notif_count'] = notifications.count()
 
                             messages.success(request, f'Welcome {username}')
-                            if request.POST.get('next'):
-                                return redirect(request.POST.get('next'))
+                            return response
                         else:
                             messages.error(request, 'Account is not activated yet. Please check your email address to verify.')
                     else:
