@@ -110,7 +110,7 @@ DATABASES = {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'ipamsdjango',
         'USER': 'root',
-        'PASSWORD': '123456',
+        'PASSWORD': '',
         'PORT': '3307',
         'HOST': 'localhost',
         'OPTIONS': {
@@ -121,7 +121,7 @@ DATABASES = {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'nalc_schema',
         'USER': 'root',  # Replace with the appropriate username
-        'PASSWORD': '123456',  # Replace with the appropriate password
+        'PASSWORD': '',  # Replace with the appropriate password
         'PORT': '3307',
         'HOST': 'localhost',
         'OPTIONS': {

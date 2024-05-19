@@ -10,7 +10,9 @@
         display: flex;
         justify-content: center;
         align-items: center;
+        flex-wrap: wrap; /* Allow wrapping for smaller screens */
         gap: 30px;
+        margin: 0 15px; /* Adjust spacing around container */
     }
 
     .rectangle-long1,
@@ -22,9 +24,8 @@
         background: gold;
         box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
         border-radius: 45px;
-        margin: 0 15px; /* Adjust spacing between rectangles */
-        transition: transform 0.3s ease; /* Add transition effect for transform */
-        
+        margin: 15px; /* Adjust spacing between rectangles */
+        transition: transform 0.3s ease, background-color 0.3s ease; /* Add transition effect for transform and background-color */
     }
 
     .rectangle-long1 .bronze,
@@ -48,38 +49,45 @@
     .rectangle-long1 .join-button,
     .rectangle-long2 .subscribe-button,
     .rectangle-long3 .subscribe-button {
-    position: absolute;
-    bottom: 270px; /* Adjust as needed */
-    left: 50%;
-    transform: translateX(-50%);
-    background-color: maroon;
-    color: white;
-    padding: 10px 20px; /* Adjust padding to increase button size */
-    font-size: 13px; /* Adjust font size */
-    text-align: center;
-    text-decoration: none;
-    display: inline-block;
-    border-radius: 25px; /* Adjust border radius for rounded corners */
-    border: none; /* Remove border */
-    cursor: pointer; /* Add pointer cursor on hover */
-    transition: background-color 0.6s, box-shadow 0.6s; /* Add transition effect for background-color and box-shadow */
-    box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.1); /* Add initial box shadow */
-}
-
+        position: absolute;
+        bottom: 270px; /* Adjust as needed */
+        left: 50%;
+        transform: translateX(-50%);
+        background-color: maroon;
+        color: white;
+        padding: 10px 20px; /* Adjust padding to increase button size */
+        font-size: 13px; /* Adjust font size */
+        text-align: center;
+        text-decoration: none;
+        display: inline-block;
+        border-radius: 25px; /* Adjust border radius for rounded corners */
+        border: none; /* Remove border */
+        cursor: pointer; /* Add pointer cursor on hover */
+        transition: background-color 0.6s, box-shadow 0.6s, color 0.6s; /* Add transition effect for background-color, box-shadow, and color */
+        box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.1); /* Add initial box shadow */
+    }
 
     .rectangle-long1:hover,
     .rectangle-long2:hover,
     .rectangle-long3:hover {
         background-color: maroon;
         color: white;
-        transform: translateY(-15px); /* Move the rectangle 10px up */
+        transform: translateY(-10px); /* Move the rectangle 10px up */
         box-shadow: 0px 8px 8px rgba(0, 0, 0, 0.5); /* Adjust shadow for hover effect */
+    }
+
+    .rectangle-long1:hover .join-button,
+    .rectangle-long2:hover .subscribe-button,
+    .rectangle-long3:hover .subscribe-button {
+        background-color: gold;
+        color: black; /* Change text color to black when rectangle is hovered */
     }
 
     .rectangle-long1 .join-button:hover,
     .rectangle-long2 .subscribe-button:hover,
     .rectangle-long3 .subscribe-button:hover {
-        background-color: gold;
+        background-color: darkgoldenrod; /* Darker shade of gold */
+        color: black; /* Change text color to black when button is hovered */
         box-shadow: 0px 8px 8px rgba(0, 0, 0, 0.5); /* Adjust shadow for hover effect */
     }
 
@@ -117,6 +125,55 @@
     .ss p {
         text-align: center;
     }
+
+    /* Media Queries for Mobile Responsiveness */
+    @media (max-width: 768px) {
+        .rectangle-long1,
+        .rectangle-long2,
+        .rectangle-long3 {
+            width: 100%;
+            height: auto;
+            margin: 10px 0;
+        }
+
+        .rectangle-container {
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+        .rectangle-long1 .join-button,
+        .rectangle-long2 .subscribe-button,
+        .rectangle-long3 .subscribe-button {
+            bottom: 20px;
+            font-size: 16px;
+            padding: 15px 30px;
+        }
+
+        .rectangle-long1 .free,
+        .rectangle-long2 .free,
+        .rectangle-long3 .free {
+            font-size: 40px;
+        }
+
+        .rectangle-long1 .bronze,
+        .rectangle-long2 .bronze,
+        .rectangle-long3 .bronze {
+            font-size: 20px;
+        }
+
+        .offer {
+            font-size: small;
+        }
+
+        .whats {
+            padding-top: 20px;
+            font-size: medium;
+        }
+
+        .hh {
+            font-size: medium;
+        }
+    }
 </style>
 
 <meta charset="UTF-8">
@@ -151,9 +208,8 @@
             <a href="{% url 'payment_portal' %}" class="subscribe-button">Subscribe</a>
             <div class="whats">&nbsp;What's included:</div>
             <div class="offer"> &nbsp;&nbsp;<i class="fa-solid fa-check"></i> &nbsp;&nbsp;Users at this tier enjoy enhanced <br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;features for a reasonable fee </div>
-            <div class="offer"> &nbsp;&nbsp;<i class="fa-solid fa-check"></i> &nbsp;&nbsp;Includes view access to all finished <br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; records, the ability to request <br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;downloads of finished records,<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;and access to the AI chatbot </div>
+            <div class="offer"> &nbsp;&nbsp;<i class="fa-solid fa-check"></i> &nbsp;&nbsp;Includes view access to all finished <br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; records, the ability to request <br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;downloads of finished records,<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;and access to the AI chatbot </div>
             <div class="offer"> &nbsp;&nbsp;<i class="fa-solid fa-check"></i> &nbsp;&nbsp;Introduces advanced tools such<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;as the record summarization <br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;tool and AI citing generator </div>
-            
         </div>
 
         <div class="rectangle-long3">
@@ -165,7 +221,6 @@
             <div class="offer">&nbsp;&nbsp;<i class="fa-solid fa-check"></i> &nbsp;&nbsp;Offers a comprehensive subscription <br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; with extensive access and functionality </div>
             <div class="offer">&nbsp;&nbsp;<i class="fa-solid fa-check"></i> &nbsp;&nbsp;Users can view all finished, in-progress, <br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; pending, and denied records, instant <br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; downloads for these records, and<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; access the AI chatbot </div>
             <div class="offer">&nbsp;&nbsp;<i class="fa-solid fa-check"></i> &nbsp;&nbsp;Includes advanced features like <br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; the AI plagiarism checker </div>
-            
         </div>
     </div>
 </container>
