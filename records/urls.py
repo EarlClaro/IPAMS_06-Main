@@ -20,7 +20,6 @@ urlpatterns = [
     path('record/<int:record_id>', views.ViewRecord.as_view(), name='records-view'),
     path('record/myrecords/<int:record_id>', views.MyRecordView.as_view(), name='records-myrecords-view'),
     
-
     #Upload Controller
     path('record/uploads/getUploadDocument/', views.UploadController.as_view(), name='get-upload-document'),
     path('record/uploads/createComment/', views.UploadController.as_view(), name='create-comment'),
@@ -88,7 +87,7 @@ urlpatterns = [
     
      path('subscribe/', SubscriptionPageView.as_view(), name='subscribe'),
      path('payment/', PaymentPortalView.as_view(), name='payment_portal'),
-     
+     path('create_payment_link/', views.create_payment_link_view, name='create_payment_link'),
      #Chatbot
 ]
 

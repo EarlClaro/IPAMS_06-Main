@@ -66,6 +66,34 @@
             background-color: white;
             color: #ffbf00;
         }
+
+        @media (max-width: 767px) {
+        .login-form-container {
+            width: 100%;
+            padding: 10px;
+        }
+
+        .login-form {
+            display: flex;
+            flex-direction: column;
+            align-items: stretch;
+            padding: 0 10px;
+        }
+
+        .login-btn-group {
+            display: flex;
+            flex-direction: column;
+            align-items: stretch;
+            margin-top: 15px;
+        }
+
+        .login-btn-group .btn {
+            margin-top: 10px;
+            width: 100%;
+        }
+
+        
+    }
     </style>
 </head>
 <body>
@@ -90,7 +118,7 @@
                         
                         {% csrf_token %}
                             <div class="row flex-nowrap align-items-center">
-                                <div class="row ml-0 mr-0 login-form" style>
+                                <div class="row ml-0 mr-0 login-form" >
                                     {{ login_form|crispy }}
                                 </div>
                                 <div class="login-btn-group mt-3">
@@ -442,6 +470,15 @@
                                                 <input class="form-control" value="{{ user.student.course.name }}" readonly>
                                             </div>
                                         </div>
+                                        <div class="row profile-row">
+                                            <div class="col-3">
+                                                <label>Subscription:</label>
+                                            </div>
+                                            <div class="col-9">
+                                                <input class="form-control profile-input" value="Free" id="subscription_status" readonly>
+                                            </div>
+                                        </div>
+                                        
                                         {% endif %}
                                         {% if user.role.pk == 3 %}
                                         <div class="row" style="margin-top: 10px;">

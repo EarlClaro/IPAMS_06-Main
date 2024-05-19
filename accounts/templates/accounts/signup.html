@@ -75,23 +75,48 @@
             });
 
 
-            $("#role1").on("click", function(){
-                $("#courses").hide();
-                $("#colleges").hide();
-                $("#departments").hide();
+            function updateRequiredFields() {
+            // Set common fields as required
+            $('input[type="text"]:visible, input[type="password"]:visible').prop('required', true);
+            // Specifically remove required attribute from middle name if it's visible but optional
+            $('#middle_name').prop('required', false);
+        }
+
+        // Event handlers for role-based field visibility and requirement settings
+        $("#role1").on("click", function(){
+            $("#courses, #colleges, #departments, #studentId").hide();
+            $("#student_id").prop('required', false);
+            updateRequiredFields();
+        });
+
+        $("#role2").on("click", function(){
+            $("#courses, #studentId").show();
+            $("#colleges, #departments").hide();
+            $("#student_id").prop('required', true);
+            updateRequiredFields();
+        });
+
+        $("#role3").on("click", function(){
+            $("#courses, #studentId").hide();
+            $("#colleges, #departments").show();
+            $("#student_id").prop('required', false);
+            updateRequiredFields();
+        });
+
+        // Validate input fields on change
+        $('form').on('change keyup', 'input, select', function() {
+            var allValid = true;
+            $('input[required], select[required]').each(function() {
+                if ($(this).is(':visible') && !$(this).val()) allValid = false;
             });
-            $("#role2").on("click", function(){
-                $("#courses").show();
-                $("#colleges").hide();
-                $("#departments").hide();
-            });
-            $("#role3").on("click", function(){
-                $("#courses").hide();
-                $("#colleges").show();
-                $("#departments").show();
-            });
+            $("#btn-submit-signUp").prop('disabled', !allValid);
+        });
+
+        // Initial trigger to set form state correctly on load
+        $("input[name='role']:checked").trigger("click");
     });
-    $("#termsRadio1").click(function(){
+    
+    $("#termsRadio1").click(function(){     
         var termsAnswer = $("input[name=termsRadio]:checked").val();
         if(termsAnswer == "1"){
             $("#btn-submit-signUp").prop("disabled", false);
@@ -145,12 +170,21 @@
                 <hr>
                 <div class="row">
                     <div class="col-12">
-                        <div id="courses" style="display:none;">
+                        <div id="courses" style="display:none;" >
                             <label>Program</label> <input placeholder="search course" type="text" class="form-control" id="course" name="course">
                         </div>
                     </div>
                 </div>
 
+                <div class="row">
+                    <div class="col-12">
+                        <div id="studentId" style="display:none; margin-top: 20px;" >
+                            <label>Student ID</label>
+                            <input type="text" class="form-control" id="student_id" name="student_id" placeholder="Enter your Student ID">
+                        </div>
+                    </div>
+                </div>
+                
                 <div class="row">
                     <div class="col-12">
                         <div id="colleges" style="display:none;">

@@ -4,7 +4,7 @@ import json
 import mimetypes
 import os
 import traceback
-
+from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib import messages
 from django.core.exceptions import ValidationError, ObjectDoesNotExist
 from django.db import DataError, connection, transaction
@@ -38,7 +38,7 @@ from axes.models import AccessAttempt, AccessBase
 from axes.utils import reset
 from django.conf import settings
 import magic
-
+import re
 import json
 
 
@@ -64,6 +64,7 @@ class PaymentPortalView(View):
     def get(self, request):
         # Logic to render paymentportal.html
         return render(request, 'ipams/paymentportal.html')
+    
     
 def update_record_tags(request, record_id):
     record = Record.objects.get(pk=record_id)
@@ -115,7 +116,9 @@ def update_record_tags(request, record_id):
             action=f'community_extension_tag status changed to \"{status}\", record ID: <a href="/dashboard/logs/record/{record_id}">#{record_id}</a>').save()
     return {'success': True, 'is-ip': record.is_ip, 'for-commercialization': record.for_commercialization,
             'community-ext': record.community_extension}
-
+def create_payment_link(request):
+    # Implement your view logic here
+    return HttpResponse("Create Payment Link view")
 
 @csrf_exempt
 def generate_pin_and_save_data_view(request):
@@ -1921,7 +1924,9 @@ class AddRecordController(View):
                 record.setTitle(request.POST.get('title'))
                 record.setYearCompleted(request.POST.get('year_completed'))
                 record.setYearAccomplished(request.POST.get('year_accomplished'))
-                record.setAbstract(request.POST.get('abstract_content'))
+                abstract_content = request.POST.get('abstract_content')
+                cleaned_abstract = re.sub(r'<\/?p>', '', abstract_content)  # Remove <p> and </p> tags
+                record.setAbstract(cleaned_abstract)
                 record.setClassification(Classification.objects.get(pk=request.POST.get('classification')))
                 record.setPscedClassification(
                     PSCEDClassification.objects.get(pk=request.POST.get('psced_classification')))
@@ -1955,47 +1960,21 @@ class AddRecordController(View):
                 record.save()
 
                 recommendations = request.POST.get('recommendations', 'No recommendations provided')
-                
-                 # Save the record to the backend_researchpaper table using raw SQL
-                with connection.cursor() as cursor:
+
+                # Execute the insert query using the 'nalc' database connection
+                with connections['nalc'].cursor() as cursor:
                     cursor.execute("""
                         INSERT INTO backend_researchpaper 
-                        (title, abstract, year, record_type, classification, author, recommendations, representative, 
-                        year_accomplished, year_completed, is_ip, for_commercialization, date_created, is_marked)
-                        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                        (title, abstract, year, classification, author, recommendations)
+                        VALUES (%s, %s, %s, %s, %s, %s)
                     """, [
                         record.title,
-                        record.abstract,
-                        record.year_accomplished,
-                        record.record_type.pk if record.record_type else None,  # Directly use the record type ID
+                        cleaned_abstract,
+                        record.year_completed,
                         record.classification.pk,
                         record.representative,
-                        recommendations, # Assuming recommendations come from POST data
-                        f'{request.user.first_name} {request.user.last_name}',  # Assuming representative's name is the user
-                        record.year_accomplished,
-                        record.year_completed,
-                        record.is_ip,
-                        record.for_commercialization,
-                        record.date_created,
-                        record.is_marked
+                        recommendations,
                     ])
-
-               
-
-                    # Execute the insert query using the 'nalc_schema' database connection
-                with connections['nalc'].cursor() as cursor:
-                        cursor.execute("""
-                                INSERT INTO backend_researchpaper 
-                                (title, abstract, year, classification, author, recommendations )
-                                VALUES (%s, %s, %s, %s, %s, %s)
-                            """, [
-                                record.title,
-                                record.abstract,
-                                record.year_completed,
-                                record.classification.pk,
-                                record.representative,
-                                recommendations,  # Assuming recommendations come from POST data
-                            ])
 
 
                 # Save under research record
@@ -3775,3 +3754,38 @@ def download_docx_file(request, record_upload_id):
     response.write(docx_content)
 
     return response
+import requests
+from django.shortcuts import redirect
+
+def create_payment_link_view(request):
+    tier = request.GET.get('tier', '')  #aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+    price_mapping = {'premium': 17900, 'advanced': 14900, 'free':10000 }  # di mo dawat 100 pa obos gg
+
+ 
+    url = "https://api.paymongo.com/v1/links"
+    payload = {
+        "data": {
+            "attributes": {
+                "amount": price_mapping[tier], 
+                "description": tier,
+                "remarks": "pay"
+            }
+        }
+    }
+
+    secret_key = "sk_test_PUL9xuAM8Sm9GLh3FGura1vr"
+    encoded_key = base64.b64encode(f"{secret_key}:".encode()).decode()
+
+    headers = {
+        "accept": "application/json",
+        "content-type": "application/json",
+        "authorization": f"Basic {encoded_key}"
+    }
+
+    response = requests.post(url, json=payload, headers=headers)
+    data = response.json()
+
+    checkout_url = data['data']['attributes']['checkout_url']
+
+    # Redirect the user to the checkout_url
+    return redirect(checkout_url)

@@ -18,7 +18,7 @@
     border: none;
     border-radius: 50%;
     cursor: pointer;
-    z-index: 10001; /* Ensure the exit button appears above the chatbot content */
+    z-index: 20001; /* Ensure the exit button appears above the chatbot content */
     display: flex;
     justify-content: center;
     align-items: center;
@@ -782,59 +782,10 @@ header h2 {
 
 
 
-{% if user.role.id > 2 %}		
-<!-- Chatbot Frontend -->
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<!-- Google Fonts Link For Icons -->
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@48,400,0,0" />
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@48,400,1,0" />
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@48,400,0,0" />
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@48,400,1,0" />
-<button class="chatbot-toggler">
-    <span class="material-symbols-rounded">mode_comment</span>
-    <span class="material-symbols-outlined">close</span>
-</button>
-
-<!-- Backend of CHATBOT -->
-<script>
-// Select all chatbot toggler buttons
-const chatbotTogglers = document.querySelectorAll('.chatbot-toggler');
-
-// Attach click event listener to each chatbot toggler button
-chatbotTogglers.forEach(chatbotToggler => {
-    chatbotToggler.addEventListener('click', (event) => {
-        // Prevent the default behavior of the button click
-        event.preventDefault();
-        // Create a modal overlay
-        const modalOverlay = document.createElement('div');
-        modalOverlay.classList.add('modal-overlay', 'modal-hidden'); // Initially hide the modal with CSS class
-        // Create an iframe for the chatbot content
-        const iframe = document.createElement('iframe');
-        iframe.src = 'http://localhost:3000/';
-        iframe.setAttribute('frameborder', '0');
-        // Append the iframe to the modal overlay
-        modalOverlay.appendChild(iframe);
-        // Append the modal overlay to the body
-        document.body.appendChild(modalOverlay);
-        // Trigger reflow to apply initial styles before adding transition class
-        modalOverlay.offsetHeight;
-        // Remove the modal-hidden class to trigger smooth transition
-        modalOverlay.classList.remove('modal-hidden');
-        // Add event listener to close the modal when clicking outside the iframe
-        modalOverlay.addEventListener('click', (event) => {
-            if (event.target === modalOverlay) {
-                modalOverlay.classList.add('modal-hidden'); // Hide the modal with CSS class
-                // Remove the modal overlay after transition completes
-                modalOverlay.addEventListener('transitionend', () => {
-                    modalOverlay.remove();
-                }, { once: true });
-            }
-        });
-    });
-});
-
-</script>
-{% endif %}
+				<!-- Chatbot -->
+				{% if user.role.id > 1 %}	
+				{% include 'records/chatbot.html' %}
+				{% endif %}
 			  </div>
 
 			</div>

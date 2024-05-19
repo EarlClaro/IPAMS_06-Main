@@ -3,7 +3,7 @@ from http.client import INTERNAL_SERVER_ERROR
 import json
 from threading import Thread
 import requests
-
+from django.db import IntegrityError
 from django.contrib import messages
 from django.contrib.auth import signals, authenticate, login, logout as auth_logout
 from django.contrib.auth.decorators import login_required
@@ -13,7 +13,6 @@ from django.shortcuts import render
 from django.utils.decorators import method_decorator
 from django.views import View
 from django.shortcuts import redirect
-
 from ipams import settings
 from . import forms
 from .decorators import authorized_roles
@@ -23,7 +22,7 @@ from notifications.models import Notification, NotificationType
 from accounts.auxfunctions import EmailThreading, roleRequestStudent, roleRequestAdviser
 from django.db.models import Q, Subquery
 from django.contrib.auth.hashers import check_password
-
+from rest_framework_simplejwt.tokens import RefreshToken
 from django.views.decorators.csrf import csrf_exempt
 from axes.decorators import axes_dispatch
 
@@ -97,13 +96,29 @@ class SignupView(View):
                     messages.error(request, _('Error occurred while saving user data to the other database: {}').format(str(e)))
                     
 
-                # Handling different roles
                 role_id = int(request.POST.get('role', 0))
-                if role_id == 2:
-                    course = json.loads(request.POST.get('course'))
-                    Student(user=user, course=Course.objects.get(pk=course[0]['id'])).save()
-                    roleRequestStudent(request, user.id)
-                elif role_id == 3:
+                if role_id == 2:  # Student
+                    student_id = request.POST.get('student_id', None)
+                    if not student_id:
+                        messages.error(request, 'Student ID is required for student registrations.')
+                        return render(request, self.name, {'form': form, 'hide_profile': True})
+
+                    if Student.objects.filter(student_id=student_id).exists():
+                        messages.error(request, 'This Student ID is already in use. Please use a different ID.')
+                        return render(request, self.name, {'form': form, 'hide_profile': True})
+
+                    try:
+                        course_data = json.loads(request.POST.get('course'))
+                        course = Course.objects.get(pk=course_data[0]['id'])
+                        student = Student(user=user, course=course, student_id=student_id)
+                        student.save()
+                        roleRequestStudent(request, user.id)
+
+                    except IntegrityError as e:
+                        messages.error(request, f'A database error occurred: {str(e)}')
+                        return render(request, self.name, {'form': form, 'hide_profile': True})
+                  
+                elif role_id == 3:  # Adviser
                     college = json.loads(request.POST.get('college'))
                     department = json.loads(request.POST.get('department'))
                     Adviser(user=user, department=Department.objects.get(pk=department[0]['id']),
@@ -172,18 +187,17 @@ class LoginView(View):
     def post(self, request):
         if request.method == 'POST':
             ''' reCAPTCHA validation '''
-            #recaptcha_response = request.POST.get('g-recaptcha-response')
-            #data = {
-            #    'secret': settings.GOOGLE_RECAPTCHA_SECRET_KEY,
-            #    'response': recaptcha_response
-            #}
-            #r = requests.post('https://www.google.com/recaptcha/api/siteverify', data=data)
-            #result = r.json()
+            # recaptcha_response = request.POST.get('g-recaptcha-response')
+            # data = {
+            #     'secret': settings.GOOGLE_RECAPTCHA_SECRET_KEY,
+            #     'response': recaptcha_response
+            # }
+            # r = requests.post('https://www.google.com/recaptcha/api/siteverify', data=data)
+            # result = r.json()
             result = True
             ''' End reCAPTCHA validation '''
 
             if result or settings.TEST_FORM:
-            #if result['success'] or settings.TEST_FORM:
                 form = forms.LoginForm(request.POST)
                 if form.is_valid():
                     username = form.cleaned_data.get('username')
@@ -196,25 +210,35 @@ class LoginView(View):
                     if user:
                         if user.is_verified:
                             login(request, user)
-                            if request.user.role.id == 5: #rdco
+
+                            # Generate JWT token
+                            refresh = RefreshToken.for_user(user)
+                            access_token = str(refresh.access_token)
+
+                            # Store JWT token in session and as a cookie
+                            request.session['jwt_token'] = access_token
+                            response = redirect(request.POST.get('next', 'records-index'))
+                            response.set_cookie('jwt_token', access_token, httponly=True, samesite='Strict')
+
+                            # Add role-based notification logic here...
+                            if request.user.role.id == 5: # rdco
                                 notifications = Notification.objects.filter(Q(to_rdco=True) | Q(recipient=user.id))
                                 request.session['notif_count'] = notifications.count()
-                            elif request.user.role.id == 4: #ktto
+                            elif request.user.role.id == 4: # ktto
                                 notifications = Notification.objects.filter(Q(to_ktto=True) | Q(recipient=user.id))
                                 request.session['notif_count'] = notifications.count()
-                            elif request.user.role.id == 3: #adviser
+                            elif request.user.role.id == 3: # adviser
                                 notifications = Notification.objects.filter(Q(recipient=user.id) | Q(notif_type=NotificationType.objects.get(pk=6)) | Q(notif_type=NotificationType.objects.get(pk=1)) | Q(notif_type=NotificationType.objects.get(pk=2)))
                                 request.session['notif_count'] = notifications.count()
-                            elif request.user.role.id == 7: #tbi
+                            elif request.user.role.id == 7: # tbi
                                 notifications = Notification.objects.filter(Q(to_ktto=True) | Q(recipient=user.id))
                                 request.session['notif_count'] = notifications.count()
-                            elif request.user.role.id == 2: #student
+                            elif request.user.role.id == 2: # student
                                 notifications = Notification.objects.filter(recipient=user.id)
                                 request.session['notif_count'] = notifications.count()
 
                             messages.success(request, f'Welcome {username}')
-                            if request.POST.get('next'):
-                                return redirect(request.POST.get('next'))
+                            return response
                         else:
                             messages.error(request, 'Account is not activated yet. Please check your email address to verify.')
                     else:
@@ -224,8 +248,21 @@ class LoginView(View):
         return redirect('records-index')
 
 def logout(request):
+    # IPAMS logout
     auth_logout(request)
     messages.success(request, 'You are now logged out from the system...')
+
+    # Call NALC logout API
+    nalc_logout_url = 'http://localhost:8000/api/logout/'
+    try:
+        response = requests.get(nalc_logout_url, cookies=request.COOKIES)
+        if response.status_code == 200:
+            print('Successfully logged out from NALC')
+        else:
+            print('Failed to log out from NALC')
+    except Exception as e:
+        print('Error logging out from NALC:', e)
+
     return redirect('/')
 
 
