@@ -306,3 +306,24 @@ class RecordFile(models.Model):
 
     def __str__(self):
         return str(self.file)
+    
+
+class SubscriptionPlan(models.Model):
+    plan_id = models.IntegerField(primary_key=True)
+    plan_name = models.CharField(max_length=50, null=True, blank=True)
+    price = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
+    duration_months = models.IntegerField(null=True, blank=True)
+
+    def __str__(self):
+        return str(self.plan_id)
+    
+class Subscription(models.Model):
+    sub_id = models.IntegerField(primary_key=True)
+    plan_id = models.ForeignKey(SubscriptionPlan, on_delete=models.CASCADE, default=None)
+    start_date = models.DateField(null=True, blank=True)
+    end_date = models.DateField(null=True, blank=True)
+    user_id = models.ForeignKey('accounts.User', on_delete=models.CASCADE, default=None)
+    status = models.CharField(max_length=50, null=True, blank=True)
+
+    def __str__(self):
+        return str(self.sub_id)

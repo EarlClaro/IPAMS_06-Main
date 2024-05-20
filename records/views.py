@@ -3754,12 +3754,15 @@ def download_docx_file(request, record_upload_id):
     response.write(docx_content)
 
     return response
+
+
+
 import requests
 from django.shortcuts import redirect
 
 def create_payment_link_view(request):
-    tier = request.GET.get('tier', '')  #aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
-    price_mapping = {'premium': 17900, 'advanced': 14900, 'free':10000 }  # di mo dawat 100 pa obos gg
+    tier = request.GET.get('tier', '')  
+    price_mapping = {'premium': 10000, 'advanced': 14900, 'free':10000 }  # 
 
  
     url = "https://api.paymongo.com/v1/links"
@@ -3767,8 +3770,9 @@ def create_payment_link_view(request):
         "data": {
             "attributes": {
                 "amount": price_mapping[tier], 
-                "description": tier,
-                "remarks": "pay"
+                "description":f'Payment for {tier} tier',
+                "remarks": "pay",
+                "status": "unpaid",
             }
         }
     }
@@ -3789,3 +3793,20 @@ def create_payment_link_view(request):
 
     # Redirect the user to the checkout_url
     return redirect(checkout_url)
+
+# Function to retrieve a payment link by ID
+def retrieve_payment_link_view(id):
+    try:
+        url = f'https://api.paymongo.com/v1/links/{id}'
+        headers = {
+            'Authorization': f'Basic {base64.b64encode(paymongo_api_key.encode()).decode()}',
+            'Content-Type': 'application/json'
+        }
+        response = requests.get(url, headers=headers)
+        response.raise_for_status()  # Raise an error for non-2xx status codes
+
+        return response.json()['data']
+
+    except Exception as error:
+        print('Error retrieving payment link:', error)
+        raise error

@@ -88,6 +88,8 @@ urlpatterns = [
      path('subscribe/', SubscriptionPageView.as_view(), name='subscribe'),
      path('payment/', PaymentPortalView.as_view(), name='payment_portal'),
      path('create_payment_link/', views.create_payment_link_view, name='create_payment_link'),
+     path('retrieve_payment_link/',views.retrieve_payment_link_view,name='retrieve_payment_link')
+     
      #Chatbot
 ]
 
