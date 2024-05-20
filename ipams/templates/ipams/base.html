@@ -490,42 +490,7 @@
                                         </div>
                             
                                         <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<<<<<<< HEAD
-                                            <script>
-                                                $(document).ready(function() {
-                                                    $('#verify_button').click(function() {
-                                                        var referenceNumber = $('#reference_number').val();
-                                                        if (referenceNumber.trim() !== '') {
-                                                            $.ajax({
-                                                                type: 'POST',
-                                                                url: '/verify_subscription/',
-                                                                data: {
-                                                                    csrfmiddlewaretoken: '{{ csrf_token }}',
-                                                                    reference_number: referenceNumber
-                                                                },
-                                                                success: function(response) {
-                                                                    if (response.success) {
-                                                                        alert(response.message);
-                                                                        location.reload();
-                                                                    } else {
-                                                                        alert(response.message);
-                                                                    }
-                                                                },
-                                                                error: function(xhr, status, error) {
-                                                                    console.error('AJAX Error:', xhr.responseText);  // Log detailed error
-                                                                    alert('An error occurred while verifying the subscription.');
-                                                                }
-                                                            });
-                                                        } else {
-                                                            alert('Please enter a reference number.');
-                                                        }
-                                                    });
-                                                });
-                                            </script>
-
                                         
-
-=======
                                         <script>
                                             $(document).ready(function() {
                                                 $('#verify_button').click(function() {
@@ -558,7 +523,6 @@
                                                 });
                                             });
                                         </script>
->>>>>>> 8780463a34a536e2e72a5e2962385e9cc8cf30ac
                                         {% endif %}
                                         {% if user.role.pk == 3 %}
                                         <div class="row" style="margin-top: 10px;">
