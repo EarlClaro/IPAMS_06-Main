@@ -308,6 +308,8 @@ class RecordFile(models.Model):
         return str(self.file)
     
 
+from django.db import models
+
 class SubscriptionPlan(models.Model):
     plan_id = models.IntegerField(primary_key=True)
     plan_name = models.CharField(max_length=50, null=True, blank=True)
@@ -316,7 +318,10 @@ class SubscriptionPlan(models.Model):
 
     def __str__(self):
         return str(self.plan_id)
-    
+
+    class Meta:
+        db_table = 'subscription_plan'  # Ensure this matches your actual table name
+
 class Subscription(models.Model):
     sub_id = models.IntegerField(primary_key=True)
     plan_id = models.ForeignKey(SubscriptionPlan, on_delete=models.CASCADE, default=None)
@@ -327,3 +332,6 @@ class Subscription(models.Model):
 
     def __str__(self):
         return str(self.sub_id)
+
+    class Meta:
+        db_table = 'subscription'  # Explicitly set the table name

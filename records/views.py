@@ -3762,7 +3762,7 @@ import requests
 import base64
 
 
-paymongo_api_key = 'sk_test_JWJEP9KDjNaDDRUv1uC1ZgSB'  # Replace this with your actual Paymongo API key
+paymongo_api_key = 'sk_test_PUL9xuAM8Sm9GLh3FGura1vr'  # Replace this with your actual Paymongo API key
 stored_link_id = None  # Variable to store the ID of the created payment link
 
 # Function to create a payment link
@@ -3814,6 +3814,7 @@ def create_payment_link_view(request):
 
 # Function to get the payment link and check if the status is paid
 def get_payment_link_and_check_status(reference_number):
+    
     try:
         url = f"https://api.paymongo.com/v1/links?reference_number={reference_number}"
         headers = {
@@ -3834,11 +3835,17 @@ def get_payment_link_and_check_status(reference_number):
         print('Error getting payment link or checking status:', error)
         return None  # Return None if an error occurs
 
-import requests
+from django.shortcuts import render
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
+import requests
+import base64
 from datetime import datetime, timedelta
-from .models import Subscription
+from .models import Subscription, SubscriptionPlan
+from accounts.models import User  # Assuming 'accounts' is the app name for the User model
+import logging
+
+logger = logging.getLogger(__name__)
 
 @csrf_exempt
 def verify_subscription(request):
@@ -3852,7 +3859,7 @@ def verify_subscription(request):
         url = f"https://api.paymongo.com/v1/links?reference_number={reference_number}"
         headers = {
             "accept": "application/json",
-            "authorization": f"Basic {paymongo_secret_key}"
+            "authorization": f"Basic {base64.b64encode(paymongo_secret_key.encode()).decode()}"
         }
         
         try:
@@ -3864,15 +3871,32 @@ def verify_subscription(request):
                 payment_data = data['data'][0]
                 attributes = payment_data.get('attributes', {})
                 if attributes.get('status') == 'paid':
-                    user_id = request.user.id
+                    amount_paid = attributes.get('amount', 0) 
+                    user = request.user
+                    
+                    # Determine the correct SubscriptionPlan based on amount_paid
+                    if amount_paid == 10000:
+                        plan_id = 1  # Free plan
+                    elif amount_paid == 10000:
+                        plan_id = 2  # Premium plan
+                    elif amount_paid == 14900:
+                        plan_id = 3  # Advanced plan
+                    else:
+                        return JsonResponse({'success': False, 'message': 'Invalid amount paid for subscription.'})
+
+                    try:
+                        # Retrieve the correct SubscriptionPlan instance
+                        plan = SubscriptionPlan.objects.get(plan_id=plan_id)
+                    except SubscriptionPlan.DoesNotExist:
+                        return JsonResponse({'success': False, 'message': 'Subscription plan does not exist.'})
+                    
                     subscription = Subscription.objects.create(
-                        plan_id=2,
-                        start_date=datetime.now(),
-                        end_date=datetime.now() + timedelta(days=180),
-                        user_id=user_id,
+                        plan=plan,  # Correctly use the plan instance
+                        start_date=datetime.now().date(),
+                        end_date=(datetime.now() + timedelta(days=180)).date(),
+                        user=user,  # Correctly use the user instance
                         status='paid'
                     )
-                    user = request.user
                     user.is_subscribed = True
                     user.subscription_status = 'paid'
                     user.sub_id = subscription.sub_id
@@ -3884,6 +3908,14 @@ def verify_subscription(request):
             else:
                 return JsonResponse({'success': False, 'message': 'Invalid reference number.'})
         except requests.RequestException as e:
-            return JsonResponse({'success': False, 'message': f'Error in Paymongo API request: {e}'})
+            error_message = f'Error in Paymongo API request: {e}'
+            logger.error(error_message)  # Log the error message for debugging
+            return JsonResponse({'success': False, 'message': 'An error occurred while verifying the subscription. Please try again later.'})
+        except Exception as e:
+            error_message = f'Unexpected error: {e}'
+            logger.error(error_message)  # Log the error message for debugging
+            return JsonResponse({'success': False, 'message': 'An unexpected error occurred. Please try again later.'})
+    elif request.method == 'GET':
+        return render(request, 'your_template.html')  # Replace 'your_template.html' with the actual name of your HTML template
     else:
         return JsonResponse({'success': False, 'message': 'Invalid request method.'})
