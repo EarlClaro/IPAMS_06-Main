@@ -5,42 +5,7 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
 
 <style>
-    /* CSS for the exit button */
-.exit-button {
-    position: absolute;
-    top: 10px;
-    right: 10px;
-    padding: 5px 10px;
-    background-color: #fff;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-    cursor: pointer;
-    z-index: 10001; /* Ensure the exit button appears above the chatbot content */
-}
-
-/* CSS for the modal overlay */
-.modal-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.5); /* semi-transparent background */
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 9999; /* Ensure the overlay appears above other content */
-}
-
-/* CSS for the chatbot content inside the modal */
-.modal-overlay iframe {
-    width: 80%; /* Adjust the width as needed */
-    height: 80%; /* Adjust the height as needed */
-    border-radius: 10px;
-    background-color: white; /* White background for the chatbot */
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.3); /* Drop shadow effect */
-    z-index: 10000; /* Ensure the chatbot content appears above the overlay */
-}
+ 
 
 .action-buttons {
     display: flex;
@@ -110,269 +75,6 @@
 	/* Import Google font - Poppins */
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap');
 
-.chatbot-toggler {
-  position: fixed;
-  bottom: 30px;
-  right: 35px;
-  outline: none;
-  border: none;
-  height: 80px;
-  width: 80px;
-  display: flex;
-  cursor: pointer;
-  align-items: center;
-  justify-content: center;
-  border-radius: 50%;
-  background: gold;
-  transition: all 0.2s ease;
-}
-body.show-chatbot .chatbot-toggler {
-  transform: rotate(90deg);
-}
-.chatbot-toggler span {
-  color: #fff;
-  position: absolute;
-}
-.chatbot-toggler span:last-child,
-body.show-chatbot .chatbot-toggler span:first-child  {
-  opacity: 0;
-}
-body.show-chatbot .chatbot-toggler span:last-child {
-  opacity: 1;
-}
-.chatbot {
-  position: fixed;
-  right: 35px;
-  bottom: 90px;
-  width: 420px;
-  background: #fff;
-  border-radius: 15px;
-  overflow: hidden;
-  opacity: 0;
-  pointer-events: none;
-  transform: scale(0.5);
-  transform-origin: bottom right;
-  box-shadow: 0 0 128px 0 rgba(0,0,0,0.1),
-              0 32px 64px -48px rgba(0,0,0,0.5);
-  transition: all 0.1s ease;
-}
-body.show-chatbot .chatbot {
-  opacity: 1;
-  pointer-events: auto;
-  transform: scale(1);
-}
-.chatbot header {
-  padding: 16px 0;
-  position: relative;
-  text-align: center;
-  color: #fff;
-  background: gold;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-}
-.chatbot header span {
-  position: absolute;
-  right: 15px;
-  top: 50%;
-  display: none;
-  cursor: pointer;
-  transform: translateY(-50%);
-}
-header h2 {
-  font-size: 1.4rem;
-}
-.chatbot .chatbox {
-  overflow-y: auto;
-  height: 410px;
-  padding: 30px 20px 100px;
-}
-.chatbot :where(.chatbox, textarea)::-webkit-scrollbar {
-  width: 6px;
-}
-.chatbot :where(.chatbox, textarea)::-webkit-scrollbar-track {
-  background: #fff;
-  border-radius: 25px;
-}
-.chatbot :where(.chatbox, textarea)::-webkit-scrollbar-thumb {
-  background: #ccc;
-  border-radius: 25px;
-}
-.chatbox .chat {
-  display: flex;
-  list-style: none;
-}
-.chatbox .outgoing {
-  margin: 20px 0;
-  justify-content: flex-end;
-}
-.chatbox .incoming span {
-  width: 32px;
-  height: 32px;
-  color: #fff;
-  cursor: default;
-  text-align: center;
-  line-height: 32px;
-  align-self: flex-end;
-  background: gold;
-  border-radius: 4px;
-  margin: 0 10px 7px 0;
-}
-.chatbox .chat p {
-  white-space: pre-wrap;
-  padding: 12px 16px;
-  border-radius: 10px 10px 0 10px;
-  max-width: 75%;
-  color: #fff;
-  font-size: 0.95rem;
-  background: gold;
-}
-.chatbox .incoming p {
-  border-radius: 10px 10px 10px 0;
-}
-.chatbox .chat p.error {
-  color: #721c24;
-  background: #f8d7da;
-}
-.chatbox .incoming p {
-  color: #000;
-  background: #f2f2f2;
-}
-.chatbot .chat-input {
-  display: flex;
-  gap: 5px;
-  position: absolute;
-  bottom: 0;
-  width: 100%;
-  background: #fff;
-  padding: 3px 20px;
-  border-top: 1px solid #ddd;
-}
-.chat-input textarea {
-  height: 55px;
-  width: 100%;
-  border: none;
-  outline: none;
-  resize: none;
-  max-height: 180px;
-  padding: 15px 15px 15px 0;
-  font-size: 0.95rem;
-}
-.chat-input span {
-  align-self: flex-end;
-  color: gold;
-  cursor: pointer;
-  height: 55px;
-  display: flex;
-  align-items: center;
-  visibility: hidden;
-  font-size: 1.35rem;
-}
-.chat-input textarea:valid ~ span {
-  visibility: visible;
-}
-@media (max-width: 490px) {
-  .chatbot-toggler {
-    right: 20px;
-    bottom: 20px;
-  }
-  .chatbot {
-    right: 0;
-    bottom: 0;
-    height: 100%;
-    border-radius: 0;
-    width: 100%;
-  }
-  .chatbot .chatbox {
-    height: 90%;
-    padding: 25px 15px 100px;
-  }
-  .chatbot .chat-input {
-    padding: 5px 15px;
-  }
-  .chatbot header span {
-    display: block;
-  }
-}
-
-.summary-popup {
-    position: fixed;
-    bottom: 160px; /* Adjust this value so that the popup appears above the NALC button */
-    right: 20px; /* This should be the same as the NALC button to align it to the right */
-    width: 320px;
-    background-color: #FFD700;
-    border: 1px solid #8B0000;
-    border-radius: 10px;
-    padding: 20px;
-    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
-    display: none;
-    font-family: Arial, sans-serif;
-    font-size: 16px;
-    z-index: 1030; /* Adjust if necessary to ensure proper stacking */
-    opacity: 0;
-    transform: scale(0);
-    transition: transform 0.3s, opacity 0.3s; /* Smooth transition for transform and opacity */
-    /* No need for calc() function since we're going back to fixed positioning */
-    padding: 30px 20px 20px;
-}
-
-.summary-text {
-    border: 1px solid #8B0000; /* Example border color, adjust as needed */
-    padding: 10px; /* Spacing inside the border */
-    margin-top: 10px; /* Spacing outside the border, adjust as needed */
-    margin-bottom: 10px; /* Spacing outside the border, adjust as needed */
-    background-color: #ffffff; /* Optional: change background color inside the border */
-    color: #000000; /* Optional: change text color */
-    border-radius: 5px; /* Optional: if you want rounded corners */
-    overflow: auto; /* Ensures content is contained within the border if it overflows */
-}
-
-.summary-header {
-    font-size: 20px;
-    font-weight: bold;
-    color: #8B0000;
-}
-
-.close-icon {
-    position: absolute;
-    top: 10px;
-    right: 10px;
-    cursor: pointer;
-    font-size: 24px;
-    color: #8B0000;
-}
-
-.chatbot-popup {
-	position: fixed;
-	bottom: 120px;
-	right: 20px;
-	width: 300px;
-	background-color: #fff;
-	border: 1px solid #ccc;
-	border-radius: 5px;
-	padding: 10px;
-	box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
-	}
-
-	.chatbot-header {
-	font-size: 18px;
-	font-weight: bold;
-	margin-bottom: 10px;
-	}
-
-	.chatbot-messages {
-	height: 200px;
-	overflow-y: auto;
-	border: 1px solid #ccc;
-	padding: 5px;
-	margin-bottom: 10px;
-	}
-
-	.chatbot-input {
-	width: calc(100% - 22px);
-	padding: 8px;
-	border: 1px solid #ccc;
-	border-radius: 5px;
-	margin-right: 10px;
-	}
 </style>
 
 <script>
@@ -479,25 +181,6 @@ $(document).ready(function(){
         });
     });
 
-   // JavaScript for Toggle Buttons
-$('#citeButton').click(function() {
-    // Toggle the visibility of the chatbot interface
-    document.body.classList.toggle("show-chatbot");
-    // Show Cite Prompt and hide Summarize Prompt
-    document.getElementById("citePrompt").style.display = "block";
-    document.getElementById("summarizePrompt").style.display = "none";
-});
-
-$('#summarizeButton').click(function() {
-    // Toggle the visibility of the chatbot interface
-    document.body.classList.toggle("show-chatbot");
-    // Show Summarize Prompt and hide Cite Prompt
-    document.getElementById("citePrompt").style.display = "none";
-    document.getElementById("summarizePrompt").style.display = "block";
-});
-
-
-
 
     $("#btn-uploads-back").on("click", function(){
         $("#uploads").show();
@@ -543,37 +226,6 @@ $('#summarizeButton').click(function() {
     }
 });
 
-function toggleChatbotPopup() {
-						var popup = document.getElementById("chatbot-popup");
-						if (popup.style.display === "none" || popup.style.display === "") {
-							popup.style.display = "block";
-						} else {
-							popup.style.display = "none";
-						}
-					}
-
-          
-
-    function toggleSummaryModal() {
-        $('#nalcSummaryModal').modal('toggle');
-    }
-
-    function toggleSummaryPopup() {
-    var summaryPopup = document.getElementById("summary-popup");
-    if (summaryPopup.style.display === "none" || summaryPopup.style.display === "") {
-        summaryPopup.style.display = "block";
-        summaryPopup.style.opacity = "1";
-        summaryPopup.style.transform = "scale(1)";
-        summaryPopup.style.animation = "popupAnimation 0.5s forwards";
-    } else {
-        summaryPopup.style.opacity = "0";
-        summaryPopup.style.transform = "scale(0)";
-        summaryPopup.style.animation = "none";
-        setTimeout(function() {
-            summaryPopup.style.display = "none";
-        }, 500); // Ensure this matches the duration of the animation
-    }
-}
 
 
 </script>
@@ -587,64 +239,89 @@ function toggleChatbotPopup() {
         </div>
         <div class="col-3 action-buttons">
             {% if download_approval %}
-                <a href="#" data-record-id="{{ record.id }}" data-user-id="{{ user.id }}" data-role-id="{{ role.id }}"><button class="btn base-btn base-bg-primary">Download Paper - {{ record.abstract_filesize|filesizeformat }}</button></a>
+                <a href="#" class="download request-download-btn" data-record-id="{{ record.id }}" data-user-id="{{ user.id }}" data-role-id="{{ role.id }}">
+                    <button class="btn base-btn base-bg-primary">Download Paper - {{ record.abstract_filesize|filesizeformat }}</button>
+                </a>
             {% else %}
-                {% if download_request_sent %}
-                    <div class="tooltip-wrapper" data-toggle="tooltip" title="Users can only edit if status is set to removable"><a href="#" class="view request-download-btn" data-record-id="{{ record.id }}" data-user-id="{{ user.id }}" data-role-id="{{ role.id }}"><button class="btn base-btn float-right base-bg-secondary" disabled>Send download request</button></a></div>
+                {% if user.is_subscribed %}
+                    <a href="#" class="download request-download-btn" data-record-id="{{ record.id }}" data-user-id="{{ user.id }}" data-role-id="{{ role.id }}">
+                        <button class="btn base-btn base-bg-primary">Download Paper - {{ record.abstract_filesize|filesizeformat }}</button>
+                    </a>
                 {% else %}
-                    <a href="#"><button class="btn base-btn float-right base-bg-secondary">Send download request </button></a>
+                    {% if download_request_sent %}
+                        <div class="tooltip-wrapper" data-toggle="tooltip" title="Users can only edit if status is set to removable">
+                            <a href="#" class="view request-download-btn" data-record-id="{{ record.id }}" data-user-id="{{ user.id }}" data-role-id="{{ role.id }}">
+                                <button class="btn base-btn float-right base-bg-secondary" disabled>Send download request</button>
+                            </a>
+                        </div>
+                    {% else %}
+                        <a href="#" class="view request-download-btn">
+                            <button class="btn base-btn float-right base-bg-secondary">Send download request</button>
+                        </a>
+                    {% endif %}
                 {% endif %}
             {% endif %}
-            
-            
         </div>
     </div>
+
     <div class="row ml-0 mt-2">
         <div class="text-primary h5">{{ record.record_type }} |&nbsp</div>
         <div class="h5 text-bold"> " {{ record.title }} "</div>
-    </div> 
+    </div>
     <hr>
     <div id="record-info-container">
         <div class="row ml-0">
             <div class="col-6">
-                <div class="row mb-1"><div class="text-bold">Authors:&nbsp</div>{% for author in record.author_set.all %} {{ author.name }} {% if not forloop.last %},&nbsp;{% endif %} {% endfor %}</div>
-                <div class="row mb-1"><div class="text-bold">Year:&nbsp </div>{{ record.year_accomplished }}&nbsp - &nbsp {{ record.year_completed }}</div>
-                <div class="row mb-1"><div class="text-bold">Adviser:&nbsp</div>{{ record.adviser }}</div>
-                <div class="row mb-1"><div class="text-bold">Representative:&nbsp</div>{{ record.representative }}</div>
-                <div class="row mb-1"><div class="text-bold">Date Submitted:&nbsp</div>{{ record.date_created }}</div>
+                <div class="row mb-1">
+                    <div class="text-bold">Authors:&nbsp</div>
+                    {% for author in record.author_set.all %}
+                        {{ author.name }}{% if not forloop.last %},&nbsp;{% endif %}
+                    {% endfor %}
+                </div>
+                <div class="row mb-1">
+                    <div class="text-bold">Year:&nbsp</div>
+                    {{ record.year_accomplished }}&nbsp;-&nbsp;{{ record.year_completed }}
+                </div>
+                <div class="row mb-1">
+                    <div class="text-bold">Adviser:&nbsp</div>{{ record.adviser }}
+                </div>
+                <div class="row mb-1">
+                    <div class="text-bold">Representative:&nbsp</div>{{ record.representative }}
+                </div>
+                <div class="row mb-1">
+                    <div class="text-bold">Date Submitted:&nbsp</div>{{ record.date_created }}
+                </div>
             </div>
             <div class="col-6">
                 <div class="doc-tags float-right" id="doc-tags">
                     <div class="text-bold">Record Tags:&nbsp</div>
                     <div class="form-check mt-1 mb-1">
-                        <input type="checkbox" class="form-check-input " id="ip" disabled{% if record.is_ip %} checked {% endif %}>
+                        <input type="checkbox" class="form-check-input" id="ip" disabled{% if record.is_ip %} checked{% endif %}>
                         <label class="form-check-label" for="ip">Intellectual Property</label>
                     </div>
                     <div class="form-check mb-1">
-                        <input type="checkbox" class="form-check-input" id="commercialization" disabled {% if record.for_commercialization %} checked {% endif %}>
+                        <input type="checkbox" class="form-check-input" id="commercialization" disabled{% if record.for_commercialization %} checked{% endif %}>
                         <label class="form-check-label" for="commercialization">For Commercialization</label>
                     </div>
                     <div class="form-check mb-1">
-                        <input type="checkbox" class="form-check-input" id="community-ext" disabled {% if record.community_extension %} checked {% endif %}>
+                        <input type="checkbox" class="form-check-input" id="community-ext" disabled{% if record.community_extension %} checked{% endif %}>
                         <label class="form-check-label" for="community-ext">Community Extension</label>
                     </div>
                 </div>
             </div>
         </div>
         <hr>
-        <div class="container">
-            <div class="row">
-                <div class="col">
-                    <div class="abstract-preview">
-                        <div class="text-bold mb-1">Abstract:</div>
-                        {{ record.abstract|safe }}
-                    </div>
+        <div class="row">
+            <div class="col">
+                <div class="abstract-preview">
+                    <div class="text-bold mb-1">Abstract:</div>
+                    {{ record.abstract|safe }}
                 </div>
-     
-        
-      
             </div>
         </div>
+    </div>
+</div>
+
 
 
  
