@@ -3757,56 +3757,77 @@ def download_docx_file(request, record_upload_id):
 
 
 
-import requests
 from django.shortcuts import redirect
+import requests
+import base64
+from .models import User  # Import the User model
 
+paymongo_api_key = 'sk_test_PUL9xuAM8Sm9GLh3FGura1vr'  # Replace this with your actual Paymongo API key
+stored_link_id = None  # Variable to store the ID of the created payment link
+
+# Function to create a payment link
 def create_payment_link_view(request):
-    tier = request.GET.get('tier', '')  
-    price_mapping = {'premium': 10000, 'advanced': 14900, 'free':10000 }  # 
+    tier = request.GET.get('tier', '')
+    price_mapping = {'premium': 10000, 'advanced': 14900, 'free': 10000}  # Assuming default prices
 
- 
-    url = "https://api.paymongo.com/v1/links"
-    payload = {
-        "data": {
-            "attributes": {
-                "amount": price_mapping[tier], 
-                "description":f'Payment for {tier} tier',
-                "remarks": "pay",
-                "status": "unpaid",
+    try:
+        url = 'https://api.paymongo.com/v1/links'
+        payload = {
+            'data': {
+                'attributes': {
+                    'amount': price_mapping.get(tier),  # Convert amount to cents
+                    'description': f'Payment for {tier} tier',  # Use tier in description
+                    'remarks': 'pay',
+                    'status': 'unpaid'  # Add status attribute
+                }
             }
         }
-    }
-
-    secret_key = "sk_test_PUL9xuAM8Sm9GLh3FGura1vr"
-    encoded_key = base64.b64encode(f"{secret_key}:".encode()).decode()
-
-    headers = {
-        "accept": "application/json",
-        "content-type": "application/json",
-        "authorization": f"Basic {encoded_key}"
-    }
-
-    response = requests.post(url, json=payload, headers=headers)
-    data = response.json()
-
-    checkout_url = data['data']['attributes']['checkout_url']
-
-    # Redirect the user to the checkout_url
-    return redirect(checkout_url)
-
-# Function to retrieve a payment link by ID
-def retrieve_payment_link_view(id):
-    try:
-        url = f'https://api.paymongo.com/v1/links/{id}'
         headers = {
             'Authorization': f'Basic {base64.b64encode(paymongo_api_key.encode()).decode()}',
             'Content-Type': 'application/json'
         }
+        response = requests.post(url, json=payload, headers=headers)
+        response.raise_for_status()  # Raise an error for non-2xx status codes
+
+        data = response.json()
+        checkout_url = data['data']['attributes']['checkout_url']
+        status = data['data']['attributes']['status']
+        global stored_link_id
+        stored_link_id = data['data']['id']
+
+        # Check if the status is 'paid'
+        if status == 'paid':
+            # Update the subscription status of the user to "paid"
+            user = request.user  # Assuming you have the user object available
+            user.subscription_status = 'paid'  # Update the subscription status to "paid"
+            user.save()
+
+        return redirect(checkout_url)
+
+    except Exception as error:
+        print('Error creating payment link:', error)
+        # Handle the error gracefully or redirect to an error page
+        return redirect('/')  # Redirect to homepage or error page
+
+# Function to get the payment link and check if the status is paid
+def get_payment_link_and_check_status(reference_number):
+    try:
+        url = f"https://api.paymongo.com/v1/links?reference_number={reference_number}"
+        headers = {
+            "accept": "application/json",
+            "authorization": f"Basic {base64.b64encode(paymongo_api_key.encode()).decode()}"
+        }
         response = requests.get(url, headers=headers)
         response.raise_for_status()  # Raise an error for non-2xx status codes
 
-        return response.json()['data']
+        data = response.json()
+        if data['data']:
+            status = data['data'][0]['attributes']['status']
+            return status
+        else:
+            return None  # If no data is returned
 
     except Exception as error:
-        print('Error retrieving payment link:', error)
-        raise error
+        print('Error getting payment link or checking status:', error)
+        return None  # Return None if an error occurs
+
