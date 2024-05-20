@@ -241,10 +241,20 @@
                                     <a  href="/add/" class="nav-link" aria-current="page">
                                         <i class="fs-5 fa fa-folder-plus"></i><span class="fs-4 d-none d-sm-inline">&nbsp Add Record</span></a>
                                 </li>
+                                {% if user.is_subscribed %}
                                 <li class="nav-item">
-                                    <a  href="/uploadexcel/" class="nav-link" aria-current="page">
-                                        <i class="fs-5 fa fa-file-import"></i><span class="fs-4 d-none d-sm-inline">&nbsp Import Records</span></a>
+                                    <a href="/uploadexcel/" class="nav-link" aria-current="page">
+                                        <i class="fs-5 fa fa-file-import"></i><span class="fs-4 d-none d-sm-inline">&nbsp; Import Records</span>
+                                    </a>
                                 </li>
+                                {% else %}
+                                <li class="nav-item">
+                                    <a href="#" class="nav-link" aria-current="page" onclick="alert('Can\'t access this feature if not subscribed');">
+                                        <i class="fs-5 fa fa-file-import"></i><span class="fs-4 d-none d-sm-inline">&nbsp; Import Records</span>
+                                    </a>
+                                </li>
+                                {% endif %}
+                            
                             </ul>
                     </div>
                 </div>

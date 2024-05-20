@@ -3871,35 +3871,10 @@ def verify_subscription(request):
                 payment_data = data['data'][0]
                 attributes = payment_data.get('attributes', {})
                 if attributes.get('status') == 'paid':
-                    amount_paid = attributes.get('amount', 0) 
                     user = request.user
-                    
-                    # Determine the correct SubscriptionPlan based on amount_paid
-                    if amount_paid == 10000:
-                        plan_id = 1  # Free plan
-                    elif amount_paid == 10000:
-                        plan_id = 2  # Premium plan
-                    elif amount_paid == 14900:
-                        plan_id = 3  # Advanced plan
-                    else:
-                        return JsonResponse({'success': False, 'message': 'Invalid amount paid for subscription.'})
 
-                    try:
-                        # Retrieve the correct SubscriptionPlan instance
-                        plan = SubscriptionPlan.objects.get(plan_id=plan_id)
-                    except SubscriptionPlan.DoesNotExist:
-                        return JsonResponse({'success': False, 'message': 'Subscription plan does not exist.'})
-                    
-                    subscription = Subscription.objects.create(
-                        plan=plan,  # Correctly use the plan instance
-                        start_date=datetime.now().date(),
-                        end_date=(datetime.now() + timedelta(days=180)).date(),
-                        user=user,  # Correctly use the user instance
-                        status='paid'
-                    )
                     user.is_subscribed = True
                     user.subscription_status = 'paid'
-                    user.sub_id = subscription.sub_id
                     user.save()
                     
                     return JsonResponse({'success': True, 'message': 'Subscription verified and updated successfully.'})
