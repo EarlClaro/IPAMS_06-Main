@@ -479,6 +479,49 @@
                                             </div>
                                         </div>
                                         
+                                        <div class="row profile-row">
+                                            <div class="col-3">
+                                                <label>Input Reference Number:</label>
+                                            </div>
+                                            <div class="col-9">
+                                                <input type="text" class="form-control profile-input" id="reference_number" name="reference_number">
+                                                <button type="button" class="btn btn-primary" id="verify_button">Verify</button>
+                                            </div>
+                                        </div>
+                            
+                                        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+                                        <script>
+                                            $(document).ready(function() {
+                                                $('#verify_button').click(function() {
+                                                    var referenceNumber = $('#reference_number').val().trim();
+                                                    if (referenceNumber !== '') {
+                                                        $.ajax({
+                                                            type: 'POST',
+                                                            url: '/verify_subscription/',
+                                                            data: {
+                                                                csrfmiddlewaretoken: '{{ csrf_token }}',
+                                                                reference_number: referenceNumber
+                                                            },
+                                                            success: function(response) {
+                                                                console.log(response); // Log the response for debugging
+                                                                if (response.success) {
+                                                                    alert(response.message);
+                                                                    location.reload();
+                                                                } else {
+                                                                    alert(response.message);
+                                                                }
+                                                            },
+                                                            error: function(xhr, status, error) {
+                                                                console.error('AJAX Error:', error);
+                                                                alert('An error occurred while verifying the subscription. Please check the server logs for more details.');
+                                                            }
+                                                        });
+                                                    } else {
+                                                        alert('Please enter a reference number.');
+                                                    }
+                                                });
+                                            });
+                                        </script>
                                         {% endif %}
                                         {% if user.role.pk == 3 %}
                                         <div class="row" style="margin-top: 10px;">
@@ -520,6 +563,7 @@
                 </div>
             </div>
         </div>
+        
         <!-- Change Password Modal -->
         <div class="modal fade" id="change-password-modal" tabindex="-1" role="dialog" aria-hidden="true">
             <div class="modal-dialog" role="document">
