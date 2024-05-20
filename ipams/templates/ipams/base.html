@@ -493,8 +493,8 @@
                                         <script>
                                             $(document).ready(function() {
                                                 $('#verify_button').click(function() {
-                                                    var referenceNumber = $('#reference_number').val();
-                                                    if (referenceNumber.trim() !== '') {
+                                                    var referenceNumber = $('#reference_number').val().trim();
+                                                    if (referenceNumber !== '') {
                                                         $.ajax({
                                                             type: 'POST',
                                                             url: '/verify_subscription/',
@@ -503,6 +503,7 @@
                                                                 reference_number: referenceNumber
                                                             },
                                                             success: function(response) {
+                                                                console.log(response); // Log the response for debugging
                                                                 if (response.success) {
                                                                     alert(response.message);
                                                                     location.reload();
@@ -512,7 +513,7 @@
                                                             },
                                                             error: function(xhr, status, error) {
                                                                 console.error('AJAX Error:', error);
-                                                                alert('An error occurred while verifying the subscription.');
+                                                                alert('An error occurred while verifying the subscription. Please check the server logs for more details.');
                                                             }
                                                         });
                                                     } else {
@@ -521,8 +522,6 @@
                                                 });
                                             });
                                         </script>
-                                        
-
                                         {% endif %}
                                         {% if user.role.pk == 3 %}
                                         <div class="row" style="margin-top: 10px;">

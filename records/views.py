@@ -3760,12 +3760,13 @@ def download_docx_file(request, record_upload_id):
 from django.shortcuts import redirect
 import requests
 import base64
-
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+from datetime import datetime, timedelta
+from .models import Subscription
 
 paymongo_api_key = 'sk_test_JWJEP9KDjNaDDRUv1uC1ZgSB'  # Replace this with your actual Paymongo API key
-stored_link_id = None  # Variable to store the ID of the created payment link
 
-# Function to create a payment link
 def create_payment_link_view(request):
     tier = request.GET.get('tier', '')
     price_mapping = {'premium': 10000, 'advanced': 14900, 'free': 10000}  # Assuming default prices
@@ -3782,8 +3783,9 @@ def create_payment_link_view(request):
                 }
             }
         }
+        encoded_api_key = base64.b64encode(paymongo_api_key.encode()).decode()
         headers = {
-            'Authorization': f'Basic {base64.b64encode(paymongo_api_key.encode()).decode()}',
+            'Authorization': f'Basic {encoded_api_key}',
             'Content-Type': 'application/json'
         }
         response = requests.post(url, json=payload, headers=headers)
@@ -3795,13 +3797,12 @@ def create_payment_link_view(request):
         global stored_link_id
         stored_link_id = data['data']['id']
 
-        status = get_payment_link_and_check_status("JcaYEyW")
-
         # Check if the status is 'paid'
+        status = get_payment_link_and_check_status(stored_link_id)
+
         if status == 'paid':
-            # Update the subscription status of the user to "paid"
-            user = request.user  # Assuming you have the user object available
-            user.subscription_status = 'paid'  # Update the subscription status to "paid"
+            user = request.user
+            user.subscription_status = 'paid'
             user.is_subscribed = True
             user.save()
 
@@ -3809,23 +3810,22 @@ def create_payment_link_view(request):
 
     except Exception as error:
         print('Error creating payment link:', error)
-        # Handle the error gracefully or redirect to an error page
         return redirect('/')  # Redirect to homepage or error page
 
-# Function to get the payment link and check if the status is paid
-def get_payment_link_and_check_status(reference_number):
+def get_payment_link_and_check_status(link_id):
     try:
-        url = f"https://api.paymongo.com/v1/links?reference_number={reference_number}"
+        url = f"https://api.paymongo.com/v1/links/{link_id}"
+        encoded_api_key = base64.b64encode(paymongo_api_key.encode()).decode()
         headers = {
             "accept": "application/json",
-            "authorization": f"Basic {base64.b64encode(paymongo_api_key.encode()).decode()}"
+            "authorization": f"Basic {encoded_api_key}"
         }
         response = requests.get(url, headers=headers)
         response.raise_for_status()  # Raise an error for non-2xx status codes
 
         data = response.json()
         if data['data']:
-            status = data['data'][0]['attributes']['status']
+            status = data['data']['attributes']['status']
             return status
         else:
             return None  # If no data is returned
@@ -3834,32 +3834,28 @@ def get_payment_link_and_check_status(reference_number):
         print('Error getting payment link or checking status:', error)
         return None  # Return None if an error occurs
 
-import requests
-from django.http import JsonResponse
-from django.views.decorators.csrf import csrf_exempt
-from datetime import datetime, timedelta
-from .models import Subscription
+
 
 @csrf_exempt
 def verify_subscription(request):
     if request.method == 'POST':
         reference_number = request.POST.get('reference_number')
-        
+
         if not reference_number:
             return JsonResponse({'success': False, 'message': 'Reference number is required.'})
-        
-        paymongo_secret_key = 'sk_test_PUL9xuAM8Sm9GLh3FGura1vr'
-        url = f"https://api.paymongo.com/v1/links?reference_number={reference_number}"
+
+        url = f"https://api.paymongo.com/v1/links/{reference_number}"
+        encoded_api_key = base64.b64encode(paymongo_api_key.encode()).decode()
         headers = {
             "accept": "application/json",
-            "authorization": f"Basic {paymongo_secret_key}"
+            "authorization": f"Basic {encoded_api_key}"
         }
-        
+
         try:
             response = requests.get(url, headers=headers)
             response.raise_for_status()
             data = response.json()
-            
+
             if data and 'data' in data and len(data['data']) > 0:
                 payment_data = data['data'][0]
                 attributes = payment_data.get('attributes', {})
@@ -3877,13 +3873,20 @@ def verify_subscription(request):
                     user.subscription_status = 'paid'
                     user.sub_id = subscription.sub_id
                     user.save()
-                    
+
                     return JsonResponse({'success': True, 'message': 'Subscription verified and updated successfully.'})
                 else:
                     return JsonResponse({'success': False, 'message': 'Payment for the reference number is not yet completed.'})
             else:
                 return JsonResponse({'success': False, 'message': 'Invalid reference number.'})
+        except requests.HTTPError as e:
+            if response.status_code == 404:
+                return JsonResponse({'success': False, 'message': 'Payment link not found. Please check the reference number.'})
+            else:
+                print(f'Error in Paymongo API request: {e}')
+                return JsonResponse({'success': False, 'message': f'Error in Paymongo API request: {e}'})
         except requests.RequestException as e:
+            print(f'Error in Paymongo API request: {e}')
             return JsonResponse({'success': False, 'message': f'Error in Paymongo API request: {e}'})
     else:
         return JsonResponse({'success': False, 'message': 'Invalid request method.'})
