@@ -3762,7 +3762,7 @@ import requests
 import base64
 
 
-paymongo_api_key = 'sk_test_PUL9xuAM8Sm9GLh3FGura1vr'  # Replace this with your actual Paymongo API key
+paymongo_api_key = 'sk_test_JWJEP9KDjNaDDRUv1uC1ZgSB'  # Replace this with your actual Paymongo API key
 stored_link_id = None  # Variable to store the ID of the created payment link
 
 # Function to create a payment link
@@ -3835,49 +3835,55 @@ def get_payment_link_and_check_status(reference_number):
         return None  # Return None if an error occurs
 
 import requests
-from datetime import datetime, timedelta
 from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+from datetime import datetime, timedelta
 from .models import Subscription
 
+@csrf_exempt
 def verify_subscription(request):
     if request.method == 'POST':
         reference_number = request.POST.get('reference_number')
         
-        # Make request to Paymongo API to retrieve payment details
+        if not reference_number:
+            return JsonResponse({'success': False, 'message': 'Reference number is required.'})
+        
         paymongo_secret_key = 'sk_test_PUL9xuAM8Sm9GLh3FGura1vr'
         url = f"https://api.paymongo.com/v1/links?reference_number={reference_number}"
         headers = {
             "accept": "application/json",
             "authorization": f"Basic {paymongo_secret_key}"
         }
-        response = requests.get(url, headers=headers)
-        data = response.json()
-
-        # Assuming the reference number is unique, hence expecting only one data entry
-        if data and 'data' in data and len(data['data']) > 0:
-            payment_data = data['data'][0]
-            attributes = payment_data.get('attributes', {})
-            if attributes.get('status') == 'paid':
-                # Update database
-                user_id = request.user.id
-                subscription = Subscription.objects.create(
-                    plan_id=2,
-                    start_date=datetime.now(),
-                    end_date=datetime.now() + timedelta(days=180),  # 6 months from now
-                    user_id=user_id,
-                    status='paid'
-                )
-                # Update user's subscription status
-                user = request.user
-                user.is_subscribed = True
-                user.subscription_status = 'paid'
-                user.sub_id = subscription.sub_id
-                user.save()
-                
-                return JsonResponse({'success': True, 'message': 'Subscription verified and updated successfully.'})
+        
+        try:
+            response = requests.get(url, headers=headers)
+            response.raise_for_status()
+            data = response.json()
+            
+            if data and 'data' in data and len(data['data']) > 0:
+                payment_data = data['data'][0]
+                attributes = payment_data.get('attributes', {})
+                if attributes.get('status') == 'paid':
+                    user_id = request.user.id
+                    subscription = Subscription.objects.create(
+                        plan_id=2,
+                        start_date=datetime.now(),
+                        end_date=datetime.now() + timedelta(days=180),
+                        user_id=user_id,
+                        status='paid'
+                    )
+                    user = request.user
+                    user.is_subscribed = True
+                    user.subscription_status = 'paid'
+                    user.sub_id = subscription.sub_id
+                    user.save()
+                    
+                    return JsonResponse({'success': True, 'message': 'Subscription verified and updated successfully.'})
+                else:
+                    return JsonResponse({'success': False, 'message': 'Payment for the reference number is not yet completed.'})
             else:
-                return JsonResponse({'success': False, 'message': 'Payment for the reference number is not yet completed.'})
-        else:
-            return JsonResponse({'success': False, 'message': 'Invalid reference number.'})
+                return JsonResponse({'success': False, 'message': 'Invalid reference number.'})
+        except requests.RequestException as e:
+            return JsonResponse({'success': False, 'message': f'Error in Paymongo API request: {e}'})
     else:
         return JsonResponse({'success': False, 'message': 'Invalid request method.'})

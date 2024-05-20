@@ -489,45 +489,39 @@
                                             </div>
                                         </div>
                             
-                                            <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-                                            <script>
-                                                $(document).ready(function() {
-                                                    $('#verify_button').click(function() {
-                                                        var referenceNumber = $('#reference_number').val();
-                                                        // Make sure the reference number is not empty
-                                                        if (referenceNumber.trim() !== '') {
-                                                            // Make AJAX request to verify subscription
-                                                            $.ajax({
-                                                                type: 'POST',
-                                                                url: '/verify_subscription/', // Change the URL to your backend endpoint
-                                                                data: {
-                                                                    csrfmiddlewaretoken: '{{ csrf_token }}', // Include CSRF token for Django
-                                                                    reference_number: referenceNumber
-                                                                },
-                                                                success: function(response) {
-                                                                    if (response.success) {
-                                                                        // Subscription verified and updated successfully
-                                                                        alert(response.message);
-                                                                        // Optionally, you can reload the page or update UI accordingly
-                                                                        location.reload(); // Reload the page
-                                                                    } else {
-                                                                        // Failed to verify subscription
-                                                                        alert(response.message);
-                                                                    }
-                                                                },
-                                                                error: function(xhr, status, error) {
-                                                                    // Handle AJAX error
-                                                                    console.error(error);
+                                        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+                                        <script>
+                                            $(document).ready(function() {
+                                                $('#verify_button').click(function() {
+                                                    var referenceNumber = $('#reference_number').val();
+                                                    if (referenceNumber.trim() !== '') {
+                                                        $.ajax({
+                                                            type: 'POST',
+                                                            url: '/verify_subscription/',
+                                                            data: {
+                                                                csrfmiddlewaretoken: '{{ csrf_token }}',
+                                                                reference_number: referenceNumber
+                                                            },
+                                                            success: function(response) {
+                                                                if (response.success) {
+                                                                    alert(response.message);
+                                                                    location.reload();
+                                                                } else {
+                                                                    alert(response.message);
                                                                 }
-                                                            });
-                                                        } else {
-                                                            // Reference number is empty
-                                                            alert('Please enter a reference number.');
-                                                        }
-                                                    });
+                                                            },
+                                                            error: function(xhr, status, error) {
+                                                                console.error('AJAX Error:', error);
+                                                                alert('An error occurred while verifying the subscription.');
+                                                            }
+                                                        });
+                                                    } else {
+                                                        alert('Please enter a reference number.');
+                                                    }
                                                 });
-                                            </script>
-
+                                            });
+                                        </script>
+                                        
 
                                         {% endif %}
                                         {% if user.role.pk == 3 %}
