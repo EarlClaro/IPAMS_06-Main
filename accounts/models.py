@@ -37,35 +37,38 @@ class UserRole(models.Model):
 
 
 class User(AbstractBaseUser, PermissionsMixin):
-	username = models.CharField(max_length=30, unique=True)
-	first_name = models.CharField(max_length=50)
-	middle_name = models.CharField(max_length=50, default='', blank=True)
-	last_name = models.CharField(max_length=50)
-	email = models.CharField(max_length=60, unique=True)
-	contact_no = models.CharField(max_length=20, blank=True)
-	role = models.ForeignKey(UserRole, on_delete=models.CASCADE, default=7)
-	is_admin = models.BooleanField(default=False)
-	is_staff = models.BooleanField(default=False)
-	is_superuser = models.BooleanField(default=False)
-	is_verified = models.BooleanField(default=False)
-	objects = UserManager()
-	USERNAME_FIELD = 'username'
-	REQUIRED_FIELDS = ['email']
+    username = models.CharField(max_length=30, unique=True)
+    first_name = models.CharField(max_length=50)
+    middle_name = models.CharField(max_length=50, default='', blank=True)
+    last_name = models.CharField(max_length=50)
+    email = models.CharField(max_length=60, unique=True)
+    contact_no = models.CharField(max_length=20, blank=True)
+    role = models.ForeignKey(UserRole, on_delete=models.CASCADE, default=7)
+    is_admin = models.BooleanField(default=False)
+    is_staff = models.BooleanField(default=False)
+    is_superuser = models.BooleanField(default=False)
+    is_verified = models.BooleanField(default=False)
+    subscription_status = models.CharField(max_length=60, default='unpaid', blank=True)
+    is_subscribed = models.BooleanField(default=False)  # New field
+    objects = UserManager()
 
-	def setUsername(self, username):
-		self.username = username
+    USERNAME_FIELD = 'username'
+    REQUIRED_FIELDS = ['email']
 
-	def setFirstName(self, firstName):
-		self.firstName = firstName
+    def setUsername(self, username):
+        self.username = username
 
-	def setMiddleName(self, middleName):
-		self.middleName = middleName
+    def setFirstName(self, firstName):
+        self.first_name = firstName
 
-	def setEmail(self, email):
-		self.email = email
+    def setMiddleName(self, middleName):
+        self.middle_name = middleName
 
-	def setContactNo(self, contactNo):
-		self.contact_no = contactNo
+    def setEmail(self, email):
+        self.email = email
+
+    def setContactNo(self, contactNo):
+        self.contact_no = contactNo
 
 class College(models.Model):
 	name = models.CharField(max_length=100)
