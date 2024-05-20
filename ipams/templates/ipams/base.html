@@ -23,8 +23,9 @@
     <link rel="stylesheet" type="text/css" href="{% static 'tagify/tagify.css' %}"/>
     <link rel="stylesheet" type="text/css" href="{% static 'css/home_media.css' %}"/>
     <link rel="stylesheet" type="text/css" href="{% static 'css/home.css' %}"/>
-    <!-- Styles -->
 
+   
+    <!-- Styles -->
     {% block head %}{% endblock %}
     <style>
         .main-container{
@@ -94,6 +95,8 @@
 
         
     }
+
+    
     </style>
 </head>
 <body>
@@ -485,47 +488,11 @@
                                             </div>
                                             <div class="col-9">
                                                 <input type="text" class="form-control profile-input" id="reference_number" name="reference_number">
-                                                <button type="button" class="btn btn-primary" id="verify_button">Verify</button>
+                                                <button type="button" class="btn btn-primary mt-1" id="verify_button">Verify</button>
                                             </div>
                                         </div>
-                            
-                                        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<<<<<<< HEAD
-                                            <script>
-                                                $(document).ready(function() {
-                                                    $('#verify_button').click(function() {
-                                                        var referenceNumber = $('#reference_number').val();
-                                                        if (referenceNumber.trim() !== '') {
-                                                            $.ajax({
-                                                                type: 'POST',
-                                                                url: '/verify_subscription/',
-                                                                data: {
-                                                                    csrfmiddlewaretoken: '{{ csrf_token }}',
-                                                                    reference_number: referenceNumber
-                                                                },
-                                                                success: function(response) {
-                                                                    if (response.success) {
-                                                                        alert(response.message);
-                                                                        location.reload();
-                                                                    } else {
-                                                                        alert(response.message);
-                                                                    }
-                                                                },
-                                                                error: function(xhr, status, error) {
-                                                                    console.error('AJAX Error:', xhr.responseText);  // Log detailed error
-                                                                    alert('An error occurred while verifying the subscription.');
-                                                                }
-                                                            });
-                                                        } else {
-                                                            alert('Please enter a reference number.');
-                                                        }
-                                                    });
-                                                });
-                                            </script>
-
                                         
-
-=======
+                                        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
                                         <script>
                                             $(document).ready(function() {
                                                 $('#verify_button').click(function() {
@@ -557,8 +524,9 @@
                                                     }
                                                 });
                                             });
+
+                                            
                                         </script>
->>>>>>> 8780463a34a536e2e72a5e2962385e9cc8cf30ac
                                         {% endif %}
                                         {% if user.role.pk == 3 %}
                                         <div class="row" style="margin-top: 10px;">
@@ -734,9 +702,83 @@
 		    	}
             });
         {% endif %}
-    </script>
-
+    </script>                                           
 
     {% block footer %}{% endblock %}
+
+    
+    <!-- Modal -->
+    {% if show_modal %}
+    <div id="subscriptionModal" class="modal" tabindex="-1" role="dialog">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Subscription Expiry</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <p>Your subscription is about to expire. Do you want to renew or cancel your subscription?</p>
+                </div>
+                <div class="modal-footer">
+                    <button id="renew-button" type="button" class="btn btn-primary">Renew</button>
+                    <button id="cancel-button" type="button" class="btn btn-danger">Cancel</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+    
+
+    <script>
+        $(document).ready(function() {
+            console.log("Show modal (inside jQuery): {{ show_modal|yesno:'true,false' }}");
+
+            {% if show_modal %}
+            $('#subscriptionModal').modal('show');
+            {% endif %}
+
+            $('#renew-button').click(function() {
+                $.ajax({
+                    type: 'POST',
+                    url: '{% url "renew_subscription" %}',
+                    data: {
+                        csrfmiddlewaretoken: '{{ csrf_token }}'
+                    },
+                    success: function(response) {
+                        alert(response.message);
+                        if (response.success) {
+                            location.reload();
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        console.error('AJAX Error:', error);
+                        alert('An error occurred while renewing the subscription.');
+                    }
+                });
+            });
+
+            $('#cancel-button').click(function() {
+                $.ajax({
+                    type: 'POST',
+                    url: '{% url "cancel_subscription" %}',
+                    data: {
+                        csrfmiddlewaretoken: '{{ csrf_token }}'
+                    },
+                    success: function(response) {
+                        alert(response.message);
+                        if (response.success) {
+                            location.reload();
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        console.error('AJAX Error:', error);
+                        alert('An error occurred while canceling the subscription.');
+                    }
+                });
+            });
+        });
+    </script>
 </body>
 </html>

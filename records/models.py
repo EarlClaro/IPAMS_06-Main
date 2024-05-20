@@ -309,9 +309,10 @@ class RecordFile(models.Model):
     
 
 from django.db import models
+from datetime import datetime, timedelta
 
 class SubscriptionPlan(models.Model):
-    plan_id = models.IntegerField(primary_key=True)
+    plan_id = models.AutoField(primary_key=True)
     plan_name = models.CharField(max_length=50, null=True, blank=True)
     price = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
     duration_months = models.IntegerField(null=True, blank=True)
@@ -320,18 +321,27 @@ class SubscriptionPlan(models.Model):
         return str(self.plan_id)
 
     class Meta:
-        db_table = 'subscription_plan'  # Ensure this matches your actual table name
+        db_table = 'subscription_plan'
 
 class Subscription(models.Model):
-    sub_id = models.IntegerField(primary_key=True)
+    sub_id = models.AutoField(primary_key=True)
     plan_id = models.ForeignKey(SubscriptionPlan, on_delete=models.CASCADE, default=None)
     start_date = models.DateField(null=True, blank=True)
     end_date = models.DateField(null=True, blank=True)
     user_id = models.ForeignKey('accounts.User', on_delete=models.CASCADE, default=None)
-    status = models.CharField(max_length=50, null=True, blank=True)
+    status = models.CharField(max_length=50, default='active')
 
     def __str__(self):
         return str(self.sub_id)
 
+    def renew(self):
+        self.start_date = datetime.now().date()
+        self.end_date = self.start_date + timedelta(days=180)
+        self.status = 'active'
+        self.save()
+
+    def is_near_end(self):
+        return self.end_date <= datetime.now().date() + timedelta(days=7)
+
     class Meta:
-        db_table = 'subscription'  # Explicitly set the table name
+        db_table = 'subscription'

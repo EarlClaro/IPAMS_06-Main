@@ -40,7 +40,18 @@ from django.conf import settings
 import magic
 import re
 import json
-
+from django.shortcuts import redirect, render
+import requests
+import base64
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+from datetime import datetime, timedelta
+from .models import Subscription, SubscriptionPlan
+from accounts.models import User  # Assuming 'accounts' is the app name for the User model
+import logging
+# Configure the logger
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 FILE_LENGTH = 5242880
 
@@ -116,9 +127,44 @@ def update_record_tags(request, record_id):
             action=f'community_extension_tag status changed to \"{status}\", record ID: <a href="/dashboard/logs/record/{record_id}">#{record_id}</a>').save()
     return {'success': True, 'is-ip': record.is_ip, 'for-commercialization': record.for_commercialization,
             'community-ext': record.community_extension}
-def create_payment_link(request):
-    # Implement your view logic here
-    return HttpResponse("Create Payment Link view")
+
+import logging
+
+# Function to create a payment link
+def create_payment_link_view(request):
+    tier = request.GET.get('tier', '')
+    price_mapping = {'premium': 10000, 'advanced': 14900, 'free': 10000}  # Corrected prices
+
+    try:
+        url = 'https://api.paymongo.com/v1/links'
+        payload = {
+            'data': {
+                'attributes': {
+                    'amount': price_mapping.get(tier),  # Convert amount to cents
+                    'description': f'Payment for {tier} tier',  # Use tier in description
+                    'remarks': 'pay',
+                    'status': 'unpaid'  # Add status attribute
+                }
+            }
+        }
+        encoded_api_key = base64.b64encode(paymongo_api_key.encode()).decode()
+        headers = {
+            'Authorization': f'Basic {encoded_api_key}',
+            'Content-Type': 'application/json'
+        }
+        response = requests.post(url, json=payload, headers=headers)
+        response.raise_for_status()  # Raise an error for non-2xx status codes
+
+        data = response.json()
+        checkout_url = data['data']['attributes']['checkout_url']
+        global stored_link_id
+        stored_link_id = data['data']['id']
+
+        return redirect(checkout_url)
+
+    except Exception as error:
+        logger.error('Error creating payment link: %s', error)
+        return redirect('/')  # Redirect to homepage or error page
 
 @csrf_exempt
 def generate_pin_and_save_data_view(request):
@@ -3760,12 +3806,13 @@ def download_docx_file(request, record_upload_id):
 from django.shortcuts import redirect
 import requests
 import base64
-
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+from datetime import datetime, timedelta
+from .models import Subscription
 
 paymongo_api_key = 'sk_test_PUL9xuAM8Sm9GLh3FGura1vr'  # Replace this with your actual Paymongo API key
-stored_link_id = None  # Variable to store the ID of the created payment link
 
-# Function to create a payment link
 def create_payment_link_view(request):
     tier = request.GET.get('tier', '')
     price_mapping = {'premium': 10000, 'advanced': 14900, 'free': 10000}  # Assuming default prices
@@ -3782,8 +3829,9 @@ def create_payment_link_view(request):
                 }
             }
         }
+        encoded_api_key = base64.b64encode(paymongo_api_key.encode()).decode()
         headers = {
-            'Authorization': f'Basic {base64.b64encode(paymongo_api_key.encode()).decode()}',
+            'Authorization': f'Basic {encoded_api_key}',
             'Content-Type': 'application/json'
         }
         response = requests.post(url, json=payload, headers=headers)
@@ -3795,13 +3843,12 @@ def create_payment_link_view(request):
         global stored_link_id
         stored_link_id = data['data']['id']
 
-        status = get_payment_link_and_check_status("JcaYEyW")
-
         # Check if the status is 'paid'
+        status = get_payment_link_and_check_status(stored_link_id)
+
         if status == 'paid':
-            # Update the subscription status of the user to "paid"
-            user = request.user  # Assuming you have the user object available
-            user.subscription_status = 'paid'  # Update the subscription status to "paid"
+            user = request.user
+            user.subscription_status = 'paid'
             user.is_subscribed = True
             user.save()
 
@@ -3809,113 +3856,153 @@ def create_payment_link_view(request):
 
     except Exception as error:
         print('Error creating payment link:', error)
-        # Handle the error gracefully or redirect to an error page
         return redirect('/')  # Redirect to homepage or error page
 
-# Function to get the payment link and check if the status is paid
-def get_payment_link_and_check_status(reference_number):
-    
+def get_payment_link_and_check_status(link_id):
     try:
-        url = f"https://api.paymongo.com/v1/links?reference_number={reference_number}"
+        url = f"https://api.paymongo.com/v1/links/{link_id}"
+        encoded_api_key = base64.b64encode(paymongo_api_key.encode()).decode()
         headers = {
             "accept": "application/json",
-            "authorization": f"Basic {base64.b64encode(paymongo_api_key.encode()).decode()}"
+            "authorization": f"Basic {encoded_api_key}"
         }
         response = requests.get(url, headers=headers)
         response.raise_for_status()  # Raise an error for non-2xx status codes
 
         data = response.json()
         if data['data']:
-            status = data['data'][0]['attributes']['status']
+            status = data['data']['attributes']['status']
             return status
         else:
             return None  # If no data is returned
 
     except Exception as error:
-        print('Error getting payment link or checking status:', error)
+        logger.error('Error getting payment link or checking status: %s', error)
         return None  # Return None if an error occurs
 
-from django.shortcuts import render
-from django.http import JsonResponse
-from django.views.decorators.csrf import csrf_exempt
-import requests
-import base64
-from datetime import datetime, timedelta
-from .models import Subscription, SubscriptionPlan
-from accounts.models import User  # Assuming 'accounts' is the app name for the User model
-import logging
+price_mapping = {
+    'free': 10000,  # Since transactions below 100 are not allowed, treat free as 10000 cents
+    'premium': 10000,  # 100.00 pesos
+    'advanced': 14900  # 149.00 pesos
+}
 
-logger = logging.getLogger(__name__)
+# Define the mapping from amount paid to plan name
+amount_to_plan = {
+    10000: 'free',
+    10000: 'premium',
+    14900: 'advanced'
+}
+
 
 @csrf_exempt
 def verify_subscription(request):
     if request.method == 'POST':
         reference_number = request.POST.get('reference_number')
-        
+
         if not reference_number:
+            logger.error('Reference number is required.')
             return JsonResponse({'success': False, 'message': 'Reference number is required.'})
-        
-        paymongo_secret_key = 'sk_test_PUL9xuAM8Sm9GLh3FGura1vr'
-        url = f"https://api.paymongo.com/v1/links?reference_number={reference_number}"
+
+        url = f"https://api.paymongo.com/v1/links/{reference_number}"
+        encoded_api_key = base64.b64encode(paymongo_api_key.encode()).decode()
         headers = {
             "accept": "application/json",
-            "authorization": f"Basic {base64.b64encode(paymongo_secret_key.encode()).decode()}"
+            "authorization": f"Basic {encoded_api_key}"
         }
-        
+
         try:
             response = requests.get(url, headers=headers)
             response.raise_for_status()
             data = response.json()
-            
-            if data and 'data' in data and len(data['data']) > 0:
-                payment_data = data['data'][0]
+
+            if data and 'data' in data:
+                payment_data = data['data']
                 attributes = payment_data.get('attributes', {})
                 if attributes.get('status') == 'paid':
-                    amount_paid = attributes.get('amount', 0) 
                     user = request.user
-                    
-                    # Determine the correct SubscriptionPlan based on amount_paid
-                    if amount_paid == 10000:
-                        plan_id = 1  # Free plan
-                    elif amount_paid == 10000:
-                        plan_id = 2  # Premium plan
-                    elif amount_paid == 14900:
-                        plan_id = 3  # Advanced plan
-                    else:
-                        return JsonResponse({'success': False, 'message': 'Invalid amount paid for subscription.'})
 
                     try:
-                        # Retrieve the correct SubscriptionPlan instance
-                        plan = SubscriptionPlan.objects.get(plan_id=plan_id)
-                    except SubscriptionPlan.DoesNotExist:
-                        return JsonResponse({'success': False, 'message': 'Subscription plan does not exist.'})
-                    
-                    subscription = Subscription.objects.create(
-                        plan=plan,  # Correctly use the plan instance
-                        start_date=datetime.now().date(),
-                        end_date=(datetime.now() + timedelta(days=180)).date(),
-                        user=user,  # Correctly use the user instance
-                        status='paid'
-                    )
-                    user.is_subscribed = True
-                    user.subscription_status = 'paid'
-                    user.sub_id = subscription.sub_id
-                    user.save()
-                    
-                    return JsonResponse({'success': True, 'message': 'Subscription verified and updated successfully.'})
+                        # Check if there's an inactive subscription for the user
+                        subscription = Subscription.objects.get(user_id=user, status='inactive')
+                        subscription.status = 'active'
+                        subscription.start_date = datetime.now().date()
+                        subscription.end_date = (datetime.now() + timedelta(days=180)).date()
+                        subscription.save()
+
+                        user.is_subscribed = True
+                        user.subscription_status = 'paid'
+                        user.save()
+
+                        return JsonResponse({'success': True, 'message': 'Subscription reactivated successfully.'})
+                    except Subscription.DoesNotExist:
+                        try:
+                            # Retrieve the free plan as the default plan
+                            plan = SubscriptionPlan.objects.get(plan_name='free')
+                        except SubscriptionPlan.DoesNotExist:
+                            logger.error('Subscription plan does not exist.')
+                            return JsonResponse({'success': False, 'message': 'Subscription plan does not exist.'})
+
+                        # Create a new subscription
+                        subscription = Subscription.objects.create(
+                            plan_id=plan,
+                            start_date=datetime.now().date(),
+                            end_date=(datetime.now() + timedelta(days=180)).date(),
+                            user_id=user,
+                            status='active'
+                        )
+                        user.is_subscribed = True
+                        user.subscription_status = 'paid'
+                        user.sub_id = subscription.sub_id
+                        user.save()
+
+                        return JsonResponse({'success': True, 'message': 'Subscription verified and updated successfully.'})
                 else:
+                    logger.error('Payment for the reference number is not yet completed.')
                     return JsonResponse({'success': False, 'message': 'Payment for the reference number is not yet completed.'})
             else:
+                logger.error('Invalid reference number.')
                 return JsonResponse({'success': False, 'message': 'Invalid reference number.'})
+        except requests.HTTPError as e:
+            if response.status_code == 404:
+                logger.error('Payment link not found. Please check the reference number.')
+                return JsonResponse({'success': False, 'message': 'Payment link not found. Please check the reference number.'})
+            else:
+                logger.error(f'Error in Paymongo API request: {e}')
+                return JsonResponse({'success': False, 'message': f'Error in Paymongo API request: {e}'})
         except requests.RequestException as e:
-            error_message = f'Error in Paymongo API request: {e}'
-            logger.error(error_message)  # Log the error message for debugging
-            return JsonResponse({'success': False, 'message': 'An error occurred while verifying the subscription. Please try again later.'})
+            logger.error(f'Error in Paymongo API request: {e}')
+            return JsonResponse({'success': False, 'message': f'Error in Paymongo API request: {e}'})
         except Exception as e:
-            error_message = f'Unexpected error: {e}'
-            logger.error(error_message)  # Log the error message for debugging
-            return JsonResponse({'success': False, 'message': 'An unexpected error occurred. Please try again later.'})
-    elif request.method == 'GET':
-        return render(request, 'your_template.html')  # Replace 'your_template.html' with the actual name of your HTML template
+            logger.error(f'Unexpected error: {e}')
+            return JsonResponse({'success': False, 'message': f'Unexpected error: {e}'})
     else:
+        logger.error('Invalid request method.')
         return JsonResponse({'success': False, 'message': 'Invalid request method.'})
+    
+@login_required
+def base_view(request):
+    user = request.user
+    show_modal = user.is_subscription_about_to_expire()
+    return render(request, 'base.html', {'show_modal': show_modal})
+
+@login_required
+def renew_subscription(request):
+    try:
+        subscription = Subscription.objects.get(user_id=request.user, status='active')
+        subscription.renew()
+        return JsonResponse({'success': True, 'message': 'Subscription renewed successfully.'})
+    except Subscription.DoesNotExist:
+        return JsonResponse({'success': False, 'message': 'Active subscription not found.'})
+
+@login_required
+def cancel_subscription(request):
+    try:
+        subscription = Subscription.objects.get(user_id=request.user, status='active')
+        subscription.status = 'inactive'
+        subscription.save()
+        request.user.is_subscribed = False
+        request.user.subscription_status = 'unpaid'
+        request.user.save()
+        return JsonResponse({'success': True, 'message': 'Subscription canceled successfully.'})
+    except Subscription.DoesNotExist:
+        return JsonResponse({'success': False, 'message': 'Active subscription not found.'})

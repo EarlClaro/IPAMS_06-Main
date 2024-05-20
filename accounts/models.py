@@ -4,7 +4,9 @@ from django.contrib.auth.models import (
 	BaseUserManager, AbstractBaseUser, PermissionsMixin
 )
 from records.models import Record
-
+from django.db import models
+from django.utils import timezone
+from records.models import Subscription
 
 class UserManager(BaseUserManager):
 	def create_user(self, username, email, password):
@@ -48,8 +50,9 @@ class User(AbstractBaseUser, PermissionsMixin):
     is_staff = models.BooleanField(default=False)
     is_superuser = models.BooleanField(default=False)
     is_verified = models.BooleanField(default=False)
+    is_subscribed = models.BooleanField(default=False)
     subscription_status = models.CharField(max_length=60, default='unpaid', blank=True)
-    is_subscribed = models.BooleanField(default=False)  # New field
+    
     objects = UserManager()
 
     USERNAME_FIELD = 'username'
@@ -59,16 +62,22 @@ class User(AbstractBaseUser, PermissionsMixin):
         self.username = username
 
     def setFirstName(self, firstName):
-        self.first_name = firstName
+        self.firstName = firstName
 
     def setMiddleName(self, middleName):
-        self.middle_name = middleName
+        self.middleName = middleName
 
     def setEmail(self, email):
         self.email = email
 
     def setContactNo(self, contactNo):
         self.contact_no = contactNo
+
+    def get_subscription(self):
+        try:
+            return self.subscription_set.get(status='active')
+        except Subscription.DoesNotExist:
+            return None
 
 class College(models.Model):
 	name = models.CharField(max_length=100)
