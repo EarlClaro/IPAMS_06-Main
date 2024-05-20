@@ -88,7 +88,9 @@ urlpatterns = [
      path('subscribe/', SubscriptionPageView.as_view(), name='subscribe'),
      path('payment/', PaymentPortalView.as_view(), name='payment_portal'),
      path('create_payment_link/', views.create_payment_link_view, name='create_payment_link'),
-     path('get_payment_link_and_check_status/',views.get_payment_link_and_check_status,name='get_payment_link_and_check_status')
+     path('get_payment_link_and_check_status/',views.get_payment_link_and_check_status,name='get_payment_link_and_check_status'),
+     path('verify_subscription/', views.verify_subscription, name='verify_subscription'),
+
 
      #Chatbot
 ]
