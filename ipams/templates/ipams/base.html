@@ -96,6 +96,40 @@
         
     }
 
+         /* Custom styles for the modal */
+         #subscriptionModal .modal-content {
+            background-color: whitesmoke;
+            color: black;
+        }
+        #subscriptionModal .modal-header {
+            background-color: #FFD700;
+            color: black;
+            border-bottom: 2px solid black;
+        }
+        #subscriptionModal .modal-footer {
+            background-color: whitesmoke;
+        }
+        #subscriptionModal .btn-primary {
+            background-color: #f0cc2b;
+            border-color: #B8860B;
+            color: black;
+        }
+        #subscriptionModal .btn-primary:hover {
+            background-color: #DAA520;
+            border-color: #DAA520;
+            color: white;
+        }
+        #subscriptionModal .btn-danger {
+            background-color: #d41111;
+            border-color: #8B0000;
+            color: black;
+        }
+        #subscriptionModal .btn-danger:hover {
+            background-color: #B22222;
+            border-color: #B22222;
+            color: white;
+        }
+
     
     </style>
 </head>
@@ -726,7 +760,6 @@
 
     {% block footer %}{% endblock %}
 
-    
     <!-- Modal -->
     {% if show_modal %}
     <div id="subscriptionModal" class="modal" tabindex="-1" role="dialog">
