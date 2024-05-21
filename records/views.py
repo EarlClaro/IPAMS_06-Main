@@ -46,7 +46,7 @@ import base64
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from datetime import datetime, timedelta
-from .models import Subscription, SubscriptionPlan
+from .models import Subscription
 from accounts.models import User  # Assuming 'accounts' is the app name for the User model
 import logging
 # Configure the logger
@@ -3935,16 +3935,11 @@ def verify_subscription(request):
 
                         return JsonResponse({'success': True, 'message': 'Subscription reactivated successfully.'})
                     except Subscription.DoesNotExist:
-                        try:
-                            # Retrieve the free plan as the default plan
-                            plan = SubscriptionPlan.objects.get(plan_name='free')
-                        except SubscriptionPlan.DoesNotExist:
-                            logger.error('Subscription plan does not exist.')
-                            return JsonResponse({'success': False, 'message': 'Subscription plan does not exist.'})
+                        
 
                         # Create a new subscription
                         subscription = Subscription.objects.create(
-                            plan_id=plan,
+                            
                             start_date=datetime.now().date(),
                             end_date=(datetime.now() + timedelta(days=180)).date(),
                             user_id=user,

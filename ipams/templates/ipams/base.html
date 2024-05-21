@@ -518,24 +518,6 @@
                                                 <input class="form-control profile-input" value="{{ user.email }}" readonly>
                                             </div>
                                         </divion>
-                                        {% if user.role.pk == 2 %}
-                                        <div class="row" style="margin-top: 10px;">
-                                            <div class="col-3">
-                                                <label>Program:</label>
-                                            </div>
-                                            <div class="col-9">
-                                                <input class="form-control" value="{{ user.student.course.name }}" readonly>
-                                            </div>
-                                        </div>
-                                        <div class="row profile-row">
-                                            <div class="col-3">
-                                                <label>Subscription:</label>
-                                            </div>
-                                            <div class="col-9">
-                                                <input class="form-control profile-input" value="{% if user.is_subscribed %}Premium{% else %}Free{% endif %}" id="subscription_status" readonly>
-                                            </div>
-                                        </div>
-                                        
                                         <div class="row profile-row">
                                             <div class="col-3">
                                                 <label>Input Reference Number:</label>
@@ -581,6 +563,25 @@
 
                                             
                                         </script>
+                                        {% if user.role.pk == 2 %}
+                                        <div class="row" style="margin-top: 10px;">
+                                            <div class="col-3">
+                                                <label>Program:</label>
+                                            </div>
+                                            <div class="col-9">
+                                                <input class="form-control" value="{{ user.student.course.name }}" readonly>
+                                            </div>
+                                        </div>
+                                        <div class="row profile-row">
+                                            <div class="col-3">
+                                                <label>Subscription:</label>
+                                            </div>
+                                            <div class="col-9">
+                                                <input class="form-control profile-input" value="{% if user.is_subscribed %}Premium{% else %}Free{% endif %}" id="subscription_status" readonly>
+                                            </div>
+                                        </div>
+                                        
+                                        
                                         {% endif %}
                                         {% if user.role.pk == 3 %}
                                         <div class="row" style="margin-top: 10px;">
