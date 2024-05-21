@@ -47,9 +47,8 @@ class User(AbstractBaseUser, PermissionsMixin):
     is_staff = models.BooleanField(default=False)
     is_superuser = models.BooleanField(default=False)
     is_verified = models.BooleanField(default=False)
-    is_subscribed = models.BooleanField(default=False)
     subscription_status = models.CharField(max_length=60, default='unpaid', blank=True)
-    
+    is_subscribed = models.BooleanField(default=False)  # New field
     objects = UserManager()
 
     USERNAME_FIELD = 'username'
