@@ -224,7 +224,7 @@
                         {% endcomment %}
 
                         {% if user.role.id == 2 or user.role.id == 3 or user.role.id == 4 %}
-                            {% if user.is_subscribed %}
+                            {% if user.is_subscribed or user.role.id >= 3%}
                                 <a class="dropdown-item" href="{% url 'file_management:browse_files' %}">File Management</a>
                             {% else %}
                                 <a class="dropdown-item" href="#" onclick="alert('Can\'t access this feature if not subscribed'); window.location.href='/';">File Management</a>

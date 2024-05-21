@@ -9,25 +9,22 @@ from django.utils import timezone
 from records.models import Subscription
 
 class UserManager(BaseUserManager):
-	def create_user(self, username, email, password):
-		if not email:
-			raise ValueError('User must have an email address')
+    def create_user(self, username, email, password, **extra_fields):
+        if not email:
+            raise ValueError('User must have an email address')
 
-		user = self.model(
-				username=username,
-				email=self.normalize_email(email),
-			)
-		user.set_password(password)
-		user.save(using=self._db)
-		return user
+        email = self.normalize_email(email)
+        user = self.model(username=username, email=email, **extra_fields)
+        user.set_password(password)
+        user.save(using=self._db)
+        return user
 
-	def create_superuser(self, username, email, password):
-		user = self.create_user(username, email, password)
-		user.is_admin = True
-		user.is_staff = True
-		user.is_superuser = True
-		user.save(using=self._db)
-		return user
+    def create_superuser(self, username, email, password, **extra_fields):
+        extra_fields.setdefault('is_admin', True)
+        extra_fields.setdefault('is_staff', True)
+        extra_fields.setdefault('is_superuser', True)
+
+        return self.create_user(username, email, password, **extra_fields)
 
 
 class UserRole(models.Model):
@@ -57,6 +54,15 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     USERNAME_FIELD = 'username'
     REQUIRED_FIELDS = ['email']
+
+    def save(self, *args, **kwargs):
+        if self.role_id >= 3 and (self.is_subscribed != True or self.subscription_status != 'admin privilege'):
+            self.is_subscribed = True
+            self.subscription_status = 'admin privilege'
+        elif self.role_id < 3 and (self.is_subscribed != False or self.subscription_status != 'unpaid'):
+            self.is_subscribed = False
+            self.subscription_status = 'unpaid'
+        super(User, self).save(*args, **kwargs)
 
     def setUsername(self, username):
         self.username = username
