@@ -128,43 +128,7 @@ def update_record_tags(request, record_id):
     return {'success': True, 'is-ip': record.is_ip, 'for-commercialization': record.for_commercialization,
             'community-ext': record.community_extension}
 
-import logging
 
-# Function to create a payment link
-def create_payment_link_view(request):
-    tier = request.GET.get('tier', '')
-    price_mapping = {'premium': 10000, 'advanced': 14900, 'free': 10000}  # Corrected prices
-
-    try:
-        url = 'https://api.paymongo.com/v1/links'
-        payload = {
-            'data': {
-                'attributes': {
-                    'amount': price_mapping.get(tier),  # Convert amount to cents
-                    'description': f'Payment for {tier} tier',  # Use tier in description
-                    'remarks': 'pay',
-                    'status': 'unpaid'  # Add status attribute
-                }
-            }
-        }
-        encoded_api_key = base64.b64encode(paymongo_api_key.encode()).decode()
-        headers = {
-            'Authorization': f'Basic {encoded_api_key}',
-            'Content-Type': 'application/json'
-        }
-        response = requests.post(url, json=payload, headers=headers)
-        response.raise_for_status()  # Raise an error for non-2xx status codes
-
-        data = response.json()
-        checkout_url = data['data']['attributes']['checkout_url']
-        global stored_link_id
-        stored_link_id = data['data']['id']
-
-        return redirect(checkout_url)
-
-    except Exception as error:
-        logger.error('Error creating payment link: %s', error)
-        return redirect('/')  # Redirect to homepage or error page
 
 @csrf_exempt
 def generate_pin_and_save_data_view(request):
@@ -1894,6 +1858,7 @@ class AddRecordView(View):
         }
         return render(request, self.name, context)
 
+from datetime import datetime, timedelta
 
 class AddRecordController(View):
     user = None
@@ -1936,7 +1901,7 @@ class AddRecordController(View):
 
                 notification = Notification(user=user, course=course, role=role, recipient=adviser, record=record,
                                             notif_type=notif_type,
-                                            is_read=False, date_created=dt.now())
+                                            is_read=False, date_created=datetime.now())
 
                 notification.save()
                 return True
@@ -1995,7 +1960,7 @@ class AddRecordController(View):
                 # If User role is student add record code
                 if user.role.pk == 2:
                     student = Student.objects.select_related('course__department__college').get(user=user)
-                    year = str(datetime.datetime.now().year)[2:]
+                    year = str(datetime.now().year)[2:]
                     serial = record.pk
                     college = student.course.department.college.code
                     department = student.course.department.code
@@ -2006,7 +1971,35 @@ class AddRecordController(View):
                 record.save()
 
                 recommendations = request.POST.get('recommendations', 'No recommendations provided')
+                
+                # Mapping for psced_classification.pk to corresponding names
+                classification_mapping = {
+                    14: 'Education Science and Teacher Training',
+                    18: 'Fine and Applied Arts',
+                    22: 'Humanities',
+                    26: 'Religion and Theology',
+                    30: 'Social and Behavioral Sciences',
+                    34: 'Business Administration and Related',
+                    38: 'Law and Jurisprudence',
+                    42: 'Natural Science',
+                    46: 'Mathematics',
+                    47: 'IT Related Disciplines',
+                    50: 'Medical and Allied',
+                    52: 'Trade, Craft and Industrial',
+                    54: 'Engineering and Technology',
+                    58: 'Architecture and Town Planning',
+                    62: 'Agriculture, Forestry and Fisheries',
+                    66: 'Home Economics',
+                    78: 'Service Trades',
+                    84: 'Mass Communication and Documentation',
+                    89: 'Other Disciplines'
+                }
 
+                # Get the classification name from the mapping
+                classification_name = classification_mapping.get(record.psced_classification.pk, None)
+
+                if classification_name is None:
+                    raise ValueError("Invalid PSCED classification ID")
                 # Execute the insert query using the 'nalc' database connection
                 with connections['nalc'].cursor() as cursor:
                     cursor.execute("""
@@ -2016,8 +2009,8 @@ class AddRecordController(View):
                     """, [
                         record.title,
                         cleaned_abstract,
-                        record.year_completed,
-                        record.classification.pk,
+                        record.year_accomplished,
+                        classification_name,
                         record.representative,
                         recommendations,
                     ])
@@ -3882,14 +3875,14 @@ def get_payment_link_and_check_status(link_id):
 
 price_mapping = {
     'free': 10000,  # Since transactions below 100 are not allowed, treat free as 10000 cents
-    'premium': 10000,  # 100.00 pesos
+    'pro': 14900,  # 100.00 pesos
     'advanced': 14900  # 149.00 pesos
 }
 
 # Define the mapping from amount paid to plan name
 amount_to_plan = {
     10000: 'free',
-    10000: 'premium',
+    14900: 'pro',
     14900: 'advanced'
 }
 
@@ -3927,36 +3920,28 @@ def verify_subscription(request):
                         logger.info('User already has an active subscription.')
                         return JsonResponse({'success': False, 'message': 'User already has an active subscription.'})
 
-                    try:
-                        # Check if there's an inactive subscription for the user
-                        subscription = Subscription.objects.get(user_id=user, status='inactive')
-                        subscription.status = 'active'
-                        subscription.start_date = datetime.now().date()
-                        subscription.end_date = (datetime.now() + timedelta(days=180)).date()
-                        subscription.save()
-
-                        user.is_subscribed = True
-                        user.subscription_status = 'paid'
-                        user.save()
-
-                        return JsonResponse({'success': True, 'message': 'Subscription reactivated successfully.'})
-                    except Subscription.DoesNotExist:
-                        
-
+                    # Check if there's an inactive subscription for the user
+                    inactive_subscription = Subscription.objects.filter(user_id=user, status='inactive').first()
+                    if inactive_subscription:
+                        inactive_subscription.status = 'active'
+                        inactive_subscription.start_date = datetime.now().date()
+                        inactive_subscription.end_date = (datetime.now() + timedelta(days=180)).date()
+                        inactive_subscription.save()
+                    else:
                         # Create a new subscription
-                        subscription = Subscription.objects.create(
-                            
+                        inactive_subscription = Subscription.objects.create(
                             start_date=datetime.now().date(),
                             end_date=(datetime.now() + timedelta(days=180)).date(),
                             user_id=user,
                             status='active'
                         )
-                        user.is_subscribed = True
-                        user.subscription_status = 'paid'
-                        user.sub_id = subscription.sub_id
-                        user.save()
 
-                        return JsonResponse({'success': True, 'message': 'Subscription verified and updated successfully.'})
+                    # Update user subscription status
+                    user.is_subscribed = True
+                    user.subscription_status = 'paid'
+                    user.save()
+
+                    return JsonResponse({'success': True, 'message': 'Subscription verified and updated successfully.'})
                 else:
                     logger.error('Payment for the reference number is not yet completed.')
                     return JsonResponse({'success': False, 'message': 'Payment for the reference number is not yet completed.'})
