@@ -3921,6 +3921,12 @@ def verify_subscription(request):
                 if attributes.get('status') == 'paid':
                     user = request.user
 
+                    # Check if there's an active subscription for the user
+                    active_subscription = Subscription.objects.filter(user_id=user, status='active').first()
+                    if active_subscription:
+                        logger.info('User already has an active subscription.')
+                        return JsonResponse({'success': False, 'message': 'User already has an active subscription.'})
+
                     try:
                         # Check if there's an inactive subscription for the user
                         subscription = Subscription.objects.get(user_id=user, status='inactive')
