@@ -82,6 +82,7 @@ TEMPLATES = [
                 # client-side script to redirect the user to the login page immediately after the idle-time expires
                 'django_auto_logout.context_processors.auto_logout_client',
                 'notifications.context_processors.notificationCount',
+                'records.context_processors.subscription_status'
             ],
         },
     },
@@ -315,3 +316,16 @@ SIMPLE_JWT = {
     'JTI_CLAIM': 'jti',
 }
 
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler',
+        },
+    },
+    'root': {
+        'handlers': ['console'],
+        'level': 'INFO',
+    },
+}

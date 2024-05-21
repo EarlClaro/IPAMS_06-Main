@@ -5,6 +5,7 @@ from ipams import settings
 from . import views
 from .views import SubscriptionPageView
 from .views import PaymentPortalView
+from .views import renew_subscription, cancel_subscription
 
 urlpatterns = [
     path('', views.Home.as_view(), name='records-index'),
@@ -90,6 +91,8 @@ urlpatterns = [
      path('create_payment_link/', views.create_payment_link_view, name='create_payment_link'),
      path('get_payment_link_and_check_status/',views.get_payment_link_and_check_status,name='get_payment_link_and_check_status'),
      path('verify_subscription/', views.verify_subscription, name='verify_subscription'),
+     path('renew_subscription/', renew_subscription, name='renew_subscription'),
+     path('cancel_subscription/', cancel_subscription, name='cancel_subscription'),
 
 
      #Chatbot

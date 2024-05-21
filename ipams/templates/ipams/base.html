@@ -23,8 +23,9 @@
     <link rel="stylesheet" type="text/css" href="{% static 'tagify/tagify.css' %}"/>
     <link rel="stylesheet" type="text/css" href="{% static 'css/home_media.css' %}"/>
     <link rel="stylesheet" type="text/css" href="{% static 'css/home.css' %}"/>
-    <!-- Styles -->
 
+   
+    <!-- Styles -->
     {% block head %}{% endblock %}
     <style>
         .main-container{
@@ -94,6 +95,42 @@
 
         
     }
+
+         /* Custom styles for the modal */
+         #subscriptionModal .modal-content {
+            background-color: whitesmoke;
+            color: black;
+        }
+        #subscriptionModal .modal-header {
+            background-color: #FFD700;
+            color: black;
+            border-bottom: 2px solid black;
+        }
+        #subscriptionModal .modal-footer {
+            background-color: whitesmoke;
+        }
+        #subscriptionModal .btn-primary {
+            background-color: #f0cc2b;
+            border-color: #B8860B;
+            color: black;
+        }
+        #subscriptionModal .btn-primary:hover {
+            background-color: #DAA520;
+            border-color: #DAA520;
+            color: white;
+        }
+        #subscriptionModal .btn-danger {
+            background-color: #d41111;
+            border-color: #8B0000;
+            color: black;
+        }
+        #subscriptionModal .btn-danger:hover {
+            background-color: #B22222;
+            border-color: #B22222;
+            color: white;
+        }
+
+    
     </style>
 </head>
 <body>
@@ -241,10 +278,20 @@
                                     <a  href="/add/" class="nav-link" aria-current="page">
                                         <i class="fs-5 fa fa-folder-plus"></i><span class="fs-4 d-none d-sm-inline">&nbsp Add Record</span></a>
                                 </li>
+                                {% if user.is_subscribed %}
                                 <li class="nav-item">
-                                    <a  href="/uploadexcel/" class="nav-link" aria-current="page">
-                                        <i class="fs-5 fa fa-file-import"></i><span class="fs-4 d-none d-sm-inline">&nbsp Import Records</span></a>
+                                    <a href="/uploadexcel/" class="nav-link" aria-current="page">
+                                        <i class="fs-5 fa fa-file-import"></i><span class="fs-4 d-none d-sm-inline">&nbsp; Import Records</span>
+                                    </a>
                                 </li>
+                                {% else %}
+                                <li class="nav-item">
+                                    <a href="#" class="nav-link" aria-current="page" onclick="alert('Can\'t access this feature if not subscribed');">
+                                        <i class="fs-5 fa fa-file-import"></i><span class="fs-4 d-none d-sm-inline">&nbsp; Import Records</span>
+                                    </a>
+                                </li>
+                                {% endif %}
+                            
                             </ul>
                     </div>
                 </div>
@@ -495,12 +542,11 @@
                                             </div>
                                             <div class="col-9">
                                                 <input type="text" class="form-control profile-input" id="reference_number" name="reference_number">
-                                                <button type="button" class="btn btn-primary" id="verify_button">Verify</button>
+                                                <button type="button" class="btn btn-primary mt-1" id="verify_button">Verify</button>
                                             </div>
                                         </div>
-                            
-                                        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
                                         
+                                        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
                                         <script>
                                             $(document).ready(function() {
                                                 $('#verify_button').click(function() {
@@ -532,6 +578,8 @@
                                                     }
                                                 });
                                             });
+
+                                            
                                         </script>
                                         {% endif %}
                                         {% if user.role.pk == 3 %}
@@ -708,9 +756,82 @@
 		    	}
             });
         {% endif %}
-    </script>
-
+    </script>                                           
 
     {% block footer %}{% endblock %}
+
+    <!-- Modal -->
+    {% if show_modal %}
+    <div id="subscriptionModal" class="modal" tabindex="-1" role="dialog">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Subscription Expiry</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <p>Your subscription is about to expire. Do you want to renew or cancel your subscription?</p>
+                </div>
+                <div class="modal-footer">
+                    <button id="renew-button" type="button" class="btn btn-primary">Renew</button>
+                    <button id="cancel-button" type="button" class="btn btn-danger">Cancel</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+    
+
+    <script>
+        $(document).ready(function() {
+            console.log("Show modal (inside jQuery): {{ show_modal|yesno:'true,false' }}");
+
+            {% if show_modal %}
+            $('#subscriptionModal').modal('show');
+            {% endif %}
+
+            $('#renew-button').click(function() {
+                $.ajax({
+                    type: 'POST',
+                    url: '{% url "renew_subscription" %}',
+                    data: {
+                        csrfmiddlewaretoken: '{{ csrf_token }}'
+                    },
+                    success: function(response) {
+                        alert(response.message);
+                        if (response.success) {
+                            location.reload();
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        console.error('AJAX Error:', error);
+                        alert('An error occurred while renewing the subscription.');
+                    }
+                });
+            });
+
+            $('#cancel-button').click(function() {
+                $.ajax({
+                    type: 'POST',
+                    url: '{% url "cancel_subscription" %}',
+                    data: {
+                        csrfmiddlewaretoken: '{{ csrf_token }}'
+                    },
+                    success: function(response) {
+                        alert(response.message);
+                        if (response.success) {
+                            location.reload();
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        console.error('AJAX Error:', error);
+                        alert('An error occurred while canceling the subscription.');
+                    }
+                });
+            });
+        });
+    </script>
 </body>
 </html>
