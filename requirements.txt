@@ -24,3 +24,4 @@ django-debug-toolbar
 python-magic-bin
 gunicorn
 crispy-bootstrap4
+ApScheduler
