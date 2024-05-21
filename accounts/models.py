@@ -54,14 +54,15 @@ class User(AbstractBaseUser, PermissionsMixin):
     USERNAME_FIELD = 'username'
     REQUIRED_FIELDS = ['email']
 
-    def save(self, *args, **kwargs):
-        if self.role_id >= 3 and (self.is_subscribed != True or self.subscription_status != 'admin privilege'):
-            self.is_subscribed = True
-            self.subscription_status = 'admin privilege'
-        elif self.role_id < 3 and (self.is_subscribed != False or self.subscription_status != 'unpaid'):
-            self.is_subscribed = False
-            self.subscription_status = 'unpaid'
-        super(User, self).save(*args, **kwargs)
+    # def save(self, *args, **kwargs):
+    #     # Ensure the save method logic does not conflict with subscription verification
+    #     if self.role_id >= 3 and not self.is_subscribed:
+    #         self.is_subscribed = True
+    #         self.subscription_status = 'admin privilege'
+    #     elif self.role_id < 3 and self.is_subscribed:
+    #         self.is_subscribed = False
+    #         self.subscription_status = 'unpaid'
+    #     super(User, self).save(*args, **kwargs)
 
     def setUsername(self, username):
         self.username = username

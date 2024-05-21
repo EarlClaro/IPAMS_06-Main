@@ -46,7 +46,7 @@ import base64
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from datetime import datetime, timedelta
-from .models import Subscription, SubscriptionPlan
+from .models import Subscription
 from accounts.models import User  # Assuming 'accounts' is the app name for the User model
 import logging
 # Configure the logger
@@ -128,43 +128,6 @@ def update_record_tags(request, record_id):
     return {'success': True, 'is-ip': record.is_ip, 'for-commercialization': record.for_commercialization,
             'community-ext': record.community_extension}
 
-import logging
-
-# Function to create a payment link
-def create_payment_link_view(request):
-    tier = request.GET.get('tier', '')
-    price_mapping = {'premium': 10000, 'advanced': 14900, 'free': 10000}  # Corrected prices
-
-    try:
-        url = 'https://api.paymongo.com/v1/links'
-        payload = {
-            'data': {
-                'attributes': {
-                    'amount': price_mapping.get(tier),  # Convert amount to cents
-                    'description': f'Payment for {tier} tier',  # Use tier in description
-                    'remarks': 'pay',
-                    'status': 'unpaid'  # Add status attribute
-                }
-            }
-        }
-        encoded_api_key = base64.b64encode(paymongo_api_key.encode()).decode()
-        headers = {
-            'Authorization': f'Basic {encoded_api_key}',
-            'Content-Type': 'application/json'
-        }
-        response = requests.post(url, json=payload, headers=headers)
-        response.raise_for_status()  # Raise an error for non-2xx status codes
-
-        data = response.json()
-        checkout_url = data['data']['attributes']['checkout_url']
-        global stored_link_id
-        stored_link_id = data['data']['id']
-
-        return redirect(checkout_url)
-
-    except Exception as error:
-        logger.error('Error creating payment link: %s', error)
-        return redirect('/')  # Redirect to homepage or error page
 
 @csrf_exempt
 def generate_pin_and_save_data_view(request):
@@ -3812,20 +3775,16 @@ from datetime import datetime, timedelta
 from .models import Subscription
 
 paymongo_api_key = 'sk_test_PUL9xuAM8Sm9GLh3FGura1vr'  # Replace this with your actual Paymongo API key
-
 def create_payment_link_view(request):
-    tier = request.GET.get('tier', '')
-    price_mapping = {'premium': 10000, 'advanced': 14900, 'free': 10000}  # Assuming default prices
-
     try:
         url = 'https://api.paymongo.com/v1/links'
         payload = {
             'data': {
                 'attributes': {
-                    'amount': price_mapping.get(tier),  # Convert amount to cents
-                    'description': f'Payment for {tier} tier',  # Use tier in description
+                    'amount': 14900,  # 149 PHP in cents
+                    'description': 'Payment for subscription',
                     'remarks': 'pay',
-                    'status': 'unpaid'  # Add status attribute
+                    'status': 'unpaid'
                 }
             }
         }
@@ -3835,27 +3794,19 @@ def create_payment_link_view(request):
             'Content-Type': 'application/json'
         }
         response = requests.post(url, json=payload, headers=headers)
-        response.raise_for_status()  # Raise an error for non-2xx status codes
+        response.raise_for_status()
 
         data = response.json()
         checkout_url = data['data']['attributes']['checkout_url']
-        status = data['data']['attributes']['status']
-        global stored_link_id
         stored_link_id = data['data']['id']
-
-        # Check if the status is 'paid'
-        status = get_payment_link_and_check_status(stored_link_id)
-
-        if status == 'paid':
-            user = request.user
-            user.subscription_status = 'paid'
-            user.is_subscribed = True
-            user.save()
+        
+        # Store the link_id in the session to verify payment later
+        request.session['stored_link_id'] = stored_link_id
 
         return redirect(checkout_url)
 
     except Exception as error:
-        print('Error creating payment link:', error)
+        logger.error('Error creating payment link: %s', error)
         return redirect('/')  # Redirect to homepage or error page
 
 def get_payment_link_and_check_status(link_id):
@@ -3879,20 +3830,6 @@ def get_payment_link_and_check_status(link_id):
     except Exception as error:
         logger.error('Error getting payment link or checking status: %s', error)
         return None  # Return None if an error occurs
-
-price_mapping = {
-    'free': 10000,  # Since transactions below 100 are not allowed, treat free as 10000 cents
-    'premium': 10000,  # 100.00 pesos
-    'advanced': 14900  # 149.00 pesos
-}
-
-# Define the mapping from amount paid to plan name
-amount_to_plan = {
-    10000: 'free',
-    10000: 'premium',
-    14900: 'advanced'
-}
-
 
 @csrf_exempt
 def verify_subscription(request):
@@ -3918,50 +3855,38 @@ def verify_subscription(request):
             if data and 'data' in data:
                 payment_data = data['data']
                 attributes = payment_data.get('attributes', {})
+                logger.info(f'Payment data attributes: {attributes}')
                 if attributes.get('status') == 'paid':
                     user = request.user
+                    logger.info(f'User {user.username} making payment.')
 
-                    # Check if there's an active subscription for the user
-                    active_subscription = Subscription.objects.filter(user_id=user, status='active').first()
-                    if active_subscription:
-                        logger.info('User already has an active subscription.')
-                        return JsonResponse({'success': False, 'message': 'User already has an active subscription.'})
+                    # Update or create subscription
+                    subscription, created = Subscription.objects.update_or_create(
+                        user_id=user,
+                        defaults={
+                            'start_date': datetime.now().date(),
+                            'end_date': (datetime.now() + timedelta(days=180)).date(),
+                            'status': 'active'
+                        }
+                    )
 
-                    try:
-                        # Check if there's an inactive subscription for the user
-                        subscription = Subscription.objects.get(user_id=user, status='inactive')
-                        subscription.status = 'active'
-                        subscription.start_date = datetime.now().date()
-                        subscription.end_date = (datetime.now() + timedelta(days=180)).date()
-                        subscription.save()
+                    # Log before updating user
+                    logger.info(f'Before update: is_subscribed={user.is_subscribed}, subscription_status={user.subscription_status}')
 
-                        user.is_subscribed = True
-                        user.subscription_status = 'paid'
-                        user.save()
+                    user.is_subscribed = True
+                    user.subscription_status = 'paid'
+                    user.save()
+                    logger.info('User saved.')
 
-                        return JsonResponse({'success': True, 'message': 'Subscription reactivated successfully.'})
-                    except Subscription.DoesNotExist:
-                        try:
-                            # Retrieve the free plan as the default plan
-                            plan = SubscriptionPlan.objects.get(plan_name='free')
-                        except SubscriptionPlan.DoesNotExist:
-                            logger.error('Subscription plan does not exist.')
-                            return JsonResponse({'success': False, 'message': 'Subscription plan does not exist.'})
+                    # Force user instance refresh to ensure it reflects changes
+                    user.refresh_from_db()
+                    logger.info(f'After update: is_subscribed={user.is_subscribed}, subscription_status={user.subscription_status}')
 
-                        # Create a new subscription
-                        subscription = Subscription.objects.create(
-                            plan_id=plan,
-                            start_date=datetime.now().date(),
-                            end_date=(datetime.now() + timedelta(days=180)).date(),
-                            user_id=user,
-                            status='active'
-                        )
-                        user.is_subscribed = True
-                        user.subscription_status = 'paid'
-                        user.sub_id = subscription.sub_id
-                        user.save()
+                    # Retrieve user directly from the database to verify updates
+                    db_user = User.objects.get(pk=user.pk)
+                    logger.info(f'DB User: is_subscribed={db_user.is_subscribed}, subscription_status={db_user.subscription_status}')
 
-                        return JsonResponse({'success': True, 'message': 'Subscription verified and updated successfully.'})
+                    return JsonResponse({'success': True, 'message': 'Subscription verified and updated successfully.'})
                 else:
                     logger.error('Payment for the reference number is not yet completed.')
                     return JsonResponse({'success': False, 'message': 'Payment for the reference number is not yet completed.'})
