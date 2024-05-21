@@ -113,8 +113,8 @@ DATABASES = {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'ipamsdjango',
         'USER': 'root',
-        'PASSWORD': 'new_password',
-        'PORT': '3306',
+        'PASSWORD': '',
+        'PORT': '3307',
         'HOST': 'localhost',
         'OPTIONS': {
             'init_command': "SET sql_mode='STRICT_TRANS_TABLES'",
@@ -124,8 +124,8 @@ DATABASES = {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'nalc_schema',
         'USER': 'root',  # Replace with the appropriate username
-        'PASSWORD': 'new_password',  # Replace with the appropriate password
-        'PORT': '3306',
+        'PASSWORD': '',  # Replace with the appropriate password
+        'PORT': '3307',
         'HOST': 'localhost',
         'OPTIONS': {
             'init_command': "SET sql_mode='STRICT_TRANS_TABLES'",
