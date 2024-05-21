@@ -243,26 +243,26 @@ $(document).ready(function(){
                     <button class="btn base-btn base-bg-primary">Download Paper - {{ record.abstract_filesize|filesizeformat }}</button>
                 </a>
             {% else %}
-                {% if user.is_subscribed %}
+                {% if user.is_subscribed and user.role.id in '1,2,3,4,5,6,7' %}
                     <a href="#" class="download request-download-btn" data-record-id="{{ record.id }}" data-user-id="{{ user.id }}" data-role-id="{{ role.id }}">
                         <button class="btn base-btn base-bg-primary">Download Paper - {{ record.abstract_filesize|filesizeformat }}</button>
                     </a>
-                {% else %}
-                    {% if download_request_sent %}
-                        <div class="tooltip-wrapper" data-toggle="tooltip" title="Users can only edit if status is set to removable">
-                            <a href="#" class="view request-download-btn" data-record-id="{{ record.id }}" data-user-id="{{ user.id }}" data-role-id="{{ role.id }}">
-                                <button class="btn base-btn float-right base-bg-secondary" disabled>Send download request</button>
-                            </a>
-                        </div>
-                    {% else %}
-                        <a href="#" class="view request-download-btn">
-                            <button class="btn base-btn float-right base-bg-secondary">Send download request</button>
+                {% elif download_request_sent %}
+                    <div class="tooltip-wrapper" data-toggle="tooltip" title="Users can only edit if status is set to removable">
+                        <a href="#" class="view request-download-btn" data-record-id="{{ record.id }}" data-user-id="{{ user.id }}" data-role-id="{{ role.id }}">
+                            <button class="btn base-btn float-right base-bg-secondary" disabled>Send download request</button>
                         </a>
-                    {% endif %}
+                    </div>
+                {% else %}
+                    <a href="#" class="view request-download-btn">
+                        <button class="btn base-btn float-right base-bg-secondary">Send download request</button>
+                    </a>
                 {% endif %}
             {% endif %}
         </div>
     </div>
+</div>
+
 
     <div class="row ml-0 mt-2">
         <div class="text-primary h5">{{ record.record_type }} |&nbsp</div>

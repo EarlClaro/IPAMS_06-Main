@@ -3815,7 +3815,7 @@ paymongo_api_key = 'sk_test_PUL9xuAM8Sm9GLh3FGura1vr'  # Replace this with your 
 
 def create_payment_link_view(request):
     tier = request.GET.get('tier', '')
-    price_mapping = {'premium': 10000, 'advanced': 14900, 'free': 10000}  # Assuming default prices
+    price_mapping = {'pro': 14900, 'advanced': 14900, 'free': 10000}  # Assuming default prices
 
     try:
         url = 'https://api.paymongo.com/v1/links'
@@ -3823,7 +3823,7 @@ def create_payment_link_view(request):
             'data': {
                 'attributes': {
                     'amount': price_mapping.get(tier),  # Convert amount to cents
-                    'description': f'Payment for {tier} tier',  # Use tier in description
+                    'description': f'Payment for IPAMS Pro Subscription',  # Use tier in description
                     'remarks': 'pay',
                     'status': 'unpaid'  # Add status attribute
                 }

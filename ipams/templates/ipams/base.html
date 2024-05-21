@@ -527,7 +527,14 @@
                                                 <button type="button" class="btn btn-primary mt-1" id="verify_button">Verify</button>
                                             </div>
                                         </div>
-                                        
+                                        <div class="row profile-row">
+                                            <div class="col-3">
+                                                <label>Subscription:</label>
+                                            </div>
+                                            <div class="col-9">
+                                                <input class="form-control profile-input" value="{% if user.is_subscribed %}Pro{% else %}Free{% endif %}" id="subscription_status" readonly>
+                                            </div>
+                                        </div>
                                         <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
                                         <script>
                                             $(document).ready(function() {
@@ -572,14 +579,7 @@
                                                 <input class="form-control" value="{{ user.student.course.name }}" readonly>
                                             </div>
                                         </div>
-                                        <div class="row profile-row">
-                                            <div class="col-3">
-                                                <label>Subscription:</label>
-                                            </div>
-                                            <div class="col-9">
-                                                <input class="form-control profile-input" value="{% if user.is_subscribed %}Premium{% else %}Free{% endif %}" id="subscription_status" readonly>
-                                            </div>
-                                        </div>
+
                                         
                                         
                                         {% endif %}
