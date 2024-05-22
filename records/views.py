@@ -3854,7 +3854,7 @@ def create_payment_link_view(request):
             'data': {
                 'attributes': {
                     'amount': 14900,  # 149.00 pesos in cents
-                    'description': 'Subscription Payment',
+                    'description': 'IPAMS Pro Subscription Payment',
                     'remarks': 'pay',
                     'status': 'unpaid'
                 }

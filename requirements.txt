@@ -10,7 +10,6 @@ gunicorn
 requests
 django-ckeditor
 channels
-channels
 channels-redis
 django-extensions
 graphviz
@@ -21,7 +20,6 @@ django-storages
 pytz
 django-sslserver
 django-debug-toolbar
-python-magic-bin
-gunicorn
+python-magic
 crispy-bootstrap4
-ApScheduler
+apscheduler
