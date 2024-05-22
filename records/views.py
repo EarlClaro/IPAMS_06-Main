@@ -3853,8 +3853,8 @@ def create_payment_link_view(request):
         payload = {
             'data': {
                 'attributes': {
-                    'amount': price_mapping.get(tier),  # Convert amount to cents
-                    'description': f'Payment for {tier} tier',  # Use tier in description
+                    'amount': 14900,  # 149.00 pesos in cents
+                    'description': 'Subscription Payment',
                     'remarks': 'pay',
                     'status': 'unpaid'
                 }
