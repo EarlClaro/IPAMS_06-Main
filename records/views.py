@@ -47,6 +47,8 @@ from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from datetime import datetime, timedelta
 from .models import Subscription
+
+
 from accounts.models import User  # Assuming 'accounts' is the app name for the User model
 import logging
 # Configure the logger
@@ -3843,7 +3845,7 @@ from .models import Subscription
 paymongo_api_key = 'sk_test_PUL9xuAM8Sm9GLh3FGura1vr'  # Replace this with your actual Paymongo API key
 def create_payment_link_view(request):
     tier = request.GET.get('tier', '')
-    price_mapping = {'premium': 10000, 'advanced': 14900, 'free': 10000}  # Assuming default prices
+    price_mapping = {'premium': 10000, 'pro': 14900, 'free': 10000}  # Assuming default prices
 
     try:
         url = 'https://api.paymongo.com/v1/links'
@@ -3851,7 +3853,7 @@ def create_payment_link_view(request):
             'data': {
                 'attributes': {
                     'amount': price_mapping.get(tier),  # Convert amount to cents
-                    'description': f'Payment for {tier} tier',  # Use tier in description
+                    'description': 'Payment for IPAMS Pro Subscription',  # Use tier in description
                     'remarks': 'pay',
                     'status': 'unpaid'
                 }
@@ -3903,14 +3905,14 @@ def get_payment_link_and_check_status(link_id):
 price_mapping = {
     'free': 10000,  # Since transactions below 100 are not allowed, treat free as 10000 cents
     'premium': 10000,  # 100.00 pesos
-    'advanced': 14900  # 149.00 pesos
+    'pro': 14900  # 149.00 pesos
 }
 
 # Define the mapping from amount paid to plan name
 amount_to_plan = {
     10000: 'free',
     10000: 'premium',
-    14900: 'advanced'
+    14900: 'pro'
 }
 
 
@@ -3942,45 +3944,33 @@ def verify_subscription(request):
                 if attributes.get('status') == 'paid':
                     user = request.user
 
-                    # Check if there's an active subscription for the user
-                    active_subscription = Subscription.objects.filter(user_id=user, status='active').first()
-                    if active_subscription:
-                        logger.info('User already has an active subscription.')
-                        return JsonResponse({'success': False, 'message': 'User already has an active subscription.'})
+                    logger.info(f'User {user.username} making payment.')
 
-                    try:
-                        # Check if there's an inactive subscription for the user
-                        subscription = Subscription.objects.get(user_id=user, status='inactive')
-                        subscription.status = 'active'
-                        subscription.start_date = datetime.now().date()
-                        subscription.end_date = (datetime.now() + timedelta(days=180)).date()
-                        subscription.save()
+                    # Update or create subscription
+                    subscription, created = Subscription.objects.update_or_create(
+                        user_id=user,
+                        defaults={
+                            'start_date': datetime.now().date(),
+                            'end_date': (datetime.now() + timedelta(days=180)).date(),
+                            'status': 'active'
+                        }
+                    )
 
-                        user.is_subscribed = True
-                        user.subscription_status = 'paid'
-                        user.save()
+                    # Log before updating user
+                    logger.info(f'Before update: is_subscribed={user.is_subscribed}, subscription_status={user.subscription_status}')
 
-                        return JsonResponse({'success': True, 'message': 'Subscription reactivated successfully.'})
-                    except Subscription.DoesNotExist:
-                        try:
-                            # Retrieve the free plan as the default plan
-                            plan = SubscriptionPlan.objects.get(plan_name='free')
-                        except SubscriptionPlan.DoesNotExist:
-                            logger.error('Subscription plan does not exist.')
-                            return JsonResponse({'success': False, 'message': 'Subscription plan does not exist.'})
+                    user.is_subscribed = True
+                    user.subscription_status = 'paid'
+                    user.save()
+                    logger.info('User saved.')
 
-                        # Create a new subscription
-                        subscription = Subscription.objects.create(
-                            plan_id=plan,
-                            start_date=datetime.now().date(),
-                            end_date=(datetime.now() + timedelta(days=180)).date(),
-                            user_id=user,
-                            status='active'
-                        )
-                        user.is_subscribed = True
-                        user.subscription_status = 'paid'
-                        user.sub_id = subscription.sub_id
-                        user.save()
+                    # Force user instance refresh to ensure it reflects changes
+                    user.refresh_from_db()
+                    logger.info(f'After update: is_subscribed={user.is_subscribed}, subscription_status={user.subscription_status}')
+
+                    # Retrieve user directly from the database to verify updates
+                    db_user = User.objects.get(pk=user.pk)
+                    logger.info(f'DB User: is_subscribed={db_user.is_subscribed}, subscription_status={db_user.subscription_status}')
 
                     return JsonResponse({'success': True, 'message': 'Subscription verified and updated successfully.'})
                 else:
