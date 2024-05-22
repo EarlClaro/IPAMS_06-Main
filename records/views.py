@@ -3931,21 +3931,6 @@ def get_payment_link_and_check_status(link_id):
         logger.error('Error getting payment link or checking status: %s', error)
         return None  # Return None if an error occurs
 
-price_mapping = {
-    'free': 10000,  # Since transactions below 100 are not allowed, treat free as 10000 cents
-    'premium': 10000,  # 100.00 pesos
-    'advanced': 14900  # 149.00 pesos
-}
-
-# Define the mapping from amount paid to plan name
-amount_to_plan = {
-    10000: 'free',
-    10000: 'premium',
-    14900: 'advanced'
-}
-
-
-@csrf_exempt
 def verify_subscription(request):
     if request.method == 'POST':
         reference_number = request.POST.get('reference_number')
@@ -3973,45 +3958,21 @@ def verify_subscription(request):
                 if attributes.get('status') == 'paid':
                     user = request.user
 
-                    # Check if there's an active subscription for the user
-                    active_subscription = Subscription.objects.filter(user_id=user, status='active').first()
-                    if active_subscription:
-                        logger.info('User already has an active subscription.')
-                        return JsonResponse({'success': False, 'message': 'User already has an active subscription.'})
+                    # Delete any existing subscriptions for the user
+                    Subscription.objects.filter(user_id=user).delete()
 
-                    try:
-                        # Check if there's an inactive subscription for the user
-                        subscription = Subscription.objects.get(user_id=user, status='inactive')
-                        subscription.status = 'active'
-                        subscription.start_date = datetime.now().date()
-                        subscription.end_date = (datetime.now() + timedelta(days=180)).date()
-                        subscription.save()
+                    # Create a new subscription
+                    subscription = Subscription.objects.create(
+                        start_date=datetime.now().date(),
+                        end_date=(datetime.now() + timedelta(days=180)).date(),
+                        user_id=user,
+                        status='active'
+                    )
 
-                        user.is_subscribed = True
-                        user.subscription_status = 'paid'
-                        user.save()
-
-                        return JsonResponse({'success': True, 'message': 'Subscription reactivated successfully.'})
-                    except Subscription.DoesNotExist:
-                        try:
-                            # Retrieve the free plan as the default plan
-                            plan = SubscriptionPlan.objects.get(plan_name='free')
-                        except SubscriptionPlan.DoesNotExist:
-                            logger.error('Subscription plan does not exist.')
-                            return JsonResponse({'success': False, 'message': 'Subscription plan does not exist.'})
-
-                        # Create a new subscription
-                        subscription = Subscription.objects.create(
-                            plan_id=plan,
-                            start_date=datetime.now().date(),
-                            end_date=(datetime.now() + timedelta(days=180)).date(),
-                            user_id=user,
-                            status='active'
-                        )
-                        user.is_subscribed = True
-                        user.subscription_status = 'paid'
-                        user.sub_id = subscription.sub_id
-                        user.save()
+                    user.is_subscribed = True
+                    user.subscription_status = 'paid'
+                    user.sub_id = subscription.sub_id
+                    user.save()
 
                     return JsonResponse({'success': True, 'message': 'Subscription verified and updated successfully.'})
                 else:
