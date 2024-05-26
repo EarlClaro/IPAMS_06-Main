@@ -783,8 +783,9 @@ header h2 {
 
 
 				<!-- Chatbot -->
-				{% if user.role.id > 0 %}	
+				{% if user.role.id > 0 and user.is_subscribed %}	
 				{% include 'records/chatbot.html' %}
+
 				{% endif %}
 			  </div>
 
