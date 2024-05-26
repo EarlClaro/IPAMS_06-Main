@@ -25,3 +25,6 @@ crispy-bootstrap4
 apscheduler
 djangorestframework-simplejwt
 python-docx
+psycopg
+sqlparse
+typing_extensions

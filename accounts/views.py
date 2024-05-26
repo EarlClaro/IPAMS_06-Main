@@ -175,6 +175,12 @@ def activate(request, uidb64, token):
     return redirect('records-index')
 
 
+from django.views import View
+from django.shortcuts import render, redirect
+from django.contrib.auth import authenticate, login
+from django.contrib import messages
+from rest_framework_simplejwt.tokens import RefreshToken
+from django.conf import settings
 
 @method_decorator(axes_dispatch, name='dispatch')
 @method_decorator(csrf_exempt, name='dispatch')
@@ -218,7 +224,8 @@ class LoginView(View):
                             # Store JWT token in session and as a cookie
                             request.session['jwt_token'] = access_token
                             response = redirect(request.POST.get('next', 'records-index'))
-                            response.set_cookie('jwt_token', access_token, httponly=True, samesite='Strict')
+                            #response = JsonResponse({'message': f'Welcome {username}','access_token': access_token})
+                            response.set_cookie('jwt_token', access_token, httponly=False, samesite='Strict')
 
                             # Add role-based notification logic here...
                             if request.user.role.id == 5: # rdco
@@ -253,7 +260,7 @@ def logout(request):
     messages.success(request, 'You are now logged out from the system...')
 
     # Call NALC logout API
-    nalc_logout_url = 'http://localhost:8000/api/logout/'
+    nalc_logout_url = 'http://localhost:8001/api/logout/'
     try:
         response = requests.get(nalc_logout_url, cookies=request.COOKIES)
         if response.status_code == 200:
@@ -263,7 +270,10 @@ def logout(request):
     except Exception as e:
         print('Error logging out from NALC:', e)
 
-    return redirect('/')
+    # Clear JWT token from cookies
+    response = redirect('/')
+    response.delete_cookie('authToken')
+    return response
 
 
 def change_password(request):

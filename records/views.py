@@ -3834,6 +3834,8 @@ def download_docx_file(request, record_upload_id):
 
 
 
+# views.py
+
 from django.shortcuts import redirect
 import requests
 import base64
@@ -3845,16 +3847,26 @@ import logging
 
 logger = logging.getLogger(__name__)
 
-
 paymongo_api_key = 'sk_test_PUL9xuAM8Sm9GLh3FGura1vr'  # Replace this with your actual Paymongo API key
+
 def create_payment_link_view(request):
     try:
+        tier = request.GET.get('tier')  # Extract the 'tier' parameter from the URL query parameters
+
+        if tier == 'standard':
+            amount = 10000  # 100.00 pesos in cents
+        elif tier == 'premium':
+            amount = 14900  # 149.00 pesos in cents
+        else:
+            # Handle invalid tier
+            return redirect('/')  # Redirect to homepage or error page
+
         url = 'https://api.paymongo.com/v1/links'
         payload = {
             'data': {
                 'attributes': {
-                    'amount': 14900,  # 149.00 pesos in cents
-                    'description': 'IPAMS Pro Subscription Payment',
+                    'amount': amount,
+                    'description': f'IPAMS {tier.capitalize()} Subscription Payment',
                     'remarks': 'pay',
                     'status': 'unpaid'
                 }
@@ -3880,6 +3892,7 @@ def create_payment_link_view(request):
     except Exception as error:
         logger.error('Error creating payment link: %s', error)
         return redirect('/')  # Redirect to homepage or error page
+
     
 def create_payment_link(amount, description):
     try:

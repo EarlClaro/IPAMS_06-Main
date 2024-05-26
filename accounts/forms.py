@@ -5,7 +5,10 @@ from accounts.models import User, Setting
 
 
 class LoginForm(forms.Form):
+    #email = forms.EmailField(widget=forms.EmailInput(attrs={'class': 'form-control email-field'}))
+
     username = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control username-field'}))
+
     password = forms.CharField(widget=forms.PasswordInput(attrs={'class': 'form-control password-field'}))
 
 

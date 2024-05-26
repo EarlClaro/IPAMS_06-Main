@@ -48,6 +48,7 @@ INSTALLED_APPS = [
     # 'channels',
     "sslserver",
     "debug_toolbar",
+    "corsheaders"
     
 ]
 
@@ -64,6 +65,8 @@ MIDDLEWARE = [
     'axes.middleware.AxesMiddleware',
     'django_auto_logout.middleware.auto_logout',
     'whitenoise.middleware.WhiteNoiseMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
+    'django.middleware.common.CommonMiddleware',
 ]
 
 ROOT_URLCONF = 'ipams.urls'
@@ -134,8 +137,6 @@ DATABASES = {
     }
 }
 
-
-DATABASES["default"] = dj_database_url.parse("postgres://ipams:nW05hlSDwtdtexsCgl3iqOm4H76I0snF@dpg-cp6tm8fsc6pc73cn14ug-a.singapore-postgres.render.com/ipamsdjango_umjr")
 
 #postgres://ipams:nW05hlSDwtdtexsCgl3iqOm4H76I0snF@dpg-cp6tm8fsc6pc73cn14ug-a.singapore-postgres.render.com/ipamsdjango_umjr
 
@@ -258,8 +259,13 @@ DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 #     },
 # }
 
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:3000",
+]
 
-CSRF_TRUSTED_ORIGINS = ['https://*.ap.ngrok.io/']
+CORS_ALLOW_CREDENTIALS = True
+
+CSRF_TRUSTED_ORIGINS = ['https://*.ap.ngrok.io/' , 'http://localhost:3000']
 
 INTERNAL_IPS = ['localhost', 'ipams']
 

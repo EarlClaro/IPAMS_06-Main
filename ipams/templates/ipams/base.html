@@ -786,21 +786,31 @@
     
 
     <script>
-
-$(document).ready(function() {
+        $(document).ready(function() {
             console.log("Show modal (inside jQuery): {{ show_modal|yesno:'true,false' }}");
 
-            var modal = $('#subscriptionModal');
-            var showModal = {{ show_modal|yesno:'true,false' }};
-
-            if (showModal) {
-                modal.modal('show');
-            }
+            {% if show_modal %}
+            $('#subscriptionModal').modal('show');
+            {% endif %}
 
             $('#renew-button').click(function() {
-                var url = '{% url "renew_subscription" %}';
-                window.open(url, '_blank');
-                modal.modal('hide');  // Close the modal
+                $.ajax({
+                    type: 'POST',
+                    url: '{% url "renew_subscription" %}',
+                    data: {
+                        csrfmiddlewaretoken: '{{ csrf_token }}'
+                    },
+                    success: function(response) {
+                        alert(response.message);
+                        if (response.success) {
+                            location.reload();
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        console.error('AJAX Error:', error);
+                        alert('An error occurred while renewing the subscription.');
+                    }
+                });
             });
 
             $('#cancel-button').click(function() {
@@ -823,7 +833,6 @@ $(document).ready(function() {
                 });
             });
         });
-    </script>
     </script>
 </body>
 </html>
