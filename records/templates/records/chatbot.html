@@ -286,19 +286,32 @@ margin-right: 10px;
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@48,400,1,0" />
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@48,400,0,0" />
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@48,400,1,0" />
-<button class="chatbot-toggler">
+<button class="chatbot-toggler" {% if is_subscribed == 0 %}disabled{% endif %} data-is-subscribed="{{ is_subscribed }}">
   <span class="material-symbols-rounded">mode_comment</span>
   <span class="material-symbols-outlined">close</span>
 </button>
 
+
+<!-- Backend of CHATBOT -->
 <!-- Backend of CHATBOT -->
 <script>
-// Select all chatbot toggler buttons
-const chatbotTogglers = document.querySelectorAll('.chatbot-toggler');
+  // Select all chatbot toggler buttons
+  const chatbotTogglers = document.querySelectorAll('.chatbot-toggler');
 
 // Attach click event listener to each chatbot toggler button
 chatbotTogglers.forEach(chatbotToggler => {
   chatbotToggler.addEventListener('click', (event) => {
+  
+      // Get the subscription status from the data attribute
+      const isSubscribed = chatbotToggler.getAttribute('data-is-subscribed');
+  
+      // Check if user is subscribed
+      if (isSubscribed == 0) {
+          // If not subscribed, display a message
+          alert("You need to subscribe to use this feature.");
+          return; // Exit function
+      }
+      
       // Prevent the default behavior of the button click
       event.preventDefault();
       // Create a modal overlay
@@ -328,5 +341,6 @@ chatbotTogglers.forEach(chatbotToggler => {
       });
   });
 });
-
-</script>
+  
+  </script>
+  

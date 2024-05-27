@@ -25,7 +25,7 @@ from django.contrib.auth.hashers import check_password
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.views.decorators.csrf import csrf_exempt
 from axes.decorators import axes_dispatch
-
+from records.models import Subscription, SubscriptionPlan
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import User
 from django.contrib.auth.tokens import default_token_generator
@@ -435,3 +435,4 @@ def get_all_locked_accounts(request):
                 account.failures_since_start
             ])
         return JsonResponse({'data': data})
+    

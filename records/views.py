@@ -46,7 +46,7 @@ import base64
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from datetime import datetime, timedelta
-from .models import Subscription
+from .models import Subscription, SubscriptionPlan
 
 
 from accounts.models import User  # Assuming 'accounts' is the app name for the User model
@@ -3944,6 +3944,7 @@ def get_payment_link_and_check_status(link_id):
         logger.error('Error getting payment link or checking status: %s', error)
         return None  # Return None if an error occurs
 
+
 def verify_subscription(request):
     if request.method == 'POST':
         reference_number = request.POST.get('reference_number')
@@ -3974,11 +3975,21 @@ def verify_subscription(request):
                     # Delete any existing subscriptions for the user
                     Subscription.objects.filter(user_id=user).delete()
 
+                    # Determine the subscription plan based on the amount paid
+                    amount_paid = attributes.get('amount')
+                    if amount_paid == 10000:  # 100.00 pesos in cents
+                        plan = SubscriptionPlan.objects.get(plan_id=2)  # Standard plan
+                    elif amount_paid == 14900:  # 149.00 pesos in cents
+                        plan = SubscriptionPlan.objects.get(plan_id=3)  # Premium plan
+                    else:
+                        plan = SubscriptionPlan.objects.get(plan_id=1)  # Default to Free plan
+
                     # Create a new subscription
                     subscription = Subscription.objects.create(
                         start_date=datetime.now().date(),
                         end_date=(datetime.now() + timedelta(days=180)).date(),
                         user_id=user,
+                        plan_id=plan,
                         status='active'
                     )
 
@@ -4011,45 +4022,6 @@ def verify_subscription(request):
         logger.error('Invalid request method.')
         return JsonResponse({'success': False, 'message': 'Invalid request method.'})
 
-@login_required
-def renew_subscription(request):
-    try:
-        subscription = Subscription.objects.get(user_id=request.user, status='active')
-
-        # Create a new payment link for the renewal
-        checkout_url, link_id = create_payment_link(14900, 'Subscription Renewal Payment')
-        if not checkout_url:
-            return JsonResponse({'success': False, 'message': 'Failed to create payment link.'})
-
-        # Store the link_id in the session to verify payment later
-        request.session['stored_link_id'] = link_id
-
-        return redirect(checkout_url)
-    except Subscription.DoesNotExist:
-        return JsonResponse({'success': False, 'message': 'Active subscription not found.'})
-    except Exception as e:
-        logger.error('Error renewing subscription: %s', e)
-        return JsonResponse({'success': False, 'message': 'An unexpected error occurred.'})
-
-@login_required
-def renew_subscription(request):
-    try:
-        subscription = Subscription.objects.get(user_id=request.user, status='active')
-
-        # Create a new payment link for the renewal
-        checkout_url, link_id = create_payment_link(14900, 'Subscription Renewal Payment')
-        if not checkout_url:
-            return JsonResponse({'success': False, 'message': 'Failed to create payment link.'})
-
-        # Store the link_id in the session to verify payment later
-        request.session['stored_link_id'] = link_id
-
-        return redirect(checkout_url)
-    except Subscription.DoesNotExist:
-        return JsonResponse({'success': False, 'message': 'Active subscription not found.'})
-    except Exception as e:
-        logger.error('Error renewing subscription: %s', e)
-        return JsonResponse({'success': False, 'message': 'An unexpected error occurred.'})
 def home_view(request):
     user = request.user
     show_modal = False
@@ -4097,3 +4069,15 @@ def cancel_subscription(request):
         return JsonResponse({'success': True, 'message': 'Subscription canceled successfully.'})
     except Subscription.DoesNotExist:
         return JsonResponse({'success': False, 'message': 'Active subscription not found.'})
+    
+
+from django.http import JsonResponse
+
+from django.contrib.auth.decorators import login_required
+
+@login_required
+def check_verification_status(request):
+    user = request.user
+    is_subscribed = user.is_subscribed
+    is_verified = (is_subscribed == 1)  
+    return JsonResponse({'is_verified': is_verified})

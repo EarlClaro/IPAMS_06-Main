@@ -49,7 +49,6 @@ INSTALLED_APPS = [
     "sslserver",
     "debug_toolbar",
     "corsheaders"
-    
 ]
 
 
