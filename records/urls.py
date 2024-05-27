@@ -6,7 +6,7 @@ from . import views
 from .views import SubscriptionPageView
 from .views import PaymentPortalView
 from .views import renew_subscription, cancel_subscription
-
+from .views import check_verification_status
 urlpatterns = [
     path('', views.Home.as_view(), name='records-index'),
     path('record/publishedRecords', views.PublishedRecords.as_view(), name='records-publish'),
@@ -93,7 +93,7 @@ urlpatterns = [
      path('verify_subscription/', views.verify_subscription, name='verify_subscription'),
      path('renew_subscription/', renew_subscription, name='renew_subscription'),
      path('cancel_subscription/', cancel_subscription, name='cancel_subscription'),
-
+      path('check-verification-status/', check_verification_status, name='check_verification_status'),
 
      #Chatbot
 ]

@@ -4069,3 +4069,15 @@ def cancel_subscription(request):
         return JsonResponse({'success': True, 'message': 'Subscription canceled successfully.'})
     except Subscription.DoesNotExist:
         return JsonResponse({'success': False, 'message': 'Active subscription not found.'})
+    
+
+from django.http import JsonResponse
+
+from django.contrib.auth.decorators import login_required
+
+@login_required
+def check_verification_status(request):
+    user = request.user
+    is_subscribed = user.is_subscribed
+    is_verified = (is_subscribed == 1)  
+    return JsonResponse({'is_verified': is_verified})
