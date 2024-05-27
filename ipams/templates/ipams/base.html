@@ -532,7 +532,10 @@
                                                 <label>Subscription:</label>
                                             </div>
                                             <div class="col-9">
-                                                <input class="form-control profile-input" value="{% if user.is_subscribed %}IPAMS Pro{% else %}Free{% endif %}" id="subscription_status" readonly>
+                                                <input class="form-control profile-input" 
+                                                       value="{{ subscription_plan_name }}" 
+                                                       id="subscription_status" 
+                                                       readonly>
                                             </div>
                                         </div>
                                         <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
