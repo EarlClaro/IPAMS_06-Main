@@ -429,11 +429,14 @@ header h2 {
 
      
     </script>
-
-								<!-- Chatbot -->
-                {% if user.role.id > 1 %}	
-                {% include 'records/chatbot.html' %}
-                {% endif %}
+				<!-- Chatbot -->
+				{% if user.is_subscribed == 1 %}
+    {% if user.role.id > 0 %}
+        {% include 'records/chatbot.html' with is_subscribed=1 %}
+    {% endif %}
+{% else %}
+    {% include 'records/chatbot.html' %}
+{% endif %}
 {% endblock %}
 
 {% block content %}
