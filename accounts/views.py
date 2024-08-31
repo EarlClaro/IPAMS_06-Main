@@ -260,7 +260,7 @@ def logout(request):
     messages.success(request, 'You are now logged out from the system...')
 
     # Call NALC logout API
-    nalc_logout_url = 'http://localhost:8001/api/logout/'
+    nalc_logout_url = 'http://localhost:8000/api/logout/'
     try:
         response = requests.get(nalc_logout_url, cookies=request.COOKIES)
         if response.status_code == 200:

@@ -96,6 +96,7 @@ urlpatterns = [
       path('check-verification-status/', check_verification_status, name='check_verification_status'),
 
      #Chatbot
+     
 ]
 
 # urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
