@@ -97,6 +97,7 @@ urlpatterns = [
      path('update-price/', views.update_price, name='update_price'),
      path('subscription-plans/', views.subscription_plans_view, name='subscription_plans'),
      #Chatbot
+     
 ]
 
 # urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
