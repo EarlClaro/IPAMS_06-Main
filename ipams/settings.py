@@ -49,6 +49,7 @@ INSTALLED_APPS = [
     "sslserver",
     "debug_toolbar",
     "corsheaders"
+    
 ]
 
 
@@ -116,7 +117,7 @@ DATABASES = {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'ipamsdjango',
         'USER': 'root',
-        'PASSWORD': 'new_password',
+        'PASSWORD': 'Moplex-storm123',
         'PORT': '3306',
         'HOST': 'localhost',
         'OPTIONS': {
@@ -127,7 +128,7 @@ DATABASES = {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'nalc_schema',
         'USER': 'root',  # Replace with the appropriate username
-        'PASSWORD': 'new_password',  # Replace with the appropriate password
+        'PASSWORD': '',  # Replace with the appropriate password
         'PORT': '3306',
         'HOST': 'localhost',
         'OPTIONS': {

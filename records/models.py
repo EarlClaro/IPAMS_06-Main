@@ -345,3 +345,4 @@ class Subscription(models.Model):
 
     class Meta:
         db_table = 'subscription'
+

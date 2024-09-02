@@ -3894,14 +3894,22 @@ def create_payment_link_view(request):
         return redirect('/')  # Redirect to homepage or error page
 
     
-def create_payment_link(amount, description):
+logger = logging.getLogger(__name__)
+
+def create_payment_link_view(request):
     try:
+        tier = request.GET.get('tier')  # Extract the 'tier' parameter from the URL query parameters
+
+        # Fetch the SubscriptionPlan based on the tier
+        plan = get_object_or_404(SubscriptionPlan, plan_name__iexact=tier)
+        amount = int(plan.price * 100)  # Convert to cents
+
         url = 'https://api.paymongo.com/v1/links'
         payload = {
             'data': {
                 'attributes': {
-                    'amount': amount,  # Amount in cents
-                    'description': description,
+                    'amount': amount,
+                    'description': f'IPAMS {tier.capitalize()} Subscription Payment',
                     'remarks': 'pay',
                     'status': 'unpaid'
                 }
@@ -3916,10 +3924,17 @@ def create_payment_link(amount, description):
         response.raise_for_status()
 
         data = response.json()
-        return data['data']['attributes']['checkout_url'], data['data']['id']
+        checkout_url = data['data']['attributes']['checkout_url']
+        stored_link_id = data['data']['id']
+        
+        # Store the link_id in the session to verify payment later
+        request.session['stored_link_id'] = stored_link_id
+
+        return redirect(checkout_url)
+
     except Exception as error:
         logger.error('Error creating payment link: %s', error)
-        return None, None
+        return redirect('/')  # Redirect to homepage or error page
     
 
 def get_payment_link_and_check_status(link_id):
@@ -4081,3 +4096,39 @@ def check_verification_status(request):
     is_subscribed = user.is_subscribed
     is_verified = (is_subscribed == 1)  
     return JsonResponse({'is_verified': is_verified})
+
+from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib.auth.decorators import login_required
+from django.http import HttpResponseForbidden
+from .models import SubscriptionPlan
+
+from django.http import JsonResponse
+
+@login_required
+def update_price(request):
+    if request.user.role_id != 7:
+        return HttpResponseForbidden("You do not have permission to edit this.")
+
+    if request.method == 'POST':
+        tier = request.POST.get('tier')
+        price = request.POST.get('price')
+
+        print(f"Updating {tier} plan with new price: {price}")
+        
+        plan = get_object_or_404(SubscriptionPlan, plan_name=tier)
+        plan.price = price
+        plan.save()
+
+       
+        return JsonResponse({"message": "updated"})
+    
+    return HttpResponseForbidden("Invalid request method.")
+
+
+def subscription_plans_view(request):
+    try:
+        plans = SubscriptionPlan.objects.all()
+        print("Plans retrieved: ", plans)  # Debugging statement
+    except Exception as e:
+        print("An error occurred: ", e)
+    return render(request, 'ipams/subscribe.html', {'plans': plans})

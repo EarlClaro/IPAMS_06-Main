@@ -2,6 +2,10 @@ from django.shortcuts import render
 from django.http import JsonResponse
 import requests
 import base64
+from django.db import models
+from records.models import SubscriptionPlan
+
+
 
 def create_payment_link(request):
     paymongo_api_key = 'sk_test_PUL9xuAM8Sm9GLh3FGura1vr'
