@@ -7,6 +7,8 @@ from .views import SubscriptionPageView
 from .views import PaymentPortalView
 from .views import renew_subscription, cancel_subscription
 from .views import check_verification_status
+from .views import update_api_key
+
 urlpatterns = [
     path('', views.Home.as_view(), name='records-index'),
     path('record/publishedRecords', views.PublishedRecords.as_view(), name='records-publish'),
@@ -97,7 +99,9 @@ urlpatterns = [
      path('update-price/', views.update_price, name='update_price'),
      path('subscription-plans/', views.subscription_plans_view, name='subscription_plans'),
      #Chatbot
-     
+     path('update-api-key/', update_api_key, name='update-api-key'),
+
+
 ]
 
 # urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

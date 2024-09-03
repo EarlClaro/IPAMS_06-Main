@@ -4132,3 +4132,35 @@ def subscription_plans_view(request):
     except Exception as e:
         print("An error occurred: ", e)
     return render(request, 'ipams/subscribe.html', {'plans': plans})
+
+
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+from django.db import connections
+from django.utils.timezone import now
+import json
+import traceback
+
+@csrf_exempt
+def update_api_key(request):
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            api_key = data.get('api_key')
+            if not api_key:
+                return JsonResponse({'success': False, 'error': 'API Key is required'}, status=400)
+
+            with connections['nalc'].cursor() as cursor:
+                cursor.execute("""
+                    INSERT INTO backend_openai_api (api_key, created_at)
+                    VALUES (%s, %s)
+                    ON DUPLICATE KEY UPDATE
+                        created_at = VALUES(created_at);
+                """, [api_key, now()])
+
+            return JsonResponse({'success': True})
+        except Exception as e:
+            print(f"Error updating API key: {e}")
+            print(traceback.format_exc())
+            return JsonResponse({'success': False, 'error': 'An error occurred while updating the API key.'}, status=500)
+    return JsonResponse({'success': False, 'error': 'Invalid request method'}, status=405)
