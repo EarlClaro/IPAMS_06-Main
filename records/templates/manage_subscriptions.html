@@ -1,0 +1,12 @@
+<!-- manage_subscriptions.html -->
+{% for subscription in subscriptions %}
+<tr>
+    <td>{{ subscription.plan_id }}</td>
+    <td>{{ subscription.plan_name }}</td>
+    <td>₱ {{ subscription.price }}</td>
+    <td>{{ subscription.duration_months }}</td>
+    <td>
+        <button class="editBtn" data-id="{{ subscription.plan_id }}">Edit</button>
+    </td>
+</tr>
+{% endfor %}

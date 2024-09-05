@@ -117,7 +117,7 @@ DATABASES = {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'ipamsdjango',
         'USER': 'root',
-        'PASSWORD': 'Moplex-storm123',
+        'PASSWORD': 'new_password',
         'PORT': '3306',
         'HOST': 'localhost',
         'OPTIONS': {
@@ -128,7 +128,7 @@ DATABASES = {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'nalc_schema',
         'USER': 'root',  # Replace with the appropriate username
-        'PASSWORD': '',  # Replace with the appropriate password
+        'PASSWORD': 'new_password',  # Replace with the appropriate password
         'PORT': '3306',
         'HOST': 'localhost',
         'OPTIONS': {

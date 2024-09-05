@@ -4125,6 +4125,7 @@ def update_price(request):
     return HttpResponseForbidden("Invalid request method.")
 
 
+<<<<<<< HEAD
 
 def subscribe_view(request):
     # Assuming you want to display a plan with a specific name
@@ -4132,3 +4133,91 @@ def subscribe_view(request):
     plan = get_object_or_404(SubscriptionPlan, plan_name=tier)
     
     return render(request, 'ipams/subscribe.html', {'price': plan.price})
+=======
+def subscription_plans_view(request):
+    try:
+        plans = SubscriptionPlan.objects.all()
+        print("Plans retrieved: ", plans)  # Debugging statement
+    except Exception as e:
+        print("An error occurred: ", e)
+    return render(request, 'ipams/subscribe.html', {'plans': plans})
+
+
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+from django.db import connections
+from django.utils.timezone import now
+import json
+import traceback
+
+@csrf_exempt
+def update_api_key(request):
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            api_key = data.get('api_key')
+            if not api_key:
+                return JsonResponse({'success': False, 'error': 'API Key is required'}, status=400)
+
+            with connections['nalc'].cursor() as cursor:
+                cursor.execute("""
+                    INSERT INTO backend_openai_api (api_key, created_at)
+                    VALUES (%s, %s)
+                    ON DUPLICATE KEY UPDATE
+                        created_at = VALUES(created_at);
+                """, [api_key, now()])
+
+            return JsonResponse({'success': True})
+        except Exception as e:
+            print(f"Error updating API key: {e}")
+            print(traceback.format_exc())
+            return JsonResponse({'success': False, 'error': 'An error occurred while updating the API key.'}, status=500)
+    return JsonResponse({'success': False, 'error': 'Invalid request method'}, status=405)
+
+
+# records/views.py
+from django.shortcuts import render
+from .models import SubscriptionPlan
+
+def manage_subscriptions(request):
+    subscriptions = SubscriptionPlan.objects.all().order_by('plan_id')
+    return render(request, 'manage_subscriptions.html', {'subscriptions': subscriptions})
+
+from django.shortcuts import render
+from .models import Subscription
+
+def subscribed_users(request):
+    # Fetch all subscriptions for the subscribed users table
+    subscriptions = Subscription.objects.select_related('plan_id').order_by('plan_id')
+    return render(request, 'subscribed_users.html', {'subscriptions': subscriptions})
+
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+from .models import SubscriptionPlan
+
+@csrf_exempt
+def update_subscription_plan(request):
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            plan_id = data.get('plan_id')
+            plan_name = data.get('plan_name')
+            price = data.get('price')
+            duration_months = data.get('duration_months')
+
+            # Update the subscription plan
+            plan = SubscriptionPlan.objects.get(pk=plan_id)
+            plan.plan_name = plan_name
+            plan.price = price
+            plan.duration_months = duration_months
+            plan.save()
+
+            return JsonResponse({'success': True})
+
+        except SubscriptionPlan.DoesNotExist:
+            return JsonResponse({'success': False, 'error': 'Plan not found'}, status=404)
+
+        except Exception as e:
+            return JsonResponse({'success': False, 'error': str(e)}, status=500)
+    return JsonResponse({'success': False, 'error': 'Invalid request method'}, status=400)
+>>>>>>> 93f89a448297f50e6025644ec7982725aa2412ce
