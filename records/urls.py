@@ -95,7 +95,8 @@ urlpatterns = [
      path('cancel_subscription/', cancel_subscription, name='cancel_subscription'),
      path('check-verification-status/', check_verification_status, name='check_verification_status'),
      path('update-price/', views.update_price, name='update_price'),
-     path('subscription-plans/', views.subscription_plans_view, name='subscription_plans'),
+    # path('subscription-plans/', views.subscription_plans_view, name='subscription_plans'),
+     path('subscribe_view/', views.subscribe_view, name='subscribe_view'),
      #Chatbot
      
 ]

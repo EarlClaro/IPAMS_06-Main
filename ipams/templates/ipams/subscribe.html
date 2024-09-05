@@ -3,6 +3,7 @@
 {% load static %}
 
 {% block head %}
+
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A==" crossorigin="anonymous" referrerpolicy="no-referrer" />
 <link rel="stylesheet" type="text/css" href="{% static 'css/subscription.css' %}"> <!-- Include your custom CSS file -->
 
@@ -258,13 +259,7 @@
             <!-- Non-editable Price for other users -->
         </thead>
         <tbody>
-            {% for plan in plans %}
-            <tr>
-                <td>{{ plan.plan_name }}</td>
-                <td><div class="free">₱</div>{{ plan.price }}</td>
-                <td>{{ plan.duration_months }}</td>
-            </tr>
-            {% endfor %}
+            <div class="free">₱{{ price }}</div>
         </tbody>
     </table>
             
@@ -290,7 +285,7 @@
             </form>
         {% else %}
             <!-- Non-editable Price for other users -->
-            <div class="free">₱{{ price }}</div>
+            <div class="free">₱{{ plan.price }}</div>
         {% endif %}
         <a href="{% url 'create_payment_link' %}?tier=premium" class="subscribe-button">Subscribe</a>
         <div class="whats" style="margin-left: 20px; font-size: 18px; margin-right: 20px;">What's included:</div>
