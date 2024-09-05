@@ -4164,3 +4164,50 @@ def update_api_key(request):
             print(traceback.format_exc())
             return JsonResponse({'success': False, 'error': 'An error occurred while updating the API key.'}, status=500)
     return JsonResponse({'success': False, 'error': 'Invalid request method'}, status=405)
+
+
+# records/views.py
+from django.shortcuts import render
+from .models import SubscriptionPlan
+
+def manage_subscriptions(request):
+    subscriptions = SubscriptionPlan.objects.all().order_by('plan_id')
+    return render(request, 'manage_subscriptions.html', {'subscriptions': subscriptions})
+
+from django.shortcuts import render
+from .models import Subscription
+
+def subscribed_users(request):
+    # Fetch all subscriptions for the subscribed users table
+    subscriptions = Subscription.objects.select_related('plan_id').order_by('plan_id')
+    return render(request, 'subscribed_users.html', {'subscriptions': subscriptions})
+
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+from .models import SubscriptionPlan
+
+@csrf_exempt
+def update_subscription_plan(request):
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            plan_id = data.get('plan_id')
+            plan_name = data.get('plan_name')
+            price = data.get('price')
+            duration_months = data.get('duration_months')
+
+            # Update the subscription plan
+            plan = SubscriptionPlan.objects.get(pk=plan_id)
+            plan.plan_name = plan_name
+            plan.price = price
+            plan.duration_months = duration_months
+            plan.save()
+
+            return JsonResponse({'success': True})
+
+        except SubscriptionPlan.DoesNotExist:
+            return JsonResponse({'success': False, 'error': 'Plan not found'}, status=404)
+
+        except Exception as e:
+            return JsonResponse({'success': False, 'error': str(e)}, status=500)
+    return JsonResponse({'success': False, 'error': 'Invalid request method'}, status=400)

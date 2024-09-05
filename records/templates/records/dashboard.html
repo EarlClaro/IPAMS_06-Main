@@ -81,6 +81,140 @@
     .btn:hover {
         background-color: #007bb5;
     }
+
+	/* Modal styles */
+.modal {
+    display: none; /* Hidden by default */
+    position: fixed; /* Stay in place */
+    z-index: 1; /* Sit on top */
+    left: 0;
+    top: 0;
+    width: 100%; /* Full width */
+    height: 100%; /* Full height */
+    overflow: auto; /* Enable scroll if needed */
+    background-color: rgba(0, 0, 0, 0.4); /* Black background with opacity */
+}
+
+.modal-content {
+    background-color: #fefefe;
+    margin: 15% auto; /* 15% from the top and centered */
+    padding: 20px;
+    border: 1px solid #888;
+    width: 80%; /* Could be more or less, depending on screen size */
+}
+
+.close {
+    color: red;
+    float: right;
+    font-size: 48px;
+    font-weight: bold;
+	margin-left: 1350px;
+
+}
+
+.close:hover,
+.close:focus {
+    color: black;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+/* Table styles */
+#subscriptionsTable {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+#subscriptionsTable th,
+#subscriptionsTable td {
+    border: 1px solid #ddd;
+    padding: 8px;
+}
+
+#subscriptionsTable tr:nth-child(even) {
+    background-color: #f2f2f2;
+}
+
+#subscriptionsTable tr:hover {
+    background-color: #ddd;
+}
+
+#updateSubscriptionBtn {
+    margin-top: 20px;
+    background-color: #007bff;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+#updateSubscriptionBtn:hover {
+    background-color: #0056b3;
+}
+
+/* Modal background overlay */
+.modal-overlayAPI {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 1000;
+}
+
+/* Modal container */
+.modal-contentAPI {
+
+    background: #fff;
+    padding: 40px;
+    width: 700px; /* Increased width for a wider form */
+    border-radius: 10px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    z-index: 1001;
+}
+
+/* Close button */
+.close-button {
+    float: right;
+    font-size: 44px;
+	margin-left: 500px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+/* Form styling */
+#apiKeyForm {
+    display: flex;
+    flex-direction: column;
+}
+
+#apiKeyForm input[type="text"] {
+    padding: 12px;
+    margin-bottom: 20px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 16px;
+	width: 500px;
+}
+
+/* Submit button styling */
+.submit-button {
+    padding: 12px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background-color 0.3s;
+	width: 200px;
+}
+
+.submit-button:hover {
+    background-color: #0056b3;
+}
 </style>
 <script>
 //---------------------------------Graphs---------------------------------------------
@@ -287,18 +421,24 @@
                 <a href="{% url 'dashboard-manage-accounts' %}" class="btn base-btn base-bg-secondary">Manage Accounts</a> 
                 <a href="{% url 'dashboard-logs' %}" class="btn base-btn base-bg-secondary">Logs</a> 
                	<a href="{% url 'reset-accounts' %}" class="btn base-btn base-bg-secondary">Reset Accounts</a>
-				<button id="edit-api-key-btn">Add AI API Key</button>
+				<br>
+				<br>
+				<button id="edit-api-key-btn" class="btn base-btn base-bg-secondary">Add AI API Key</button>
+				<button id="manageSubscriptionsBtn" class="btn base-btn base-bg-secondary">Manage Subscriptions</button>
+
 
             </div>
 
 <!-- Modal Structure -->
 <div id="api-key-modal" style="display: none;">
-    <div class="modal-content">
-        <span id="close-modal" style="cursor: pointer;">&times;</span>
-        <h2>Edit API Key</h2>
+    <div class="modal-overlayAPI"></div>
+    <div class="modal-contentAPI">
+        <span id="close-modal" class="close-button">&times;</span>
+        <h2>Update API Key</h2>
+		<br>
         <form id="apiKeyForm">
             <input type="text" id="apiKeyInput" placeholder="Enter new API Key" required>
-            <button type="submit">Submit</button>
+            <button type="submit" class="submit-button">Submit</button>
         </form>
     </div>
 </div>
@@ -356,6 +496,182 @@
 </script>
 
 				
+<!-- Modal -->
+<div id="subscriptionsModal" class="modal">
+    <div class="modal-content">
+        <span class="close">&times;</span>
+        <h2 style="font-weight: bold;">Manage Subscriptions</h2>
+        <br>
+
+        <!-- Subscribed Users Table -->
+        <h3>Subscribed Users</h3>
+        <table id="subscribedUsersTable">
+            <thead>
+                <tr>
+                    <th>Subscription ID</th>
+                    <th>User ID</th>
+                    <th>Plan ID</th>
+                    <th>Status</th>
+                    <th>Start Date</th>
+                    <th>End Date</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Table rows will be inserted by JavaScript -->
+            </tbody>
+        </table>
+        <br>
+
+        <!-- Subscription Plans Table -->
+        <h3>Manage Subscription Plans</h3>
+        <table id="subscriptionsTable">
+            <thead>
+                <tr>
+                    <th>Plan ID</th>
+                    <th>Plan Name</th>
+                    <th>Price</th>
+                    <th>Duration (Months)</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Table rows will be inserted by JavaScript -->
+            </tbody>
+        </table>
+
+        <!-- Update Form -->
+        <div id="updatePlanForm" style="display: none;">
+            <h4>Edit Subscription Plan</h4>
+            <form id="editPlanForm">
+                <input type="hidden" id="planId" name="plan_id">
+                <label for="planName">Plan Name:</label>
+                <input type="text" id="planName" name="plan_name" required><br><br>
+
+                <label for="price">Price:</label>
+                <input type="number" id="price" name="price" step="0.01" required><br><br>
+
+                <label for="duration">Duration (Months):</label>
+                <input type="number" id="duration" name="duration_months" required><br><br>
+
+                <button type="submit" class="btn base-btn base-bg-secondary">Save Changes</button>
+            </form>
+        </div>
+
+        <div class="container">
+            <button id="updateSubscriptionBtn" class="btn base-btn base-bg-secondary" style="width: 250px;">Update Subscription</button>
+        </div>
+    </div>
+</div>
+
+
+		<script>
+			// JavaScript for handling the modal
+			document.getElementById('manageSubscriptionsBtn').addEventListener('click', function() {
+				// Fetch and display subscribed users
+				fetch('/subscribed_users/')
+					.then(response => response.text())
+					.then(data => {
+						document.querySelector('#subscribedUsersTable tbody').innerHTML = data;
+					});
+
+				// Fetch and display subscription plans
+				fetch('/manage_subscriptions/')
+					.then(response => response.text())
+					.then(data => {
+						document.querySelector('#subscriptionsTable tbody').innerHTML = data;
+					});
+
+				// Show the modal
+				document.getElementById('subscriptionsModal').style.display = 'block';
+			});
+
+			// Close modal event
+			document.querySelector('.close').addEventListener('click', function() {
+				document.getElementById('subscriptionsModal').style.display = 'none';
+			});
+
+			// Handle table row clicks for editing
+			document.querySelector('#subscriptionsTable').addEventListener('click', function(event) {
+			const target = event.target;
+			if (target && target.classList.contains('editBtn')) {
+				// Find the closest table row
+				const row = target.closest('tr');
+
+				// Extract data from the row
+				const planId = row.querySelector('td:nth-child(1)').innerText;
+				const planName = row.querySelector('td:nth-child(2)').innerText;
+				const price = row.querySelector('td:nth-child(3)').innerText.replace('$', '');
+				const duration = row.querySelector('td:nth-child(4)').innerText;
+
+				// Set the values in the form
+				document.getElementById('planId').value = planId;
+				document.getElementById('planName').value = planName;
+				document.getElementById('price').value = price;
+				document.getElementById('duration').value = duration;
+
+				// Show the form for editing
+				document.getElementById('updatePlanForm').style.display = 'block';
+			}
+		});
+
+
+
+			// Handle form submission for updating subscription plans
+			document.getElementById('editPlanForm').addEventListener('submit', function(event) {
+				event.preventDefault();
+
+				const planId = document.getElementById('planId').value;
+				const planName = document.getElementById('planName').value;
+				const price = document.getElementById('price').value;
+				const duration = document.getElementById('duration').value;
+
+				fetch('/update_subscription_plan/', {
+					method: 'POST',
+					headers: {
+						'Content-Type': 'application/json',
+						'X-CSRFToken': getCookie('csrftoken') // Ensure CSRF token is included
+					},
+					body: JSON.stringify({
+						plan_id: planId,
+						plan_name: planName,
+						price: price,
+						duration_months: duration
+					})
+				})
+				.then(response => response.json())
+				.then(data => {
+					if (data.success) {
+						// Refresh the subscription plans table
+						fetch('/manage_subscriptions/')
+							.then(response => response.text())
+							.then(data => {
+								document.querySelector('#subscriptionsTable tbody').innerHTML = data;
+							});
+						// Hide the form
+						document.getElementById('updatePlanForm').style.display = 'none';
+					} else {
+						alert('Failed to update subscr8iption plan.');
+					}
+				});
+			});
+
+			// Helper function to get CSRF token
+			function getCookie(name) {
+				let cookieValue = null;
+				if (document.cookie && document.cookie !== '') {
+					const cookies = document.cookie.split(';');
+					for (let i = 0; i < cookies.length; i++) {
+						const cookie = cookies[i].trim();
+						if (cookie.substring(0, name.length + 1) === (name + '=')) {
+							cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+							break;
+						}
+					}
+				}
+				return cookieValue;
+			}
+
+		</script>
 
 
 
