@@ -9,7 +9,7 @@ from .views import renew_subscription, cancel_subscription
 from .views import check_verification_status
 from .views import update_api_key
 from .views import update_subscription_plan
-
+from .views import fetch_subscriptions
 urlpatterns = [
     path('', views.Home.as_view(), name='records-index'),
     path('record/publishedRecords', views.PublishedRecords.as_view(), name='records-publish'),
@@ -99,13 +99,14 @@ urlpatterns = [
      path('check-verification-status/', check_verification_status, name='check_verification_status'),
      path('update-price/', views.update_price, name='update_price'),
     # path('subscription-plans/', views.subscription_plans_view, name='subscription_plans'),
-     path('subscribe_view/', views.subscribe_view, name='subscribe_view'),
+    # path('subscribe_view/', views.subscribe_view, name='subscribe_view'),
      #Chatbot
+     
      path('update-api-key/', update_api_key, name='update-api-key'),
      path('manage_subscriptions/', views.manage_subscriptions, name='manage_subscriptions'),
      path('subscribed_users/', views.subscribed_users, name='subscribed_users'),
      path('update_subscription_plan/', update_subscription_plan, name='update_subscription_plan'),
-
+     path('fetch_subscriptions/', fetch_subscriptions, name='fetch_subscriptions'),
 
 ]
 

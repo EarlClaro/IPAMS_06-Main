@@ -4125,15 +4125,6 @@ def update_price(request):
     return HttpResponseForbidden("Invalid request method.")
 
 
-<<<<<<< HEAD
-
-def subscribe_view(request):
-    # Assuming you want to display a plan with a specific name
-    tier = 'Premium'  # Replace with the actual plan name or logic to get it
-    plan = get_object_or_404(SubscriptionPlan, plan_name=tier)
-    
-    return render(request, 'ipams/subscribe.html', {'price': plan.price})
-=======
 def subscription_plans_view(request):
     try:
         plans = SubscriptionPlan.objects.all()
@@ -4220,4 +4211,14 @@ def update_subscription_plan(request):
         except Exception as e:
             return JsonResponse({'success': False, 'error': str(e)}, status=500)
     return JsonResponse({'success': False, 'error': 'Invalid request method'}, status=400)
->>>>>>> 93f89a448297f50e6025644ec7982725aa2412ce
+
+def fetch_subscriptions(request):
+   
+    standard_plan = SubscriptionPlan.objects.filter(plan_name='standard').first()
+    premium_plan = SubscriptionPlan.objects.filter(plan_name='premium').first()
+
+
+    return JsonResponse({
+        'standard_price': standard_plan.price if standard_plan else 0,
+        'premium_price': premium_plan.price if premium_plan else 0,
+    })

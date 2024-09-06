@@ -201,9 +201,23 @@
         
         }
 </style>
+
 {% endblock %}
 
 {% block content %}
+<script>
+    fetch("{% url 'fetch_subscriptions' %}")
+        .then(response => response.json())
+        .then(data => {
+            document.getElementById('standard-price').innerText = data.standard_price;
+            //document.getElementById('standard-price-input').value = data.standard_price;
+            document.getElementById('premium-price').innerText = data.premium_price;
+           // document.getElementById('premium-price-input').value = data.premium_price;
+        });
+</script>
+
+
+
 <div class="ss">
     <h1>Welcome to Our Subscription Page!</h1>
     <p>Subscribe to our service to get access to exclusive content and updates.</p>
@@ -259,12 +273,10 @@
             <!-- Non-editable Price for other users -->
         </thead>
         <tbody>
-            <div class="free">₱{{ price }}</div>
+            <div class="free">₱<span id="standard-price">0</span></div>
         </tbody>
     </table>
-            
         {% endif %}
-        <div class="free">₱100</div>
         <a href="{% url 'create_payment_link' %}?tier=standard" class="subscribe-button">Subscribe</a>
         <div class="whats" style="margin-left: 20px; font-size: 18px; margin-right: 20px;">What's included:</div>
         <div class="offer" style="margin-left: 20px; font-size: 12px; margin-right: 20px;"><i class="fa-solid fa-check"></i> Enhanced features for a reasonable fee</div>
@@ -284,8 +296,9 @@
                 <button type="submit" class="update-price-button">Update Price</button>
             </form>
         {% else %}
-            <!-- Non-editable Price for other users -->
-            <div class="free">₱{{ plan.price }}</div>
+        <tbody>
+            <div class="free">₱<span id="premium-price">0</span></div>
+        </tbody>
         {% endif %}
         <a href="{% url 'create_payment_link' %}?tier=premium" class="subscribe-button">Subscribe</a>
         <div class="whats" style="margin-left: 20px; font-size: 18px; margin-right: 20px;">What's included:</div>
