@@ -50,6 +50,9 @@ from django.contrib.auth.hashers import make_password
 def is_ajax(request):
     return request.META.get('HTTP_X_REQUESTED_WITH') == 'XMLHttpRequest'
 
+from django.contrib.auth.hashers import make_password
+from django.db import transaction
+from django.utils.crypto import get_random_string
 
 class SignupView(View):
     name = 'accounts/signup.html'
@@ -78,22 +81,30 @@ class SignupView(View):
             if form.is_valid():
                 user = form.save(commit=False)
                 password = form.cleaned_data.get('password')  # Retrieve the password
-                user.set_password(password)  # This hashes the password
+
+                # Generate a random salt for hashing
+                salt = get_random_string(12)
+
+                # Hash the password using the same salt
+                hashed_password = make_password(password, salt=salt)
+
+                # Set the hashed password for the IPAMS system
+                user.password = hashed_password
                 user.role = UserRole.objects.get(pk=1)
                 user.is_active = False
                 user.is_verified = False
                 user.save()
 
-                # Save activated user data to the 'nalc' database
+                # Save the hashed password to the NALC system
                 try:
                     with connections['nalc'].cursor() as cursor:
-                        hashed_password = make_password(password)  # Hash the password
                         cursor.execute(
                             "INSERT INTO backend_user (name, email, password, is_active, is_superuser, is_staff) VALUES (%s, %s, %s, %s, %s, %s)",
                             [user.username, user.email, hashed_password, 1, 0, 0]
                         )
                 except Exception as e:
                     messages.error(request, _('Error occurred while saving user data to the other database: {}').format(str(e)))
+
                     
 
                 role_id = int(request.POST.get('role', 0))

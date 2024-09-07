@@ -319,61 +319,131 @@
         <span class="material-symbols-rounded">mode_comment</span>
         <span class="material-symbols-outlined">close</span>
     </button>
+    
+
     <script>
-        // Ensure chatbotTogglers is defined and selected
         const chatbotTogglers = document.querySelectorAll('.chatbot-toggler');
     
         chatbotTogglers.forEach(chatbotToggler => {
-            chatbotToggler.addEventListener('click', (event) => {
-                const isSubscribed = chatbotToggler.getAttribute('data-is-subscribed');
+          chatbotToggler.addEventListener('click', async (event) => {
+            const isSubscribed = chatbotToggler.getAttribute('data-is-subscribed');
     
-                if (isSubscribed == 0) {
-                    alert("You need to login or have an active subscription to access this feature.");
-                    return;
-                }
+            if (isSubscribed == 0) {
+              alert("You need to login or have an active subscription to access this feature.");
+              return;
+            }
     
-                event.preventDefault();
+            event.preventDefault();
     
-                // Fetch credentials from secure storage (localStorage for this example)
-                const email = "{{ user.email }}"; // Replace with actual value or method
-                const password = "claro1234"; // Replace with actual value or method
-                
-                if (!email || !password) {
-                    alert("Credentials not found. Please log in first.");
-                    return;
-                }
+            const email = "{{ user.email }}";  // Replace with actual user email
+            // const password = "claro1234";      // Replace with actual password or fetch it securely
     
-                // Create and show modal overlay with iframe
-                const modalOverlay = document.createElement('div');
-                modalOverlay.classList.add('modal-overlay', 'modal-hidden');
+            // Create modal overlay
+            const modalOverlay = document.createElement('div');
+            modalOverlay.classList.add('modal-overlay');
     
-                const iframe = document.createElement('iframe');
-                iframe.src = `http://localhost:3000/?email=${encodeURIComponent(email)}&password=${encodeURIComponent(password)}`;  // Pass credentials in query parameters
-                iframe.setAttribute('frameborder', '0');
-
+            const iframe = document.createElement('iframe');
+            iframe.src = `http://localhost:3000/?email=${email}`; // Load URL with email and password in query params
+            iframe.setAttribute('frameborder', '0');
+            iframe.style.width = '80%';
+            iframe.style.height = '80%';
+            iframe.style.borderRadius = '10px';
     
-                modalOverlay.appendChild(iframe);
-                document.body.appendChild(modalOverlay);
-                modalOverlay.offsetHeight; // Trigger reflow
-                modalOverlay.classList.remove('modal-hidden');
+            modalOverlay.appendChild(iframe);
+            document.body.appendChild(modalOverlay);
     
-                modalOverlay.addEventListener('click', (event) => {
-                    if (event.target === modalOverlay) {
-                        modalOverlay.classList.add('modal-hidden');
-                        modalOverlay.addEventListener('transitionend', () => {
-                            modalOverlay.remove();
-                        }, { once: true });
-                    }
-                });
+            // Show modal
+            modalOverlay.style.display = 'flex';
+            modalOverlay.style.justifyContent = 'center';
+            modalOverlay.style.alignItems = 'center';
+            modalOverlay.style.position = 'fixed';
+            modalOverlay.style.top = '0';
+            modalOverlay.style.left = '0';
+            modalOverlay.style.width = '100%';
+            modalOverlay.style.height = '100%';
+            modalOverlay.style.backgroundColor = 'rgba(0, 0, 0, 0.5)';
+            modalOverlay.style.zIndex = '1000';
+    
+            // Close modal on click outside of the iframe
+            modalOverlay.addEventListener('click', (event) => {
+              if (event.target === modalOverlay) {
+                document.body.removeChild(modalOverlay);
+              }
             });
+          });
         });
     </script>
     
-    
-    
-    
-    
-     
+    <!-- <script>
+        const chatbotTogglers = document.querySelectorAll('.chatbot-toggler');
+ 
+     chatbotTogglers.forEach(chatbotToggler => {
+     chatbotToggler.addEventListener('click', async (event) => {
+         const isSubscribed = chatbotToggler.getAttribute('data-is-subscribed');
+ 
+         if (isSubscribed == 0) {
+         alert("You need to login or have an active subscription to access this feature.");
+         return;
+         }
+ 
+         event.preventDefault();
+ 
+         const email = "{{ user.email }}";  // Replace with actual user email
+         
+         // Fetch password from backend using email
+         try {
+         const response = await fetch(`http://localhost:8000/api/get-password/?email=${email}`, {
+             method: 'GET',
+             headers: {
+             'Content-Type': 'application/json',
+             },
+         });
+ 
+         if (response.ok) {
+             const data = await response.json();
+             const password = data.password;  // Get hashed password from the response
+ 
+             // Proceed with opening the modal
+             const modalOverlay = document.createElement('div');
+             modalOverlay.classList.add('modal-overlay');
+ 
+             const iframe = document.createElement('iframe');
+             iframe.src = `http://localhost:3000/?email=${email}&password=${password}`;
+             iframe.setAttribute('frameborder', '0');
+             iframe.style.width = '80%';
+             iframe.style.height = '80%';
+             iframe.style.borderRadius = '10px';
+ 
+             modalOverlay.appendChild(iframe);
+             document.body.appendChild(modalOverlay);
+ 
+             modalOverlay.style.display = 'flex';
+             modalOverlay.style.justifyContent = 'center';
+             modalOverlay.style.alignItems = 'center';
+             modalOverlay.style.position = 'fixed';
+             modalOverlay.style.top = '0';
+             modalOverlay.style.left = '0';
+             modalOverlay.style.width = '100%';
+             modalOverlay.style.height = '100%';
+             modalOverlay.style.backgroundColor = 'rgba(0, 0, 0, 0.5)';
+             modalOverlay.style.zIndex = '1000';
+ 
+             // Close modal on click outside of iframe
+             modalOverlay.addEventListener('click', (event) => {
+             if (event.target === modalOverlay) {
+                 document.body.removeChild(modalOverlay);
+             }
+             });
+         } else {
+             alert('Error fetching password');
+         }
+         } catch (error) {
+         console.error('Error fetching password:', error);
+         }
+     });
+     });
+ 
+     </script> -->
     
 </body>
 </html>
