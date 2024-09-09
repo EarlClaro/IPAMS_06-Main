@@ -18,4 +18,5 @@ urlpatterns = [
     path('settings/', views.SettingsView.as_view(), name='accounts-settings'),
     path('activate/<uidb64>/<token>/',views.activate, name='activate'),
     path('get/all/locked', views.get_all_locked_accounts, name="all-locked-accounts"),
+    
 ]
