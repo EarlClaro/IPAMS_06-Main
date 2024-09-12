@@ -326,6 +326,7 @@ class Subscription(models.Model):
     end_date = models.DateField(null=True, blank=True)
     user_id = models.ForeignKey('accounts.User', on_delete=models.CASCADE, default=None)
     plan_id = models.ForeignKey(SubscriptionPlan, on_delete=models.CASCADE, default=1)
+    locked_plan_name = models.CharField(max_length=50, null=True, blank=True)  # New field to lock plan name
     status = models.CharField(max_length=50, default='active')
 
     def __str__(self):
@@ -337,6 +338,8 @@ class Subscription(models.Model):
             self.end_date = self.start_date + timedelta(days=self.plan_id.duration_months * 30)
         else:
             self.end_date = self.start_date + timedelta(days=180)  # default to 6 months if no plan specified
+        # Update locked plan name only during renewal
+        self.locked_plan_name = self.plan_id.plan_name  
         self.status = 'active'
         self.save()
 
@@ -345,4 +348,3 @@ class Subscription(models.Model):
 
     class Meta:
         db_table = 'subscription'
-

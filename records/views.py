@@ -4213,12 +4213,19 @@ def update_subscription_plan(request):
     return JsonResponse({'success': False, 'error': 'Invalid request method'}, status=400)
 
 def fetch_subscriptions(request):
-   
-    standard_plan = SubscriptionPlan.objects.filter(plan_name='standard').first()
-    premium_plan = SubscriptionPlan.objects.filter(plan_name='premium').first()
+    free_plan_id = 1
+    standard_plan_id = 2  # Replace with your actual logic
+    premium_plan_id = 3   # Replace with your actual logic
 
+    free_plan = SubscriptionPlan.objects.filter(plan_id=free_plan_id).first()
+    standard_plan = SubscriptionPlan.objects.filter(plan_id=standard_plan_id).first()
+    premium_plan = SubscriptionPlan.objects.filter(plan_id=premium_plan_id).first()
 
     return JsonResponse({
         'standard_price': standard_plan.price if standard_plan else 0,
+        'standard_plan_name': standard_plan.plan_name if standard_plan else '',
         'premium_price': premium_plan.price if premium_plan else 0,
+        'premium_plan_name': premium_plan.plan_name if premium_plan else '',
+        'free_price': free_plan.price if free_plan else 0,
+        'free_plan_name': free_plan.plan_name if free_plan else '',
     })
