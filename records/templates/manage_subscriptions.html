@@ -1,5 +1,14 @@
 <!-- manage_subscriptions.html -->
 {% for subscription in subscriptions %}
+<style>
+ 
+    .editBtn:hover{
+        background-color:gold;
+        color: white;
+        padding-right: 20px;
+        
+    }
+</style>
 <tr>
     <td>{{ subscription.plan_id }}</td>
     <td>{{ subscription.plan_name }}</td>
