@@ -266,7 +266,7 @@
         <div class="offer" style="margin-left: 20px; font-size: 12px; margin-right: 20px; margin-bottom: 20px;"><i class="fa-solid fa-check"></i> Allows instant download of all published research records</div>
     </div>
     {% else %}
-    {% if user.is_admin != 1 and subscription_plan_name == "Premium" or user.is_admin != 1 and subscription_plan_name == "Standard" %}
+    {% if user.is_admin != 1 and  user.is_subscribed %}
     <div class="bronzes" style="text-align: center; font-size: 40px;">You Are Currently Subscribe<br>{{ subscription_plan_name }}</div>
     {% else %}
     <div class="rectangle-long1">
@@ -277,10 +277,11 @@
         <div class="offer" style="margin-left: 20px; font-size: 12px; margin-right: 20px;"><i class="fa-solid fa-check"></i> Can View Published Research Records</div>
         <div class="offer" style="margin-left: 20px; font-size: 12px; margin-right: 20px;"><i class="fa-solid fa-check"></i> Can Request Download for a Published Research Record</div>
         <div class="offer" style="margin-left: 20px; font-size: 12px; margin-right: 20px;"><i class="fa-solid fa-check"></i> Can Add/Publish Research Records</div>
-        <a href="{% url 'payment_portal' %}" class="join-button">Join for Free</a>
+        <a href="{% url 'subscribe_free_trial' %}" class="join-button">Join for Free</a>
+
     </div>
     {% endif %}
-    {% if user.is_admin != 1 and subscription_plan_name == "Premium" or user.is_admin != 1 and subscription_plan_name == "Standard" %}
+    {% if user.is_admin != 1 and  user.is_subscribed %}
     <div class="bronzes" style="text-align: center; font-size: 40px;">You Are Currently Subscribe<br>{{ subscription_plan_name }}</div>
     {% else %}
     <div class="rectangle-long2">
@@ -299,7 +300,7 @@
         <div class="offer" style="margin-left: 20px; font-size: 12px; margin-right: 20px;"><i class="fa-solid fa-check"></i> Instant download and access to import records and file management</div>
     </div>
     {% endif %}
-    {% if user.is_admin != 1 and subscription_plan_name == "Premium" or user.is_admin != 1 and subscription_plan_name == "Standard" %}
+    {% if user.is_admin != 1 and  user.is_subscribed %}
     <div class="bronzes" style="text-align: center; font-size: 40px;">You Are Currently Subscribe<br>{{ subscription_plan_name }}</div>
     {% else %}
     <div class="rectangle-long3">

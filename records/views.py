@@ -4231,3 +4231,34 @@ def fetch_subscriptions(request):
         'free_price': free_plan.price if free_plan else 0,
         'free_plan_name': free_plan.plan_name if free_plan else '',
     })
+
+def subscribe_free_trial(request):
+    user = request.user  
+    plan = SubscriptionPlan.objects.get(plan_name='Free Trial')
+
+    if not user.is_subscribed: 
+        
+        subscription = Subscription.objects.create(
+            start_date=datetime.now().date(),
+            end_date=(datetime.now() + timedelta(days=30)).date(), 
+            user_id=user,
+            plan_id=plan, 
+            status='active'
+        )
+
+       
+        user.is_subscribed = True
+        user.subscription_status = 'free_trial'
+        user.sub_id = subscription.sub_id
+        user.save()
+
+       
+        messages.success(request, 'You are now subscribed to the Free Trial plan 30days is crazyyyyy.')
+
+          
+        return redirect('subscribe') 
+    
+    else:
+          
+        messages.warning(request, 'You are already subscribed.')
+        return redirect('subscribe')
