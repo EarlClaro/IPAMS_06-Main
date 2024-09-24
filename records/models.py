@@ -346,7 +346,7 @@ class Subscription(models.Model):
     
         if not self.locked_plan_name:
             self.locked_plan_name = self.plan_id.plan_name
-        super().save(*args, **kwargs) 
+        super().save(*args, **kwargs)
 
     def is_near_end(self):
         return self.end_date <= datetime.now().date() + timedelta(days=7)
