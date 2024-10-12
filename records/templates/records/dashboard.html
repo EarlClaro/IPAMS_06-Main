@@ -535,6 +535,7 @@
                     <th>Status</th>
                     <th>Start Date</th>
                     <th>End Date</th>
+                    <th>Actions</th>
                 </tr>
             </thead>
             <tbody>
@@ -634,6 +635,38 @@
 				document.getElementById('updatePlanForm').style.display = 'block';
 			}
 		});
+        document.querySelector('#subscribedUsersTable').addEventListener('click', function(event) {
+    const target = event.target;
+    
+ 
+    if (target && target.classList.contains('deactivateBtn')) {
+      //  const subscriptionId = target.getAttribute('data-subscription-id');
+         const userId = target.getAttribute('data-user-id');
+        
+       
+        fetch('/deactivate_subscription/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+                'X-CSRFToken': getCookie('csrftoken')  
+            },
+            body: new URLSearchParams({
+               // 'subscription_id': subscriptionId,
+                 'user_id': userId
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                
+                target.closest('tr').querySelector('td:nth-child(4)').innerText = 'Inactive';
+                alert('Subscription deactivated successfully.');
+            } else {
+                alert('Failed to deactivate subscription.');
+            }
+        });
+    }
+});
 
 
 

@@ -266,9 +266,9 @@
         <div class="offer" style="margin-left: 20px; font-size: 12px; margin-right: 20px; margin-bottom: 20px;"><i class="fa-solid fa-check"></i> Allows instant download of all published research records</div>
     </div>
     {% else %}
-    {% if user.is_admin != 1 and  user.is_subscribed %}
-    <div class="bronzes" style="text-align: center; font-size: 40px;">You Are Currently Subscribe<br>{{ subscription_plan_name }}</div>
-    {% else %}
+    
+    
+  
     <div class="rectangle-long1">
         <div class="bronze" id="free-plan-name" style="text-align: center;font-size: 40px;"></div>
         <div class="free">₱<span id="free-price">0</span></div>
@@ -280,10 +280,10 @@
         <a href="{% url 'subscribe_free_trial' %}" class="join-button">Join for Free</a>
 
     </div>
-    {% endif %}
-    {% if user.is_admin != 1 and  user.is_subscribed %}
-    <div class="bronzes" style="text-align: center; font-size: 40px;">You Are Currently Subscribe<br>{{ subscription_plan_name }}</div>
-    {% else %}
+   
+    
+    
+    
     <div class="rectangle-long2">
         <div class="bronze" id="standard-plan-name" style="text-align: center;font-size: 40px;"></div>
         <div class="hh" style="text-align: center;">Per Semester/ 6 Months</div>
@@ -299,10 +299,7 @@
         <div class="offer" style="margin-left: 20px; font-size: 12px; margin-right: 20px;"><i class="fa-solid fa-check"></i> Includes view access to all published research records, instant download, and AI chatbot access (OpenAI API key required)</div>
         <div class="offer" style="margin-left: 20px; font-size: 12px; margin-right: 20px;"><i class="fa-solid fa-check"></i> Instant download and access to import records and file management</div>
     </div>
-    {% endif %}
-    {% if user.is_admin != 1 and  user.is_subscribed %}
-    <div class="bronzes" style="text-align: center; font-size: 40px;">You Are Currently Subscribe<br>{{ subscription_plan_name }}</div>
-    {% else %}
+   
     <div class="rectangle-long3">
       <div class="bronze" id="premium-plan-name" style="text-align: center; font-size: 40px;">
         
@@ -321,7 +318,7 @@
             <i class="fa-solid fa-check"></i> Instant download and access to import records and file management
         </div>
     </div>
-{% endif %}
+
 {% endif %}
 </div>
     <div class="container" style="width: 800px;">
