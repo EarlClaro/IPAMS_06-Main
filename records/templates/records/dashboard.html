@@ -93,6 +93,7 @@
     }
 
 	/* Modal styles */
+/* General Modal (for input modals) */
 .modal {
     display: none; /* Hidden by default */
     position: fixed; /* Stay in place */
@@ -105,6 +106,12 @@
     background-color: rgba(0, 0, 0, 0.4); /* Black background with opacity */
 }
 
+/* Alert Modal */
+
+
+/* Modal content for the alert */
+
+/* Regular Modal Content (for input modals) */
 .modal-content {
     background-color: #fefefe;
     margin: 15% auto; /* 15% from the top and centered */
@@ -112,6 +119,29 @@
     border: 1px solid #888;
     width: 80%; /* Could be more or less, depending on screen size */
 }
+
+/* Close Button */
+.close {
+    color: red;
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    font-size: 50px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+/* Close Button for Alert Modal */
+#close-alert-modal {
+    color: red;
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    font-size: 50px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
 
 .close {
     color: red;
@@ -166,6 +196,28 @@
 }
 
 /* Modal background overlay */
+
+.modal-contents {
+    background-color: yellow;
+    position: fixed;
+    top: 18%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: rgb(0, 0, 0);
+    padding: 20px;
+    border-radius: 10px;
+    z-index: 1001; 
+}
+.modal-contentss{
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 1000;  
+}
+
 .modal-overlayAPI {
     position: fixed;
     top: 0;
@@ -173,18 +225,17 @@
     width: 100%;
     height: 100%;
     background: rgba(0, 0, 0, 0.5);
-    z-index: 1000;
+    z-index: 500; 
 }
 
-/* Modal container */
-.modal-contentAPI {
 
+.modal-contentAPI {
     background: #fff;
     padding: 40px;
-    width: 700px; /* Increased width for a wider form */
+    width: 700px; 
     border-radius: 10px;
     box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
-    z-index: 1001;
+    z-index: 999;  
 }
 
 /* Close button */
@@ -463,57 +514,83 @@
         </form>
     </div>
 </div>
+<div id="notificationModal" class="notificationModal" style="display: none;">
+    <div class="modal-contentss"></div>
+    <div class="modal-contents">
+        <span id="close-notification" class="close-button">&times;</span>
+        <p id="modal-message"></p>
+    </div>
+</div>
 
 <script>
-    document.getElementById('edit-api-key-btn').addEventListener('click', function() {
-        document.getElementById('api-key-modal').style.display = 'flex';
+   // Display API Key modal when "Edit API Key" button is clicked
+document.getElementById('edit-api-key-btn').addEventListener('click', function() {
+    document.getElementById('api-key-modal').style.display = 'flex';
+});
+
+// Close the API Key modal when the close button is clicked
+document.getElementById('close-modal').addEventListener('click', function() {
+    document.getElementById('api-key-modal').style.display = 'none';
+});
+
+// Handle form submission
+document.getElementById('apiKeyForm').addEventListener('submit', function(event) {
+    event.preventDefault();
+    const apiKey = document.getElementById('apiKeyInput').value;
+
+    fetch('/update-api-key/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCookie('csrftoken')  // Include CSRF token if needed
+        },
+        body: JSON.stringify({ api_key: apiKey })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            showNotification('API Key updated successfully!');
+            document.getElementById('api-key-modal').style.display = 'none';
+        } else {
+            showNotification('Error updating API Key.');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showNotification('An error occurred while updating the API Key.');
     });
+});
 
-    document.getElementById('close-modal').addEventListener('click', function() {
-        document.getElementById('api-key-modal').style.display = 'none';
-    });
-
-    document.getElementById('apiKeyForm').addEventListener('submit', function(event) {
-        event.preventDefault();
-        const apiKey = document.getElementById('apiKeyInput').value;
-
-		fetch('/update-api-key/', {
-		method: 'POST',
-		headers: {
-			'Content-Type': 'application/json',
-			'X-CSRFToken': getCookie('csrftoken')  // Include CSRF token if needed
-		},
-		body: JSON.stringify({ api_key: apiKey })
-	})
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                alert('API Key updated successfully!');
-                document.getElementById('api-key-modal').style.display = 'none';
-            } else {
-                alert('Error updating API Key.');
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            alert('An error occurred.');
-        });
-    });
-
-    function getCookie(name) {
-        let cookieValue = null;
-        if (document.cookie && document.cookie !== '') {
-            const cookies = document.cookie.split(';');
-            for (let i = 0; i < cookies.length; i++) {
-                const cookie = cookies[i].trim();
-                if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                    break;
-                }
+// Function to get CSRF token
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
             }
         }
-        return cookieValue;
     }
+    return cookieValue;
+}
+
+// Function to show the notification modal with a message
+function showNotification(message) {
+    const modal = document.getElementById('notificationModal');
+    const messageElement = document.getElementById('modal-message');
+    messageElement.innerText = message;
+    modal.style.display = 'block';  // Show the modal
+}
+
+// Close the notification modal when the close button is clicked
+document.getElementById('close-notification').addEventListener('click', function() {
+    document.getElementById('notificationModal').style.display = 'none';
+});
+
+
 </script>
 
 				
@@ -660,7 +737,7 @@
             if (data.success) {
                 
                 target.closest('tr').querySelector('td:nth-child(4)').innerText = 'Inactive';
-                alert('Subscription deactivated successfully.');
+                showNotification('Subscription deactivated successfully.');
             } else {
                 alert('Failed to deactivate subscription.');
             }

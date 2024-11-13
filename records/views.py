@@ -3984,35 +3984,56 @@ def verify_subscription(request):
                 payment_data = data['data']
                 attributes = payment_data.get('attributes', {})
                 logger.info(f'Payment data attributes: {attributes}')
-                
+
                 if attributes.get('status') == 'paid':
                     user = request.user
-
-                    # Delete any existing subscriptions for the user
-                    Subscription.objects.filter(user_id=user).delete()
-
+                    existing_subscription = Subscription.objects.filter(user_id=user, trial_subscription=1).first()
+                    existing_subscription1 = Subscription.objects.filter(user_id=user, trial_subscription=0).first()
+                    
                     # Determine the subscription plan based on the amount paid
                     amount_paid = attributes.get('amount') / 100  # Convert cents to pesos
 
                     try:
-                     
                         plan = SubscriptionPlan.objects.get(price=amount_paid) 
                     except SubscriptionPlan.DoesNotExist:
                         logger.error('No subscription plan matches the amount paid.')
                         return JsonResponse({'success': False, 'message': 'No subscription plan matches the amount paid.'})
 
-                    # Create a new subscription
-                    subscription = Subscription.objects.create(
-                        start_date=datetime.now().date(),
-                        end_date=(datetime.now() + timedelta(days=180)).date(),
-                        user_id=user,
-                        plan_id=plan, 
-                        status='active'
-                    )
+                  
+                    if existing_subscription:
+                        existing_subscription.start_date = datetime.now().date()
+                        existing_subscription.end_date = (datetime.now() + timedelta(days=180)).date()
+                        existing_subscription.plan_id = plan
+                        existing_subscription.status = 'active'
+                        existing_subscription.trial_subscription = 1
+                        existing_subscription.locked_plan_name = plan.plan_name
+                        existing_subscription.save()
 
+                   
+                    elif existing_subscription1:
+                        existing_subscription1.start_date = datetime.now().date()
+                        existing_subscription1.end_date = (datetime.now() + timedelta(days=180)).date()
+                        existing_subscription1.plan_id = plan
+                        existing_subscription1.status = 'active'
+                        existing_subscription1.trial_subscription = 0
+                        existing_subscription1.locked_plan_name = plan.plan_name
+                        existing_subscription1.save()
+
+                   
+                    else:
+                        subscription = Subscription.objects.create(
+                            start_date=datetime.now().date(),
+                            end_date=(datetime.now() + timedelta(days=180)).date(),
+                            user_id=user,
+                            plan_id=plan,
+                            status='active',
+                            trial_subscription=0
+                        )
+
+                    # Update user details
                     user.is_subscribed = True
                     user.subscription_status = 'paid'
-                    user.sub_id = subscription.sub_id
+                    user.sub_id = (existing_subscription or existing_subscription1 or subscription).sub_id
                     user.save()
 
                     return JsonResponse({'success': True, 'message': 'Subscription verified and updated successfully.'})
@@ -4022,6 +4043,7 @@ def verify_subscription(request):
             else:
                 logger.error('Invalid reference number.')
                 return JsonResponse({'success': False, 'message': 'Invalid reference number.'})
+
         except requests.HTTPError as e:
             if response.status_code == 404:
                 logger.error('Payment link not found. Please check the reference number.')
@@ -4038,6 +4060,7 @@ def verify_subscription(request):
     else:
         logger.error('Invalid request method.')
         return JsonResponse({'success': False, 'message': 'Invalid request method.'})
+
 
 def home_view(request):
     user = request.user
@@ -4234,15 +4257,16 @@ def fetch_subscriptions(request):
 
 def subscribe_free_trial(request):
     user = request.user  
+    
     plan = SubscriptionPlan.objects.get(plan_name='Free Trial')
     #free_trial_used = Subscription.objects.filter(user_id=user, plan_id_id=plan, status='inactive').exists() 
     #currently_subscribed = Subscription.objects.filter(user_id=user, status='active').exclude(plan_id=plan).exists()
     current_subscription = Subscription.objects.filter(user_id=user, status='active').first()
-    free_trial_used = Subscription.objects.filter(user_id=user, plan_id=plan, status='inactive').exists()
-
+    free_trial_used = Subscription.objects.filter(user_id=user, trial_subscription = 1).first()
+    show_modal = False
     if current_subscription:
         messages.error(request, "You are currently subscribed to another plan and cannot subscribe to the free trial.")
-        return redirect('subscribe')
+        return redirect('subscribe')  # Redirect to the /records/subscribe/ page
     if not user.is_subscribed and not free_trial_used: 
         Subscription.objects.filter(user_id=user).delete()
         subscription = Subscription.objects.create(
@@ -4250,7 +4274,8 @@ def subscribe_free_trial(request):
             end_date=(datetime.now() + timedelta(days=30)).date(), 
             user_id=user,
             plan_id=plan, 
-            status='active'
+            status='active',
+            trial_subscription = 1
         )
 
        
@@ -4269,8 +4294,8 @@ def subscribe_free_trial(request):
          
         if free_trial_used:
        
-         messages.error(request, "You have already used the free trial and cannot subscribe again.")
-         return redirect('subscribe')
+           messages.error(request, "You already used the free trial.")
+        return redirect('subscribe') 
     
 def deactivate_subscription(request):
     
@@ -4286,7 +4311,7 @@ def deactivate_subscription(request):
             subscription.save()
             user = subscription.user_id
             user.is_subscribed = False
-           
+            user.subscription_status = 'unpaid'
             user.save()
             return JsonResponse({'success': True})
         except Subscription.DoesNotExist:

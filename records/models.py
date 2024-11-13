@@ -327,6 +327,7 @@ class Subscription(models.Model):
     user_id = models.ForeignKey('accounts.User', on_delete=models.CASCADE, default=None)
     plan_id = models.ForeignKey(SubscriptionPlan, on_delete=models.CASCADE, default=1)
     locked_plan_name = models.CharField(max_length=50)  # New field to lock plan name
+    trial_subscription = models.IntegerField(default=0)
     status = models.CharField(max_length=50, default='active')
 
     def __str__(self):
